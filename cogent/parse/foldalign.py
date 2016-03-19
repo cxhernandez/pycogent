@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-from string import split
 from cogent.struct.rna2d  import Pairs,ViennaStructure
 from cogent.struct.pairs_util import adjust_base
 from cogent.parse.column import column_parser
+split = str.split
 
 __author__ = "Shandy Wikman"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -18,7 +18,7 @@ def foldalign_parser(lines,col=True):
     """Parser foldalign output"""
 
     data = lines
-    
+
     if col:
         return column_parser(data)
     else:
@@ -61,8 +61,3 @@ def find_struct(lines):
     struct.sort()
     result.append([struct,seq1,seq2])
     return result
-
-
-        
-            
-

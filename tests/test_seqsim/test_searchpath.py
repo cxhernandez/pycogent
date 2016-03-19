@@ -53,7 +53,7 @@ class SearchPathTests(TestCase):
         
         #now call clear and make sure path value is "" (empty)
         test.clearNodes()
-        self.assertEquals(test.Value, "")
+        self.assertEqual(test.Value, "")
     #end test_clearNodes
     #-------------------------------------------------------------------
 
@@ -66,11 +66,11 @@ class SearchPathTests(TestCase):
         found_triplets = {}
  
         #make a hundred random searchpaths 
-        for i in xrange(100):
+        for i in range(100):
             curr_path_val = pathobj.generate(path_length)
             
             #now find all the triplets in this path
-            for r in xrange(path_length-2):
+            for r in range(path_length-2):
                 curr_triplet = curr_path_val[r:r+3]
                 found_triplets[curr_triplet] = True
             #end if
@@ -91,8 +91,8 @@ class SearchPathTests(TestCase):
         #make a hundred random searchpaths and see what triplets produced
         found_triplets = self.tripletGenerator(test, path_length)
     
-        num_found = len(found_triplets.keys())
-        self.assertEquals(num_found, 64)
+        num_found = len(list(found_triplets.keys()))
+        self.assertEqual(num_found, 64)
     #end test_generate_fullCoverage
     
     def test_generate_withForbidden(self):
@@ -105,8 +105,8 @@ class SearchPathTests(TestCase):
         #make a hundred random searchpaths and see what triplets produced
         found_triplets = self.tripletGenerator(test, path_length)
 
-        num_found = len(found_triplets.keys())
-        self.assertEquals(num_found, 62) 
+        num_found = len(list(found_triplets.keys()))
+        self.assertEqual(num_found, 62) 
     #end test_generate_oneForbidden
     
     def test_generate_nonePossible(self):
@@ -119,7 +119,7 @@ class SearchPathTests(TestCase):
         test = SearchPath(alphabet, forbidden_seqs)
         output = test.generate(2)
         
-        self.assertEquals(output, None)
+        self.assertEqual(output, None)
     #end test_generate_nonePossible
     
     def test_generate_multiple(self):
@@ -130,10 +130,10 @@ class SearchPathTests(TestCase):
         output2 = test.generate(3)
         
         #make sure that the length of the path is now three
-        self.assertEquals(len(output2), 3)
+        self.assertEqual(len(output2), 3)
         
         #make sure that the new path is a superset of the old one
-        self.assertEquals(output1, output2[:2])
+        self.assertEqual(output1, output2[:2])
     #end test_generate_multiple
     
     def test_generate_correctAlph(self):
@@ -148,16 +148,16 @@ class SearchPathTests(TestCase):
         #a hundred searchpaths and make sure this is the only one
         #that actually shows up.
         found_paths = {}
-        for i in xrange(100):
+        for i in range(100):
             curr_path = test.generate(3)
             found_paths[curr_path] = True
             test.clearNodes()
         #next 
         
         #make sure there is only one path found and that it is the right one
-        found_path_str = str("".join(found_paths.keys()))
-        self.assertEquals(len(found_paths), 1)
-        self.assertEquals(found_path_str, "ABD")
+        found_path_str = str("".join(list(found_paths.keys())))
+        self.assertEqual(len(found_paths), 1)
+        self.assertEqual(found_path_str, "ABD")
     #end test_generate_correctAlph
     #-------------------------------------------------------------------
     
@@ -172,7 +172,7 @@ class SearchPathTests(TestCase):
         test._add_node(SearchNode(SearchNodeHelper.alphabet))
         allowed_found = test.findAllowedOption()
         
-        self.assertEquals(allowed_found, True)
+        self.assertEqual(allowed_found, True)
     #end test_findAllowedOption_currentAllowed
     
     def test_findAllowedOption_otherAllowed(self):
@@ -189,7 +189,7 @@ class SearchPathTests(TestCase):
         
         #call findAllowedOption ... should find next available good option
         allowed_found = test.findAllowedOption()
-        self.assertEquals(allowed_found, True)
+        self.assertEqual(allowed_found, True)
     #end test_findAllowedOption_otherAllowed  
     
     def test_findAllowedOption_none(self):
@@ -205,7 +205,7 @@ class SearchPathTests(TestCase):
 
         #now make sure we get back result that no options for path remain
         allowed_found = test.findAllowedOption()
-        self.assertEquals(allowed_found, False)        
+        self.assertEqual(allowed_found, False)        
     #end test_findAllowedOption_none
     #-------------------------------------------------------------------  
 
@@ -218,7 +218,7 @@ class SearchPathTests(TestCase):
         
         test = SearchPath(SearchPathHelper.alphabets, \
                 SearchPathHelper.standard_forbid_seq)
-        for i in xrange(num_nodes):
+        for i in range(num_nodes):
             curr_node = SearchNode(SearchNodeHelper.alphabet)
             node_vals.append(curr_node.Value)
             test._add_node(curr_node)
@@ -233,7 +233,7 @@ class SearchPathTests(TestCase):
         
         top_node = spath._get_top()
         num_options = len(top_node.Options)
-        for i in xrange(num_options-1): top_node.removeOption()    
+        for i in range(num_options-1): top_node.removeOption()    
     #end _empty_top
 
     def test_removeOption_simple(self):
@@ -262,7 +262,7 @@ class SearchPathTests(TestCase):
         
         #now remove the last option, and make sure the stack is now empty
         some_left = test.removeOption()
-        self.assertEquals(some_left, False)
+        self.assertEqual(some_left, False)
     #end test_removeOption_empty
     
     def test_removeOption_recurse(self):
@@ -274,10 +274,10 @@ class SearchPathTests(TestCase):
         
         test.removeOption()
         #make sure there's only one item left in the path
-        self.assertEquals(len(test._path_stack), 1)
+        self.assertEqual(len(test._path_stack), 1)
         #make sure that it has one fewer options
         top_node = test._get_top()
-        self.assertEquals(len(top_node.Options), len(top_node.Alphabet)-1)
+        self.assertEqual(len(top_node.Options), len(top_node.Alphabet)-1)
     #end test_removeOption_recurse 
     #-------------------------------------------------------------------
 #end SearchPathTests
@@ -310,7 +310,7 @@ class SearchNodeTests(TestCase):
         num_options = len(test.Options)
         
         #removeOption num_options times: that should get 'em all
-        for i in xrange(num_options): some_left = test.removeOption()
+        for i in range(num_options): some_left = test.removeOption()
         
         #return value should be false (no options remain)
         self.assertEqual(some_left, False)        
@@ -348,7 +348,7 @@ class SearchPathTests_private(TestCase):
         
         test = SearchPath(SearchPathHelper.alphabets, \
                 SearchPathHelper.standard_forbid_seq)
-        for i in xrange(num_nodes):
+        for i in range(num_nodes):
             curr_node = SearchNode(SearchNodeHelper.alphabet)
             node_vals.append(curr_node.Value)
             test._add_node(curr_node)
@@ -362,7 +362,7 @@ class SearchPathTests_private(TestCase):
         
         top_node = spath._get_top()
         num_options = len(top_node.Options)
-        for i in xrange(num_options-1): top_node.removeOption()    
+        for i in range(num_options-1): top_node.removeOption()    
     #end _empty_top
     #-------------------------------------------------------------------
     
@@ -373,8 +373,8 @@ class SearchPathTests_private(TestCase):
         """Init should correctly set private properties w/o forbid list"""
 
         test = SearchPath(SearchPathHelper.alphabets)
-        real_result = len(test._fixed_forbidden.keys())
-        self.assertEquals(real_result, 0)
+        real_result = len(list(test._fixed_forbidden.keys()))
+        self.assertEqual(real_result, 0)
     #end test_init_noForbid
     
     def test_init_withForbid(self):
@@ -385,9 +385,9 @@ class SearchPathTests_private(TestCase):
         test = SearchPath(SearchPathHelper.alphabets, user_input)
         user_input = [i.upper() for i in user_input]
         user_input.sort()
-        real_result = test._fixed_forbidden.keys()
+        real_result = list(test._fixed_forbidden.keys())
         real_result.sort()
-        self.assertEquals(str(real_result), str(user_input))        
+        self.assertEqual(str(real_result), str(user_input))        
     #end test_init_withForbid
     
     def test_init_badAlphabets(self):
@@ -410,7 +410,7 @@ class SearchPathTests_private(TestCase):
         """Should return empty string when path is empty"""
         
         test = SearchPath(SearchPathHelper.alphabets)
-        self.assertEquals(test.Value, "")
+        self.assertEqual(test.Value, "")
     #end test_value_empty
     
     def test_value(self):
@@ -418,7 +418,7 @@ class SearchPathTests_private(TestCase):
         
         node_vals = []
         test = self._fill_path(3, node_vals)
-        self.assertEquals(test.Value, "".join(node_vals))
+        self.assertEqual(test.Value, "".join(node_vals))
     #end test_value
     #-------------------------------------------------------------------  
 
@@ -430,7 +430,7 @@ class SearchPathTests_private(TestCase):
         
         test = self._fill_path(3)
         top_index = test._top_index
-        self.assertEquals(top_index,2)
+        self.assertEqual(top_index,2)
     #end test_top_index
     
     def test_top_index_None(self):
@@ -438,7 +438,7 @@ class SearchPathTests_private(TestCase):
         
         test = SearchPath(SearchPathHelper.alphabets)
         top_index = test._top_index
-        self.assertEquals(top_index, None)
+        self.assertEqual(top_index, None)
     #end test_top_index_None
     #-------------------------------------------------------------------    
     
@@ -454,7 +454,7 @@ class SearchPathTests_private(TestCase):
         test._add_node(topnode)
         
         resultnode = test._get_top()
-        self.assertEquals(resultnode, topnode)
+        self.assertEqual(resultnode, topnode)
     #end test_get_top
     
     def test_get_top_None(self):
@@ -462,7 +462,7 @@ class SearchPathTests_private(TestCase):
         
         test = SearchPath(SearchPathHelper.alphabets)
         topnode = test._get_top()
-        self.assertEquals(topnode, None)
+        self.assertEqual(topnode, None)
     #end test_get_top_None
     #------------------------------------------------------------------- 
     
@@ -478,10 +478,10 @@ class SearchPathTests_private(TestCase):
         test = SearchPath(SearchPathHelper.alphabets, user_input)
 
         real_dict = test._get_forbidden_lengths()
-        real_list = real_dict.keys()
+        real_list = list(real_dict.keys())
         real_list.sort()
         real_result = str(real_list)
-        self.assertEquals(real_result, correct_result)
+        self.assertEqual(real_result, correct_result)
     #end test_get_forbidden_lengths
     #-------------------------------------------------------------------
 
@@ -495,8 +495,8 @@ class SearchPathTests_private(TestCase):
                 SearchPathHelper.standard_forbid_seq)
         test_node = SearchNode(SearchNodeHelper.alphabet)
         test._add_node(test_node)
-        self.assertEquals(len(test._path_stack), 1)
-        self.assertEquals(test._top_index, 0)
+        self.assertEqual(len(test._path_stack), 1)
+        self.assertEqual(test._top_index, 0)
     #end test_add_node_first
     
     def test_add_node_subsequent(self):
@@ -508,8 +508,8 @@ class SearchPathTests_private(TestCase):
         test_node2 = SearchNode(SearchNodeHelper.alphabet)
         test._add_node(test_node)
         test._add_node(test_node2)
-        self.assertEquals(len(test._path_stack), 2)
-        self.assertEquals(test._top_index, 1)        
+        self.assertEqual(len(test._path_stack), 2)
+        self.assertEqual(test._top_index, 1)        
     #end test_add_node_subsequent
     #-------------------------------------------------------------------
     
@@ -525,7 +525,7 @@ class SearchPathTests_private(TestCase):
         test_path = SearchPath(SearchPathHelper.alphabets, \
                 SearchPathHelper.standard_forbid_seq)
         
-        for i in xrange(n+1):
+        for i in range(n+1):
             curr_node = SearchNode(SearchNodeHelper.alphabet)
             test_path._add_node(curr_node)
             node_values.append(curr_node.Value)
@@ -535,7 +535,7 @@ class SearchPathTests_private(TestCase):
         #should be the same
         real_result = test_path._get_nmer(n)
         correct_result = "".join(node_values[-n:])
-        self.assertEquals(real_result, correct_result)
+        self.assertEqual(real_result, correct_result)
     #end test_get_nmer
     
     def test_get_nmer_tooLong(self):
@@ -548,7 +548,7 @@ class SearchPathTests_private(TestCase):
         
         #stack is 1 long.  Ask for a 2 mer
         real_result = test_path._get_nmer(2)
-        self.assertEquals(real_result, None)        
+        self.assertEqual(real_result, None)        
     #end test_get_nmer_tooLong
     
     def test_get_nmer_len1(self):
@@ -560,7 +560,7 @@ class SearchPathTests_private(TestCase):
         test_path._add_node(test_node)
         correct_result = test_node.Value
         real_result = test_path._get_nmer(1)
-        self.assertEquals(real_result, correct_result)
+        self.assertEqual(real_result, correct_result)
     #end test_get_nmer_len1
     
     def test_get_nmer_len0(self):
@@ -570,7 +570,7 @@ class SearchPathTests_private(TestCase):
         test_path = SearchPath(SearchPathHelper.alphabets, \
                 SearchPathHelper.standard_forbid_seq)   
         real_result = test_path._get_nmer(0)
-        self.assertEquals(real_result, "")
+        self.assertEqual(real_result, "")
     #end test_get_nmer_len0
     
     def test_get_nmer_badArg(self):
@@ -603,7 +603,7 @@ class SearchPathTests_private(TestCase):
         #next bad_val
         
         real_result = test._check_forbidden_seqs()
-        self.assertEquals(real_result, True)            
+        self.assertEqual(real_result, True)            
     #end test_check_forbidden_seqs_fixed
     
     def test_check_forbidden_seqs_none(self):
@@ -624,7 +624,7 @@ class SearchPathTests_private(TestCase):
         #next bad_val
         
         real_result = test._check_forbidden_seqs()
-        self.assertEquals(real_result, False)            
+        self.assertEqual(real_result, False)            
     #end test_check_forbidden_seqs_fixed
     #-------------------------------------------------------------------   
     
@@ -640,7 +640,7 @@ class SearchPathTests_private(TestCase):
         test = SearchPath(test_alphs)        
         
         real_alph = test._get_alphabet(2)
-        self.assertEquals(str(real_alph), alph1)
+        self.assertEqual(str(real_alph), alph1)
     #end test_get_alphabet_exists
     
     def test_get_alphabet_default(self):
@@ -650,7 +650,7 @@ class SearchPathTests_private(TestCase):
         test = SearchPath(SearchPathHelper.alphabets) 
         real_alph = test._get_alphabet(0)
         correct_alph = SearchPathHelper.alphabets[SearchPath.DEFAULT_KEY]
-        self.assertEquals(str(real_alph), str(correct_alph))
+        self.assertEqual(str(real_alph), str(correct_alph))
     #end test_get_alphabet_default
     
     def test_get_alphabet_badPosition(self):
@@ -682,7 +682,7 @@ class SearchNodeTests_private(TestCase):
         options = test.Options
         options.sort()
         real_result = str(options)
-        self.assertEquals(real_result, correct_result)
+        self.assertEqual(real_result, correct_result)
     #end test_init_noArg    
     #-------------------------------------------------------------------    
 #end SearchNodeTests_private

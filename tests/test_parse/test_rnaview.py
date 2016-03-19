@@ -107,9 +107,9 @@ class BasePairTests(TestCase):
 
     def test_init(self):
         """BasePair __init__: should initialize on standard data"""
-        self.failUnless(self.bp.Up is self.b1)
-        self.failUnless(self.bp.Down is self.b2)
-        self.failUnless(self.bp.Conformation is None)
+        self.assertTrue(self.bp.Up is self.b1)
+        self.assertTrue(self.bp.Down is self.b2)
+        self.assertTrue(self.bp.Conformation is None)
         self.assertEqual(self.bp.Edges, 'H/W')
         self.assertEqual(self.bp.Orientation, 'cis')
         self.assertEqual(self.bp.Saenger, 'XI')
@@ -245,13 +245,13 @@ class BasePairsTests(TestCase):
         """BasePairs __init__: should work with or without Model"""
         # init from list
         bps = BasePairs([self.a1, self.a2])
-        self.failUnless(bps[0] is self.a1)
-        self.failUnless(bps[1] is self.a2)
+        self.assertTrue(bps[0] is self.a1)
+        self.assertTrue(bps[1] is self.a2)
 
         # init from tuple
         bps = BasePairs((self.a1, self.a2))
-        self.failUnless(bps[0] is self.a1)
-        self.failUnless(bps[1] is self.a2)
+        self.assertTrue(bps[0] is self.a1)
+        self.assertTrue(bps[1] is self.a2)
 
     def test_str(self):
         """BasePairs __str__: should produce expected string"""
@@ -279,8 +279,8 @@ class BasePairsTests(TestCase):
 
         obs = bps.select(xx)
         self.assertEqual(len(obs), 2)
-        self.failUnless(obs[0] is self.a1)
-        self.failUnless(obs[1] is self.a2)
+        self.assertTrue(obs[0] is self.a1)
+        self.assertTrue(obs[1] is self.a2)
         for i in obs:
             self.assertEqual(i.Saenger, 'XX')
 
@@ -308,7 +308,7 @@ class BasePairsTests(TestCase):
         self.assertEqual(len(obs_cl), 2)
         self.assertEqual(len(obs_cl[0]), 2)
         self.assertEqual(len(obs_cl[1]), 1)
-        self.failUnless(obs_cl[1][0] is self.cd1)
+        self.assertTrue(obs_cl[1][0] is self.cd1)
         self.assertEqual(obs_cl[1].PresentChains, ['C','D'])
 
         #5 chains, 1 clique
@@ -316,7 +316,7 @@ class BasePairsTests(TestCase):
         obs_cl = list(bps.cliques())
         self.assertEqual(len(obs_cl), 1)
         self.assertEqual(len(obs_cl[0]), 5)
-        self.failUnless(obs_cl[0][0] is self.a1)
+        self.assertTrue(obs_cl[0][0] is self.a1)
         self.assertEqualItems(obs_cl[0].PresentChains, ['A','B','C','D', None])
     
     def test_hasConflicts(self):
@@ -365,12 +365,12 @@ class BaseMultipletTests(TestCase):
         b2 = Base('A','35','G')
         b3 = Base('A','360','U')
         bm = BaseMultiplet([b1, b2, b3])
-        self.failUnless(bm[0] is b1)
-        self.failUnless(bm[2] is b3)
+        self.assertTrue(bm[0] is b1)
+        self.assertTrue(bm[2] is b3)
         #should work from tuple also
         bm = BaseMultiplet((b1, b2, b3))
-        self.failUnless(bm[0] is b1)
-        self.failUnless(bm[2] is b3)
+        self.assertTrue(bm[0] is b1)
+        self.assertTrue(bm[2] is b3)
 
     def test_str(self):
         """BaseMultiplet __str__: should give expected string"""
@@ -395,14 +395,14 @@ class BaseMultipletsTests(TestCase):
         b6 = Base('C','2','A')
         bm2 = BaseMultiplet([b4, b5, b6])
         bms = BaseMultiplets([bm1, bm2])
-        self.failUnless(bms[0] is bm1)
-        self.failUnless(bms[1] is bm2)
+        self.assertTrue(bms[0] is bm1)
+        self.assertTrue(bms[1] is bm2)
         self.assertEqual(bms[1][2].ResId, '2')
         
         #should work from tuple also
         bms = BaseMultiplets((bm1, bm2))
-        self.failUnless(bms[0] is bm1)
-        self.failUnless(bms[1] is bm2)
+        self.assertTrue(bms[0] is bm1)
+        self.assertTrue(bms[1] is bm2)
         self.assertEqual(bms[1][2].ResId, '2')
 
     def test_str(self):
@@ -727,7 +727,7 @@ class RnaviewParserTests(TestCase):
         self.assertEqual(res['Standard'], 19)
         self.assertEqual(res['WW-tran'], 1)
         self.assertEqual(res['HS-tran'], 0)
-        self.failIf('Bifurcated' in res)
+        self.assertFalse('Bifurcated' in res)
 
         self.assertRaises(RnaViewParseError, parse_pair_counts,\
             PC_COUNTS2.split('\n')[:-1])

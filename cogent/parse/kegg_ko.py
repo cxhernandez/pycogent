@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from sys import argv
-from string import strip
+strip = str.strip
 from os import listdir,path 
 from optparse import OptionParser
 from datetime import datetime
@@ -46,7 +46,7 @@ def parse_ko_file(filepath,dir_prefix=None,debug = True):
     
     if debug:
         for res_fp in fnames:
-            print "Outputting parsed info to: %s" %(res_fp) 
+            print("Outputting parsed info to: %s" %(res_fp)) 
     
     ko_gene, ko, ko_pathway, pathway, ko_cog, ko_cazy, ko_go = \
         [open(i, 'w') for i in fnames]
@@ -62,7 +62,7 @@ def parse_ko_file(filepath,dir_prefix=None,debug = True):
             continue    #apparently, some records don't have genes...
         genes = rec['GENES']
 
-        for species, gene_list in genes.items():
+        for species, gene_list in list(genes.items()):
             for g in gene_list:
                 ko_gene.write('%s\t%s:%s\n' % (entry, species.lower(), g))
         
@@ -92,7 +92,7 @@ def parse_ko_file(filepath,dir_prefix=None,debug = True):
     max_terms = 10
     unique_recs = {}    #will hold tuple(fields) -> unique_id
     curr_uid = 0
-    for ko, classes in ko_to_pathway.items():
+    for ko, classes in list(ko_to_pathway.items()):
         for (id_, fields) in classes:
             if fields not in unique_recs:
                 unique_recs[fields] = curr_uid
@@ -245,7 +245,7 @@ def class_lines_to_fields(lines):
         class_id = class_id[:-1]
     else:
         class_id = None
-    rec_fields = map(strip, rec.split(';'))
+    rec_fields = list(map(strip, rec.split(';')))
     return class_id, tuple(rec_fields)
 
 def ko_class_parser(lines, without_comments='ignored'):
@@ -284,7 +284,7 @@ def parse_ko(lines):
     for rec in ko_record_iterator(lines):
         split_fields = ko_record_splitter(rec)
         result = {}
-        for k, v in split_fields.items():
+        for k, v in list(split_fields.items()):
             if k in default_fields:
                 result[k] = ko_default_parser(v)
             elif k in colon_fields:

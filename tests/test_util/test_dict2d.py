@@ -135,7 +135,7 @@ class Dict2DTests(TestCase):
         self.assertEqual(len(d), 2)
         self.assertEqual(len(d['a']), 3)
         self.assertEqual(len(d['d']), 3)
-        self.assertEqual(d['a'].keys(), d['d'].keys())
+        self.assertEqual(list(d['a'].keys()), list(d['d'].keys()))
         self.assertEqual(d['a']['b'], None)
 
         #check that it works with a different default value

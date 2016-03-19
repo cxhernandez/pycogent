@@ -27,10 +27,10 @@ class Sequence(object):
     def __contains__(self, s):
         return s in self.s
     def __repr__(self):
-        return `self.s`
+        return repr(self.s)
     def __iter__(self):
         return iter(self.s)
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self.s)
     def lower(self):
         return self.s.lower()

@@ -171,7 +171,7 @@ class Clearcut(CommandLineApplication):
         if self.Parameters['--out']:
             aln_filename = self._absolute(self.Parameters['--out'].Value)
         else:
-            raise ValueError, "No tree output file specified."
+            raise ValueError("No tree output file specified.")
         return aln_filename
 
     def _get_result_paths(self,data):
@@ -200,7 +200,7 @@ def align_unaligned_seqs(seqs, moltype, params=None):
     Result will be an Alignment object.
     """
     #Clearcut does not support alignment
-    raise NotImplementedError, """Clearcut does not support alignment."""
+    raise NotImplementedError("""Clearcut does not support alignment.""")
     
 def align_and_build_tree(seqs, moltype, best_tree=False, params={}):
     """Returns an alignment and a tree from Sequences object seqs.
@@ -217,7 +217,7 @@ def align_and_build_tree(seqs, moltype, best_tree=False, params={}):
     if either fails).
     """
     #Clearcut does not support alignment
-    raise NotImplementedError, """Clearcut does not support alignment."""
+    raise NotImplementedError("""Clearcut does not support alignment.""")
     
 def build_tree_from_alignment(aln, moltype, best_tree=False, params={},\
     working_dir='/tmp'):
@@ -298,7 +298,7 @@ def add_seqs_to_alignment(seqs, aln, params=None):
     params: dict of parameters to pass in to the Clearcut app controller.
     """
     #Clearcut does not support alignment
-    raise NotImplementedError, """Clearcut does not support alignment."""
+    raise NotImplementedError("""Clearcut does not support alignment.""")
 
 def align_two_alignments(aln1, aln2, params=None):
     """Returns an Alignment object from two existing Alignments.
@@ -309,7 +309,7 @@ def align_two_alignments(aln1, aln2, params=None):
     params: dict of parameters to pass in to the Clearcut app controller.
     """
     #Clearcut does not support alignment
-    raise NotImplementedError, """Clearcut does not support alignment."""
+    raise NotImplementedError("""Clearcut does not support alignment.""")
 
     
 def build_tree_from_distance_matrix(matrix, best_tree=False, params={},\

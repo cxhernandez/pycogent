@@ -10,7 +10,7 @@ __maintainer__ = 'Kyle Bittinger'
 __email__ = 'kylebittinger@gmail.com'
 __status__ = 'Prototype'
 
-from cStringIO import StringIO
+from io import StringIO
 import string
 import struct
 
@@ -42,7 +42,7 @@ class NamedStruct(struct.Struct):
 
     def unpack(self, buffer):
         vals = super(NamedStruct, self).unpack(buffer)
-        return dict(zip(self.keys, vals))
+        return dict(list(zip(self.keys, vals)))
 
 
 def seek_pad(file, unit=8):
@@ -148,7 +148,7 @@ def validate_common_header(header):
         'version': 1,
         'flowgram_format_code': 1,
         }
-    for attr_name, expected_value in supported_values.items():
+    for attr_name, expected_value in list(supported_values.items()):
         observed_value = header[attr_name]
         if observed_value != expected_value:
             raise UnsupportedSffError(

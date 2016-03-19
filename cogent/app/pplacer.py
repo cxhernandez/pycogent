@@ -17,7 +17,7 @@ from cogent.app.util import CommandLineApplication, FilePath, system, \
 from cogent.core.alignment import Alignment
 from cogent.app.guppy import build_tree_from_json_using_params
 from os.path import splitext,abspath,join,split
-from StringIO import StringIO
+from io import StringIO
 from cogent.parse.phylip import get_align_for_phylip
 from cogent.parse.tree import DndParser
 from cogent.core.tree import PhyloNode
@@ -136,9 +136,8 @@ class Pplacer(CommandLineApplication):
     
     def _handle_app_result_build_failure(self,out,err,exit_status,result_paths):
         """ Catch the error when files are not produced """
-        raise ApplicationError, \
-         'Pplacer failed to produce an output file due to the following error: \n\n%s ' \
-         % out.read()
+        raise ApplicationError('Pplacer failed to produce an output file due to the following error: \n\n%s ' \
+         % out.read())
 
     def _get_result_paths(self,data):
         """ Define the output filepaths """

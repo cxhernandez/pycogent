@@ -15,7 +15,7 @@ preserves the property of writing the simplex in the interval (0,1) since the
 numbers reflect the fractions of A, C, G and U directly.
 """
 
-from __future__ import division
+
 from numpy import array, fabs
 
 from copy import deepcopy
@@ -117,8 +117,8 @@ class MagePoint(object):
         """Prints out current point as string."""
         coords = self.Coordinates
         if len(coords) != 3:
-            raise ValueError, "Must have exactly 3 coordinates: found %s" \
-                % coords
+            raise ValueError("Must have exactly 3 coordinates: found %s" \
+                % coords)
         pieces = []
         #add the pointID
         if self.Label is not None:
@@ -141,7 +141,7 @@ class MagePoint(object):
         if attr:
             pieces += attr
         #add the coordinates
-        pieces.extend(map(str, coords))
+        pieces.extend(list(map(str, coords)))
         #return the result
         return ' '.join(pieces)
 
@@ -197,8 +197,7 @@ class MagePoint(object):
         
         for coord in [a,c,g,u]:
             if not 0 <= coord <= 1:
-                raise ValueError,\
-                "%s is not in unit simplex (between 0 and 1)"%(coord)
+                raise ValueError("%s is not in unit simplex (between 0 and 1)"%(coord))
         cart_x, cart_y, cart_z = u+c, u+g, u+a
         result = deepcopy(self)
         result.Coordinates = [cart_x, cart_y, cart_z]
@@ -216,7 +215,7 @@ class MagePoint(object):
         # U=(1-x-y-z)/-2
         x,y,z = self.X, self.Y, self.Z
         u = fix_rounding_error((1-x-y-z)/-2)
-        a, c, g = map(fix_rounding_error,[z-u, x-u, y-u])
+        a, c, g = list(map(fix_rounding_error,[z-u, x-u, y-u]))
         result = deepcopy(self)
         result.Coordinates = [a, c, g]
         return result
@@ -336,8 +335,7 @@ class MageList(list):
                 coords = point.Coordinates
                 radius = point.Radius or self.Radius
                 if radius is None:
-                    raise ValueError,\
-                        "Radius is not set for point or list, %s"%(str(point))
+                    raise ValueError("Radius is not set for point or list, %s"%(str(point)))
                 else:
                     elem.append(coords + [radius])
         else:
@@ -450,7 +448,7 @@ class MageGroup(list):
         #gather all lines
         lines = [' '.join(pieces)] + [str(d) for d in self]
         #reset cascaded values
-        for k,v in changed.items():
+        for k,v in list(changed.items()):
             for l in v:
                 setattr(l,k,None)
         return '\n'.join(lines)
@@ -754,7 +752,7 @@ class Kinemage(object):
     def __str__(self):
         """String representation suitable for writing to file."""
         if not self.Count:
-            raise ValueError, "Must set a count to display a kinemage."
+            raise ValueError("Must set a count to display a kinemage.")
         pieces = ['@kinemage %s' % self.Count]
         if self.Header:
             pieces.append(str(self.Header))

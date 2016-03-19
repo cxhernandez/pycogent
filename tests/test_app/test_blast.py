@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from string import split, strip
 from os import popen, remove
 from glob import glob
 from cogent.util.unit_test import TestCase, main
@@ -8,6 +7,8 @@ from cogent.parse.blast import QMEBlast9
 from cogent.app.blast import seqs_to_stream,\
     make_subject_match_scorer, make_shotgun_scorer, keep_everything_scorer, \
     ids_from_seq_lower_threshold, PsiBlast, psiblast_n_neighbors
+
+split, strip = str.split, str.strip
 
 __author__ = "Micah Hamady"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -140,7 +141,7 @@ MSGNIKKIVEPNSGIDYSLEKDFKIFTLSKELPITTYPSYIRLGIVIYCVKGNAKIDIYSNKHIITPKELIIILPGQLVA
             '_input_as_lines')),\
             [['>a','TG'],['>b','WW']])
         self.assertRaises(TypeError, sts, 'abc', 'xyz')
-   
+
     def test_make_subject_match_scorer(self):
         """make_subject_match_scorer should keep ids matching n queries"""
         qm1 = make_subject_match_scorer(1)
@@ -150,7 +151,7 @@ MSGNIKKIVEPNSGIDYSLEKDFKIFTLSKELPITTYPSYIRLGIVIYCVKGNAKIDIYSNKHIITPKELIIILPGQLVA
         self.assertEqualItems(qm1(qmes), ['ece:Z4181','ece:Z4182','ece:Z4183'])
         self.assertEqualItems(qm3(qmes), ['ece:Z4181','ece:Z4183'])
         self.assertEqualItems(qm5(qmes), [])
-   
+
     def test_make_shotgun_scorer(self):
         """make_shotgun_scorer should keep ids matching n queries"""
         sg1 = make_shotgun_scorer(1)
@@ -167,7 +168,7 @@ MSGNIKKIVEPNSGIDYSLEKDFKIFTLSKELPITTYPSYIRLGIVIYCVKGNAKIDIYSNKHIITPKELIIILPGQLVA
         self.assertEqualItems(sg4(qmes), \
             ['ece:Z4182'])
         self.assertEqualItems(sg5(qmes), [])
-     
+
     def test_keep_everything_scorer(self):
         """keep_everything_scorer should keep all ids found."""
         k = keep_everything_scorer(wrap_qmes(QMEBlast9(self.rec2)))
@@ -184,7 +185,7 @@ MSGNIKKIVEPNSGIDYSLEKDFKIFTLSKELPITTYPSYIRLGIVIYCVKGNAKIDIYSNKHIITPKELIIILPGQLVA
         params = {'-j':2,
                 '-d':'test_bdb'}
         query = self.query_1.split('\n')
-        app = PsiBlast(params=params, 
+        app = PsiBlast(params=params,
                 InputHandler='_input_as_lines')
         #the command below should result in finding itself and 2554
         #it should run for max_iterations
@@ -233,12 +234,12 @@ MSGNIKKIVEPNSGIDYSLEKDFKIFTLSKELPITTYPSYIRLGIVIYCVKGNAKIDIYSNKHIITPKELIIILPGQLVA
         self.assertEqual(len(results), 10)
         for i in results:
             #each query should at least find itself
-            self.failUnless(len(results[i][0]) >= 1)
+            self.assertTrue(len(results[i][0]) >= 1)
             #each query should iterate 8 times since it can never reach max
             self.assertEqual(results[i][1], 11)
         for fname in ['formatdb.log'] + glob('test_bdb*'):
             remove(fname)
-        
+
 
 def wrap_qmes(qmes):
     """Converts qmes into a dict of {q:{m:e}}"""

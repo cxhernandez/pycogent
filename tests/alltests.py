@@ -20,9 +20,9 @@ __status__ = "Production"
 
 def my_import(name):
     """Imports a module, possibly qualified with periods. Returns the module.
-    
+
     __import__ only imports the top-level module.
-    
+
     Recipe from python documentation at:
     http://www.python.org/doc/2.4/lib/built-in-funcs.html
     """
@@ -201,7 +201,7 @@ def suite():
     try:
         import matplotlib
     except:
-        print >> sys.stderr, "No matplotlib so not running test_draw.py"
+        print("No matplotlib so not running test_draw.py", file=sys.stderr)
     else:
         modules_to_test.append('test_draw')
         modules_to_test.append('test_draw.test_distribution_plots')
@@ -259,9 +259,9 @@ def suite():
         if app_path(app):
             should_run_test = True
         elif app.startswith('rdp_classifier') and os.environ.get('RDP_JAR_PATH'):
-            # This is ugly, but because this is a jar file, it won't be in 
-            # $PATH -- we require users to set an environment variable to 
-            # point to the location of this jar file, so we test for that. 
+            # This is ugly, but because this is a jar file, it won't be in
+            # $PATH -- we require users to set an environment variable to
+            # point to the location of this jar file, so we test for that.
             # My new version of app_path can be applied to do smarter checks,
             # but will involve some re-write of how we check whether tests can
             # be run. -Greg
@@ -270,7 +270,7 @@ def suite():
         if should_run_test:
             modules_to_test.append('test_app.' + test_name)
         else:
-            print >> sys.stderr, "Can't find %s executable: skipping test" % app
+            print("Can't find %s executable: skipping test" % app, file=sys.stderr)
 
     if app_path('muscle'):
         modules_to_test.append('test_format.test_pdb_color')
@@ -288,14 +288,12 @@ def suite():
             test_ensembl = True
             if not (module_present('MySQLdb') or module_present('mysql')):
                 test_ensembl = False
-                print >> sys.stderr, \
-                    "Module 'mysql-connector-python' and 'MySQL-python' not "\
-                        "present: skipping test"
-            
+                print("Module 'mysql-connector-python' and 'MySQL-python' not "\
+                        "present: skipping test", file=sys.stderr)
+
             if not module_present('sqlalchemy'):
                 test_ensembl = False
-                print >> sys.stderr, \
-                    "Module 'sqlalchemy' not present: skipping test"
+                print("Module 'sqlalchemy' not present: skipping test", file=sys.stderr)
 
             if test_ensembl:
                 db_tests += ['test_db.test_ensembl.test_assembly',
@@ -307,19 +305,18 @@ def suite():
                      'test_db.test_ensembl.test_species',
                      'test_db.test_ensembl.test_feature_level']
         else:
-            print >> sys.stderr, "Environment variable ENSEMBL_ACCOUNT not "\
-            "set: skipping db.ensembl tests"
+            print("Environment variable ENSEMBL_ACCOUNT not "\
+            "set: skipping db.ensembl tests", file=sys.stderr)
 
         for db_test in db_tests:
             modules_to_test.append(db_test)
     else:
-        print >> sys.stderr, \
-                "Environment variable TEST_DB=1 not set: skipping db tests"
-    
+        print("Environment variable TEST_DB=1 not set: skipping db tests", file=sys.stderr)
+
     assert sys.version_info >= (2, 6)
-    
+
     alltests = unittest.TestSuite()
-    
+
     for module in modules_to_test:
         if module.endswith('.rst'):
             module = os.path.join(*module.split(".")[:-1]) + ".rst"
@@ -337,11 +334,11 @@ class BoobyTrappedStream(object):
 
     def write(self, text):
         self.output.write(text)
-        raise RuntimeError, "Output not allowed in tests"
-        
+        raise RuntimeError("Output not allowed in tests")
+
     def flush(self):
         pass
-        
+
     def isatty(self):
         return False
 
@@ -356,6 +353,9 @@ if __name__ == '__main__':
         else:
             sys.stdout = BoobyTrappedStream(orig)
         try:
-            unittest.main(defaultTest='suite', argv=sys.argv)
-        finally:
+            argv = {}
+            if sys.argv is not None:
+                argv = {'defaultTest': 'suite', 'argv': sys.argv}
+            unittest.main(**argv)
+        except:
             sys.stdout = orig

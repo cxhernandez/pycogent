@@ -76,9 +76,9 @@ class BirthDeathModel(object):
         self.MaxStep = MaxStep
         self.MaxTaxa = MaxTaxa
         if TimePerStep <= 0:
-            raise ValueError, "TimePerStep must be greater than zero"
+            raise ValueError("TimePerStep must be greater than zero")
         if not (0 <= BirthProb <= 1) or not (0 <= DeathProb <= 1):
-            raise ValueError, "Birth and death probs must be between 0 and 1"
+            raise ValueError("Birth and death probs must be between 0 and 1")
         #self.CurrStep = 0
         self.Tree = self.NodeClass()
         self.CurrTaxa = [self.Tree]
@@ -87,7 +87,7 @@ class BirthDeathModel(object):
         """Checks if prabability value lies between 0 and 1"""
         if prob_value is not None:
             if not (0 <= prob_value <= 1):
-                raise ValueError, "\'prob_value\'  must be between 0 and 1"
+                raise ValueError("\'prob_value\'  must be between 0 and 1")
             else:
                 return prob_value
         else:
@@ -97,7 +97,7 @@ class BirthDeathModel(object):
         """Checks to see if value is greater than zero"""
         if step_value is not None:
             if step_value <= 0:
-                raise ValueError, "\'stop_value\' must be greater than zero"
+                raise ValueError("\'stop_value\' must be greater than zero")
             else:
                 return step_value
         else:
@@ -233,12 +233,12 @@ class BirthDeathModel(object):
                 break
 
         if not self.CurrTaxa:
-            raise ExtinctionError, "All taxa are extinct."
+            raise ExtinctionError("All taxa are extinct.")
         if filter:
             self.Tree.filter(self.CurrTaxa, keep=True)
         if exact and self.MaxTaxa and (len(self.CurrTaxa) != self.MaxTaxa):
-            raise TooManyTaxaError, "Got %s taxa, not %s." % \
-                (len(self.CurrTaxa), self.MaxTaxa)
+            raise TooManyTaxaError("Got %s taxa, not %s." % \
+                (len(self.CurrTaxa), self.MaxTaxa))
         return self.Tree
 
 class GeneNode(RangeNode):
@@ -329,7 +329,7 @@ class DoubleBirthDeathModel(object):
         self.MaxGenome = MaxGenome
         self.DEBUG = DEBUG
         if TimePerStep <= 0:
-            raise ValueError, "TimePerStep must be greater than zero"
+            raise ValueError("TimePerStep must be greater than zero")
         self._init_vars()
 
     def _init_vars(self):
@@ -561,7 +561,7 @@ class DoubleBirthDeathModel(object):
     def _kill_orphan_genes_step(self):
         """Kills genes whose species has been removed."""
         new_list = []
-        species_dict = dict.fromkeys(map(id, self.CurrSpecies))
+        species_dict = dict.fromkeys(list(map(id, self.CurrSpecies)))
         for g in self.CurrGenes:
             if id(g.Species) in species_dict:
                 new_list.append(g)
@@ -588,8 +588,8 @@ class DoubleBirthDeathModel(object):
         for i in self.CurrSpecies:
             assert not i.Children
         if self.DEBUG:
-            print '*** DUPLICATING SPECIES'
-            print "SPECIES GENES AT START: ", len(species.Genes)
+            print('*** DUPLICATING SPECIES')
+            print("SPECIES GENES AT START: ", len(species.Genes))
         sc = self.SpeciesClass
         #make new species
         first_child, second_child = sc(), sc()
@@ -608,14 +608,14 @@ class DoubleBirthDeathModel(object):
         #update gene references
         curr_genes = self.CurrGenes
         if self.DEBUG:
-            print "GENES BEFORE SWEEP: ", len(curr_genes)
-            print "NUM GENES IN SPECIES: ", len(species.Genes)
+            print("GENES BEFORE SWEEP: ", len(curr_genes))
+            print("NUM GENES IN SPECIES: ", len(species.Genes))
         
         gene_counter = 0
         for gene in species.Genes[:]:
             assert gene.Species is species
             if self.DEBUG:
-                print "handling gene ", gene_counter
+                print("handling gene ", gene_counter)
             gene_counter += 1
             curr_genes.remove(gene)
             assert gene not in curr_genes
@@ -626,17 +626,17 @@ class DoubleBirthDeathModel(object):
             for i in curr_genes: assert (i.Species in self.CurrSpecies) or \
                 i.Species in [first_child, second_child]
         if self.DEBUG:
-            print "GENES IN FIRST CHILD: ", len(first_child.Genes)
-            print "GENES IN SECOND CHILD: ", len(second_child.Genes)
-            print "GENES AFTER SWEEP: ", len(curr_genes)
+            print("GENES IN FIRST CHILD: ", len(first_child.Genes))
+            print("GENES IN SECOND CHILD: ", len(second_child.Genes))
+            print("GENES AFTER SWEEP: ", len(curr_genes))
         self.SpeciesTree.assignIds()
         if self.DEBUG:
-            print "SPECIES TREE: ", self.SpeciesTree
+            print("SPECIES TREE: ", self.SpeciesTree)
         if self.DEBUG:
-            print "SPECIES ASSIGNMENTS FOR EACH GENE"
+            print("SPECIES ASSIGNMENTS FOR EACH GENE")
         for i in curr_genes: 
             if self.DEBUG:
-                print i.Species.Id
+                print(i.Species.Id)
             assert (i.Species in self.CurrSpecies) or i.Species in [first_child, second_child]
         return children
 
@@ -664,7 +664,7 @@ class DoubleBirthDeathModel(object):
         done = False
         while not done:
             if self.DEBUG:
-                print "CURR STEP:", self.CurrStep
+                print("CURR STEP:", self.CurrStep)
             for i in self.CurrGenes: assert i.Species in self.CurrSpecies
             self.geneStep(random_f)
             for i in self.CurrGenes: assert i.Species in self.CurrSpecies
@@ -676,25 +676,25 @@ class DoubleBirthDeathModel(object):
                 and self.genomeOk)
         #check if all the constraints were met
         if not (self.CurrSpecies or self.CurrGenes):
-            raise ExtinctionError, "All taxa are extinct."
+            raise ExtinctionError("All taxa are extinct.")
         if exact_species and self.MaxSpecies and \
             (len(self.CurrSpecies) != self.MaxSpecies):
-            raise TooManyTaxaError, "Got %s species, not %s." % \
-                (len(self.CurrSpecies), self.MaxSpecies)
+            raise TooManyTaxaError("Got %s species, not %s." % \
+                (len(self.CurrSpecies), self.MaxSpecies))
         if exact_genes and self.MaxGenes and \
             (len(self.CurrGenes) != self.MaxGenes):
-            raise TooManyTaxaError, "Got %s genes, not %s." % \
-                (len(self.CurrGenes), self.MaxGenes)
+            raise TooManyTaxaError("Got %s genes, not %s." % \
+                (len(self.CurrGenes), self.MaxGenes))
         #filter if required
         if filter:
             if self.DEBUG:
-                print "***FILTERING..."
+                print("***FILTERING...")
             self.SpeciesTree.assignIds()
             if self.DEBUG:
-                print "BEFORE PRUNE: ", self.SpeciesTree
+                print("BEFORE PRUNE: ", self.SpeciesTree)
             self.SpeciesTree.filter(self.CurrSpecies, keep=True)
             if self.DEBUG:
-                print "AFTER PRUNE: ", self.SpeciesTree
+                print("AFTER PRUNE: ", self.SpeciesTree)
             for i, t in enumerate(self.GeneTrees):
                 t.filter(self.CurrGenes)
         return self.SpeciesTree, self.GeneTrees

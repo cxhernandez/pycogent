@@ -321,7 +321,7 @@ class RfamParserTests(TestCase):
             
             self.assertEqual(headers['Refs']['Rfam'], ['RF00014'])
             self.assertEqual(headers['Author'], 'Mifsud W')
-            self.assertEqualItems(sequences.values(), expected_sequences)
+            self.assertEqualItems(list(sequences.values()), expected_sequences)
             assert isinstance(sequences, Alignment)
             self.assertEqualItems([s.Info.GenBank for s in sequences.Seqs],
                 [['U17136.1'],['M15749.1'],['AF090431.1']])
@@ -361,11 +361,11 @@ class RfamParserTests(TestCase):
         
         # strict = False
         x =  list(RfamParser(self._fake_record_bad_header_1, strict=False))
-        obs = list(RfamParser(self._fake_record_bad_header_1,\
-            strict=False))[0][0].keys()
+        obs = list(list(RfamParser(self._fake_record_bad_header_1,\
+            strict=False))[0][0].keys())
         self.assertEqual(len(obs),1)
-        obs = list(RfamParser(self._fake_record_bad_header_2,\
-            strict=False))[0][0].keys()
+        obs = list(list(RfamParser(self._fake_record_bad_header_2,\
+            strict=False))[0][0].keys())
         self.assertEqual(len(obs),1)
 
     def test_RfamParser_strict_invalid_sequences(self):

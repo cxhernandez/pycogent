@@ -10,7 +10,7 @@ __maintainer__ = "Kyle Bittinger"
 __email__ = "kylebittinger@gmail.com"
 __status__ = "Prototype"
 
-from cStringIO import StringIO
+from io import StringIO
 
 from cogent.util.unit_test import TestCase, main
 from cogent.parse.mothur import parse_otu_list

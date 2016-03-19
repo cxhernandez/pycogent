@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from __future__ import division
+
 from cogent.app.muscle_v38 import muscle_seqs
 from cogent.app.util import get_tmp_filename
 from cogent.parse.fasta import MinimalFastaParser
@@ -107,7 +107,7 @@ def chains_to_seqs(chains):
     """
     result = {}
     chain_to_seq_type = {}
-    for chain_id, residues in chains.items():
+    for chain_id, residues in list(chains.items()):
         seq_type = None
         curr_seq = []
         
@@ -141,7 +141,7 @@ def get_best_muscle_hits(subject_seq, query_aln,threshold,use_shorter=True):
     """
     keep={}
     #best = 0
-    for query_label, query_seq in query_aln.items():
+    for query_label, query_seq in list(query_aln.items()):
         subject_aligned, query_aligned, frac_same = \
             get_aligned_muscle(subject_seq,query_seq)
         #if frac_same > best:
@@ -163,14 +163,14 @@ def get_matching_chains(subject_seq, pdb_lines,\
     chains = get_chains(pdb_lines)
     #Get pdb numbering
     ungapped_to_pdb = {}
-    for k,v in chains.items():
+    for k,v in list(chains.items()):
         ungapped_to_pdb[k]=ungapped_to_pdb_numbers(v)
     #Get pdb alignment and sequence types
     pdb_aln, pdb_types = chains_to_seqs(chains)
     
     #Get only sequences of subject_type
     pdb_matching = \
-        dict([(k,pdb_aln[k]) for k,v in pdb_types.items() if v == subject_type])
+        dict([(k,pdb_aln[k]) for k,v in list(pdb_types.items()) if v == subject_type])
     
     #if there is more than one chain in pdb_matching
     if len(pdb_matching) > 1:
@@ -187,7 +187,7 @@ def align_subject_to_pdb(subject_seq, pdb_matching):
             {pdb_chain:(aligned_subject, aligned_pdb)}
     """
     result = {}
-    for pdb_chain, pdb_seq in pdb_matching.items():
+    for pdb_chain, pdb_seq in list(pdb_matching.items()):
         subject_aligned, pdb_aligned,frac_same = \
             get_aligned_muscle(subject_seq, pdb_seq)
         result[pdb_chain]=(subject_aligned,pdb_aligned)

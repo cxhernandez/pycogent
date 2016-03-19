@@ -31,7 +31,7 @@ class bitvectorTests(TestCase):
 
     def test_is_nonzero_char(self):
         """is_nonzero_char should return '0' for any False item or '0'"""
-        zero = ['', 0, '0', [], {}, None, 0L, 0.0, False]
+        zero = ['', 0, '0', [], {}, None, 0, 0.0, False]
         for z in zero:
             self.assertEqual(is_nonzero_char(z), '0')
         nonzero = ['z', '1', '00', ' ', 1, -1, 1e-30, [''], {'':None}, True]
@@ -40,7 +40,7 @@ class bitvectorTests(TestCase):
 
     def test_seq_to_bitstring(self):
         """seq_to_bitstring should provide expected results"""
-        zero = ['', 0, '0', [], {}, None, 0L, 0.0, False]
+        zero = ['', 0, '0', [], {}, None, 0, 0.0, False]
         self.assertEqual(seq_to_bitstring(zero), '0'*9)
         nonzero = ['z', '1', '00', ' ', 1, -1, 1e-30, [''], {'':None}, True]
         self.assertEqual(seq_to_bitstring(nonzero), '1'*10)
@@ -57,7 +57,7 @@ class bitvectorTests(TestCase):
 
     def test_is_nonzero_int(self):
         """is_nonzero_int should return 0 for any False item or '0'"""
-        zero = ['', 0, '0', [], {}, None, 0L, 0.0, False]
+        zero = ['', 0, '0', [], {}, None, 0, 0.0, False]
         for z in zero:
             self.assertEqual(is_nonzero_int(z), 0)
         nonzero = ['z', '1', '00', ' ', 1, -1, 1e-30, [''], {'':None}, True]
@@ -66,7 +66,7 @@ class bitvectorTests(TestCase):
 
     def test_seq_to_bitlist(self):
         """seq_to_bitlist should provide expected results"""
-        zero = ['', 0, '0', [], {}, None, 0L, 0.0, False]
+        zero = ['', 0, '0', [], {}, None, 0, 0.0, False]
         self.assertEqual(seq_to_bitlist(zero), [0]*9)
         nonzero = ['z', '1', '00', ' ', 1, -1, 1e-30, [''], {'':None}, True]
         self.assertEqual(seq_to_bitlist(nonzero), [1]*10)
@@ -76,7 +76,7 @@ class bitvectorTests(TestCase):
 
     def test_number_to_bitstring(self):
         """number_to_bitstring should provide expected results"""
-        numbers = [0, 1, 2, 7, 8, 1024, 814715L]
+        numbers = [0, 1, 2, 7, 8, 1024, 814715]
         for n in numbers:
             self.assertEqual(num_to_bitstring(n, 0), '')
 
@@ -95,7 +95,7 @@ class bitvectorTests(TestCase):
 
     def test_bitcount(self):
         """bitcount should provide expected results"""
-        numbers = [0, 1, 2, 7, 8, 1024, 814715L]
+        numbers = [0, 1, 2, 7, 8, 1024, 814715]
 
         twenty_results = [0, 1, 1, 3, 1, 1, 13]
         for exp, num in zip(twenty_results, numbers):
@@ -120,7 +120,7 @@ class BitvectorTests(TestCase):
     def setUp(self):
         """Define a few standard strings and vectors."""
         self.strings = ['', '0', '1', '00', '01', '10', '11']
-        self.vectors = map(Bitvector, self.strings)
+        self.vectors = list(map(Bitvector, self.strings))
 
     def test_init(self):
         """Bitvector init should give expected results."""
@@ -150,16 +150,16 @@ class BitvectorTests(TestCase):
 
     def test_str(self):
         """Bitvector str should match expected results"""
-        vecs = [Bitvector(i, 0) for i in [0, 1, 2, 7, 8, 1024, 814715L]]
+        vecs = [Bitvector(i, 0) for i in [0, 1, 2, 7, 8, 1024, 814715]]
         for v in vecs:
             self.assertEqual(str(v), '')
 
-        vecs = [Bitvector(i, 1) for i in [0, 1, 2, 7, 8, 1024, 814715L,'1'*50]]
+        vecs = [Bitvector(i, 1) for i in [0, 1, 2, 7, 8, 1024, 814715,'1'*50]]
         single_results = list('01010011')
         for exp, vec in zip(single_results, vecs):
             self.assertEqual(str(vec), exp)
 
-        vecs = [Bitvector(i, 3) for i in [0, 1, 2, 7, 8, 1024, 814715L,'1'*50]]
+        vecs = [Bitvector(i, 3) for i in [0, 1, 2, 7, 8, 1024, 814715,'1'*50]]
         three_results = ['000','001','010','111','000','000','011','111']
         for exp, vec in zip(three_results, vecs):
             self.assertEqual(str(vec), exp)
@@ -253,7 +253,7 @@ class BitvectorTests(TestCase):
         
     def test_invert(self):
         """Bitvector ~A should return a vector exchanging 1's for 0's"""
-        results = map(Bitvector, ['', '1', '0', '11', '10', '01', '00'])
+        results = list(map(Bitvector, ['', '1', '0', '11', '10', '01', '00']))
         for data, result in zip(self.vectors, results):
             self.assertEqual(~data, result)
             
@@ -274,7 +274,7 @@ class BitvectorTests(TestCase):
         """Bitvector getitem should return states at specified position(s)"""
 
         vec_strings = ['', '0', '1', '10', '10001101', '101'*50]
-        vecs = map(Bitvector, vec_strings)
+        vecs = list(map(Bitvector, vec_strings))
         for vec_string, vec in zip(vec_strings, vecs):
             for char, item in zip(vec_string, vec):
                 self.assertEqual(char, str(item))
@@ -288,7 +288,7 @@ class BitvectorTests(TestCase):
     def test_bitcount(self):
         """Bitvector bitcount should correctly count 1's or 0's"""
         vec_strings = ['', '0', '1', '10', '10001101', '101'*50]
-        vecs = map(Bitvector, vec_strings)
+        vecs = list(map(Bitvector, vec_strings))
         one_counts = [0, 0, 1, 1, 4, 100]
         zero_counts = [0, 1, 0, 1, 4, 50]
         for v, o, z in zip(vecs, one_counts, zero_counts):
@@ -301,7 +301,7 @@ class BitvectorTests(TestCase):
         v = Bitvector(3, 10)
         v_id = str(hex(id(v)))
         expected = '<cogent.core.bitvector.ShortBitvector object at'
-        self.assertTrue(`v`.startswith(expected))
+        self.assertTrue(repr(v).startswith(expected))
 
     def test_freeze(self):
         """Bitvector freeze should return same object"""
@@ -320,7 +320,7 @@ class BitvectorTests(TestCase):
     def test_stateChanges(self):
         """Bitvector stateChanges should return indices where state changes"""
         vec_strings = ['', '0', '1', '10', '111', '10001101', '1111100000'*5]
-        vecs = map(Bitvector, vec_strings)
+        vecs = list(map(Bitvector, vec_strings))
         results = [
             [],
             [0,1],
@@ -337,7 +337,7 @@ class BitvectorTests(TestCase):
         """Bitvector divideSequence should cut sequence at state changes"""
         vec_strings = ['', '0', '1', '10', '111', '10001101', '1111100000'*5,
             '0000011111']
-        vecs = map(Bitvector, vec_strings)
+        vecs = list(map(Bitvector, vec_strings))
         seq = 'abc'*30
         results_none = [
             ([], 0),
@@ -399,7 +399,7 @@ class MutableBitvectorTests(TestCase):
     def setUp(self):
         """Define a few standard strings and vectors."""
         self.strings = ['', '0', '1', '00', '01', '10', '11']
-        self.vectors = map(MutableBitvector, self.strings)
+        self.vectors = list(map(MutableBitvector, self.strings))
 
     def test_init(self):
         """MutableBitvector init should give expected results."""
@@ -429,16 +429,16 @@ class MutableBitvectorTests(TestCase):
 
     def test_str(self):
         """MutableBitvector str should match expected results"""
-        vecs = [MutableBitvector(i, 0) for i in [0, 1, 2, 7, 8, 1024, 814715L]]
+        vecs = [MutableBitvector(i, 0) for i in [0, 1, 2, 7, 8, 1024, 814715]]
         for v in vecs:
             self.assertEqual(str(v), '')
 
-        vecs = [MutableBitvector(i, 1) for i in [0, 1, 2, 7, 8, 1024, 814715L,'1'*50]]
+        vecs = [MutableBitvector(i, 1) for i in [0, 1, 2, 7, 8, 1024, 814715,'1'*50]]
         single_results = list('01010011')
         for exp, vec in zip(single_results, vecs):
             self.assertEqual(str(vec), exp)
 
-        vecs = [MutableBitvector(i, 3) for i in [0, 1, 2, 7, 8, 1024, 814715L,'1'*50]]
+        vecs = [MutableBitvector(i, 3) for i in [0, 1, 2, 7, 8, 1024, 814715,'1'*50]]
         three_results = ['000','001','010','111','000','000','011','111']
         for exp, vec in zip(three_results, vecs):
             self.assertEqual(str(vec), exp)
@@ -539,7 +539,7 @@ class MutableBitvectorTests(TestCase):
         
     def test_invert(self):
         """MutableBitvector ~A should return a vector exchanging 1's for 0's"""
-        results = map(MutableBitvector, ['', '1', '0', '11', '10', '01', '00'])
+        results = list(map(MutableBitvector, ['', '1', '0', '11', '10', '01', '00']))
         for data, result in zip(self.vectors, results):
             self.assertEqual(~data, result)
             
@@ -560,7 +560,7 @@ class MutableBitvectorTests(TestCase):
         """MutableBitvector getitem should return states at specified position(s)"""
 
         vec_strings = ['', '0', '1', '10', '10001101', '101'*50]
-        vecs = map(MutableBitvector, vec_strings)
+        vecs = list(map(MutableBitvector, vec_strings))
         for vec_string, vec in zip(vec_strings, vecs):
             for char, item in zip(vec_string, vec):
                 self.assertEqual(char, str(item))
@@ -576,7 +576,7 @@ class MutableBitvectorTests(TestCase):
         """MutableBitvector setitem should change positions correctly"""
         self.assertRaises(IndexError, MutableBitvector().__setitem__, 1, 1)
         vec_strings = ['0', '1', '10', '10001101', '101'*50]
-        vecs = map(MutableBitvector, vec_strings)
+        vecs = list(map(MutableBitvector, vec_strings))
         results_1 = ['1', '1', '10', '10001101', '101'*50]
         for vec, res  in zip(vecs, results_1):
             vec[0] = 1
@@ -600,7 +600,7 @@ class MutableBitvectorTests(TestCase):
     def test_bitcount(self):
         """MutableBitvector bitcount should correctly count 1's or 0's"""
         vec_strings = ['', '0', '1', '10', '10001101', '101'*50]
-        vecs = map(MutableBitvector, vec_strings)
+        vecs = list(map(MutableBitvector, vec_strings))
         one_counts = [0, 0, 1, 1, 4, 100]
         zero_counts = [0, 1, 0, 1, 4, 50]
         for v, o, z in zip(vecs, one_counts, zero_counts):
@@ -613,7 +613,7 @@ class MutableBitvectorTests(TestCase):
         v = MutableBitvector(3, 10)
         v_id = str(hex(id(v)))
         expected = '<cogent.core.bitvector.MutableBitvector object at'
-        self.assertTrue(`v`.startswith(expected))
+        self.assertTrue(repr(v).startswith(expected))
 
     def test_thaw(self):
         """MutableBitvector thaw should return same object"""
@@ -632,13 +632,12 @@ class MutableBitvectorTests(TestCase):
         except TypeError:
             pass
         else:
-            raise AssertionError, \
-                "MutableBitvector.freeze() returned mutable object."
+            raise AssertionError("MutableBitvector.freeze() returned mutable object.")
 
     def test_stateChanges(self):
         """MutableBitvector stateChanges should return indices where state changes"""
         vec_strings = ['', '0', '1', '10', '111', '10001101', '1111100000'*5]
-        vecs = map(MutableBitvector, vec_strings)
+        vecs = list(map(MutableBitvector, vec_strings))
         results = [
             [],
             [0,1],
@@ -655,7 +654,7 @@ class MutableBitvectorTests(TestCase):
         """MutableBitvector divideSequence should cut sequence at state changes"""
         vec_strings = ['', '0', '1', '10', '111', '10001101', '1111100000'*5,
             '0000011111']
-        vecs = map(MutableBitvector, vec_strings)
+        vecs = list(map(MutableBitvector, vec_strings))
         seq = 'abc'*30
         results_none = [
             ([], 0),
@@ -723,7 +722,7 @@ class BitvectorClassTests(TestCase):
     def test_and(self):
         """Bitwise and should work between short and long bitvectors"""
         s, l, tiny, huge = self.s, self.l, self.tiny, self.huge
-        self.assertTrue(isinstance(l, long))
+        self.assertTrue(isinstance(l, int))
         self.assertEqual(l & s, s)
         self.assertEqual(s & l, s)
         self.assertEqual(huge & tiny, tiny)

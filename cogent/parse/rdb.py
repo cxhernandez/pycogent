@@ -3,12 +3,12 @@
 
 Data in from the European rRNA database in distribution format.
 """
-from string import strip, maketrans
 from cogent.parse.record_finder import DelimitedRecordFinder
 from cogent.parse.record import RecordError
 from cogent.core.sequence import Sequence, RnaSequence
 from cogent.core.info import Info
 from cogent.core.alphabet import AlphabetError
+strip, maketrans = str.strip, str.maketrans
 
 __author__ = "Sandra Smit"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -47,13 +47,13 @@ def InfoMaker(header_lines):
     for line in header_lines:
         all = line.strip().split(':',1)
         #strip out empty lines, lines without name, lines without colon
-        if not all[0] or len(all) != 2: 
+        if not all[0] or len(all) != 2:
             continue
         try:
             name = _field_names[all[0]]
         except KeyError:
             name = all[0]
-            
+
         value = all[1].strip()
         info[name] = value
     return info
@@ -64,7 +64,7 @@ def is_seq_label(x):
 
 def MinimalRdbParser(infile,strict=True):
     """Yield successive sequences as (headerLines, sequence) tuples.
-    
+
     If strict is True (default) raises RecordError when 'seq' label is missing
     and if the record doesn't contain any sequences.
     """
@@ -73,15 +73,15 @@ def MinimalRdbParser(infile,strict=True):
         for line in rec:
             if is_seq_label(line):
                 index = rec.index(line) + 1 #index of first sequence line
-        
+
         # if there is no line that starts with 'seq:' throw error or skip
         if not index:
             if strict:
-                raise RecordError, "Found Rdb record without seq label "\
-                    + "line: %s"%rec[0]
+                raise RecordError("Found Rdb record without seq label "\
+                    + "line: %s"%rec[0])
             else:
                 continue
-            
+
         headerLines = rec[:index]
         sequence = ''.join(rec[index:-1]) #strip off the delimiter
         if sequence.endswith('*'):
@@ -90,8 +90,8 @@ def MinimalRdbParser(infile,strict=True):
         #if there are no sequences throw error or skip
         if not sequence:
             if strict:
-                raise RecordError, "Found Rdb record without sequences: %s"\
-                    %rec[0]
+                raise RecordError("Found Rdb record without sequences: %s"\
+                    %rec[0])
             else:
                 continue
 
@@ -109,8 +109,8 @@ def create_acceptable_sequence(sequence):
     t = maketrans('o','?')
     # strip out secondary structure annotation {}[]()^
     return sequence.translate(t, "{}[]()^") #should be accepted by RnaSequence
-    
-    
+
+
 def RdbParser(lines, SeqConstructor=RnaSequence, LabelConstructor=InfoMaker, \
     strict=True):
     """Yield sequences from the Rdb record.
@@ -150,5 +150,5 @@ if __name__ == '__main__':
     from sys import argv
     filename = argv[1]
     for sequence in RdbParser(open(filename)):
-        print sequence.Info.Species
-        print sequence
+        print(sequence.Info.Species)
+        print(sequence)

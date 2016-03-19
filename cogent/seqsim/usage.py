@@ -73,7 +73,7 @@ class Usage(FreqsI):
         if Alphabet is not None:
             self.Alphabet = Alphabet
         if not self.Alphabet:
-            raise TypeError, "Usage subclasses must define alphabet."""
+            raise TypeError("Usage subclasses must define alphabet.""")
         if isinstance(data, Usage):
             self._data = data._data
         else:
@@ -91,7 +91,7 @@ class Usage(FreqsI):
 
     def __str__(self):
         """Prints as though it were a tuple of key,value pairs."""
-        return str(self.items())
+        return str(list(self.items()))
 
     def __repr__(self):
         """String representation of self."""
@@ -164,7 +164,7 @@ class Usage(FreqsI):
             f(other, op=add)
             return self
         else:
-            raise TypeError, "Could not convert this to freqs: %s" % other
+            raise TypeError("Could not convert this to freqs: %s" % other)
 
     def __isub__(self, other):
         """Subtracts data from self in-place."""
@@ -209,7 +209,7 @@ class Usage(FreqsI):
             f(other, op=sub)
             return self
         else:
-            raise TypeError, "Could not convert this to freqs: %s" % other
+            raise TypeError("Could not convert this to freqs: %s" % other)
   
     def __mul__(self, other):
         """Multiplies self by other (assumed scalar)."""
@@ -275,7 +275,7 @@ class Usage(FreqsI):
 
     def items(self):
         """Returns list of (key, value) pairs in self."""
-        return zip(self.Alphabet, self._data)
+        return list(zip(self.Alphabet, self._data))
 
     def isValid(self):
         """Always valid (except for negative numbers), so override."""
@@ -288,7 +288,7 @@ class Usage(FreqsI):
     def __delitem__(self, key):
         """Can't really delete items, but raise error if in alphabet."""
         if key in self.Alphabet:
-            raise KeyError, "May not delete required key %s" % key
+            raise KeyError("May not delete required key %s" % key)
 
     def purge(self):
         """Can't contain anything not in alphabet, so do nothing."""
@@ -312,7 +312,7 @@ class Usage(FreqsI):
     def randomSequence(self, n):
         """Returns list of n random choices, with replacement."""
         if not self:
-            raise IndexError, "All frequencies are zero."
+            raise IndexError("All frequencies are zero.")
         return list(choose(self.randomIndices(n), self.Alphabet))
 
     def subset(self, items, keep=True):
@@ -355,7 +355,7 @@ class Usage(FreqsI):
         except TypeError:
             return False
     
-    def __nonzero__(self):
+    def __bool__(self):
         """Returns True if self is nonzero."""
         return bool(sum(self._data) != 0)
        
@@ -379,7 +379,7 @@ class Usage(FreqsI):
         if constructor is None:
             constructor = self.__class__
         result = constructor()
-        for key, val in self.items():
+        for key, val in list(self.items()):
             new_key = key_map.get(key, default)
             curr = result.get(new_key, 0)
             try:
@@ -528,7 +528,7 @@ class Counts(PairMatrix):
         #figure out what size we need the result to go in: note that the
         #result is on a pair alphabet, so the data type of the single
         #alphabet (that the sequence starts off in) might not work.
-        data_type = get_array_type(product(map(len, Alphabet.SubEnumerations)))
+        data_type = get_array_type(product(list(map(len, Alphabet.SubEnumerations))))
         first = asarray(first, data_type)
         second = asarray(second, data_type)
         items = first * size + second
@@ -567,7 +567,7 @@ class Counts(PairMatrix):
         #figure out what size we need the result to go in: note that the
         #result is on a pair alphabet, so the data type of the single
         #alphabet (that the sequence starts off in) might not work.
-        data_type = get_array_type(product(map(len, Alphabet.SubEnumerations)))
+        data_type = get_array_type(product(list(map(len, Alphabet.SubEnumerations))))
         first = asarray(first, data_type)
         second = asarray(second, data_type)
        
@@ -606,8 +606,8 @@ class Counts(PairMatrix):
                 converter = Alphabet.fromSequenceToArray
 
             # convert to alphabet indices
-            first, second, outgroup = map(asarray, map(converter,
-                                        [first, second, outgroup]))
+            first, second, outgroup = list(map(asarray, list(map(converter,
+                                        [first, second, outgroup]))))
         # only include positions where all three not different
         valid_posn = logical_not(logical_and(logical_and(first != outgroup,
                                                         second != outgroup),
@@ -772,7 +772,7 @@ class Rates(PairMatrix):
             #the results back together
             result = dot(dot(u,v),w)
             if abs(sum(ravel(result))) > error_tolerance:
-                raise ValueError, "Diagonalization failed with erroneous result."
+                raise ValueError("Diagonalization failed with erroneous result.")
             self._diag_cache = u, v, w
         return self._diag_cache
 
@@ -972,7 +972,7 @@ class Rates(PairMatrix):
         new_q = reshape(xmin, self.Alphabet.Shape)[:]
         if debug:
             if sum_neg_off_diags(new_q):
-                raise Exception, 'Made invalid Q matrix: %s' % q
+                raise Exception('Made invalid Q matrix: %s' % q)
         return self.__class__(new_q, self.Alphabet)
 
     def fixNegsConstrainedOpt(self, to_minimize=norm_diff, badness=1e6):
@@ -1033,7 +1033,7 @@ class Rates(PairMatrix):
 def goldman_q_rna_triple(seq1, seq2, outgroup):
     """Returns the Goldman rate matrix for seq1"""
     if len(seq1) != len(seq2) != len(outgroup):
-        raise ValueError, "seq1,seq2 and outgroup are not the same length!"
+        raise ValueError("seq1,seq2 and outgroup are not the same length!")
 
     seq1 = ModelRnaSequence(seq1)
     seq2 = ModelRnaSequence(seq2)
@@ -1052,7 +1052,7 @@ def goldman_q_rna_triple(seq1, seq2, outgroup):
 def goldman_q_dna_triple(seq1, seq2, outgroup):
     """Returns the Goldman rate matrix for seq1"""
     if len(seq1) != len(seq2) != len(outgroup):
-        raise ValueError, "seq1,seq2 and outgroup are not the same length!"
+        raise ValueError("seq1,seq2 and outgroup are not the same length!")
 
     seq1 = ModelDnaSequence(seq1)
     seq2 = ModelDnaSequence(seq2)
@@ -1071,7 +1071,7 @@ def goldman_q_dna_triple(seq1, seq2, outgroup):
 def goldman_q_dna_pair(seq1, seq2):
     """Returns the Goldman rate matrix"""
     if len(seq1) != len(seq2):
-        raise ValueError, "seq1 and seq2 are not the same length!"
+        raise ValueError("seq1 and seq2 are not the same length!")
 
     seq1, seq2 = ModelDnaSequence(seq1), ModelDnaSequence(seq2)
 
@@ -1088,7 +1088,7 @@ def goldman_q_dna_pair(seq1, seq2):
 def goldman_q_rna_pair(seq1, seq2):
     """Returns the Goldman rate matrix"""
     if len(seq1) != len(seq2):
-        raise ValueError, "seq1 and seq2 are not the same length!"
+        raise ValueError("seq1 and seq2 are not the same length!")
 
     seq1, seq2 = ModelRnaSequence(seq1), ModelRnaSequence(seq2)
 
@@ -1106,7 +1106,7 @@ def make_random_from_file(lines):
     """Simulates array random() using values from an iterator."""
     def result(shape):
         size = product(shape)
-        items = map(float, [lines.next() for s in range(size)])
+        items = list(map(float, [next(lines) for s in range(size)]))
         a = reshape(array(items), shape)
         return a
     return result
@@ -1120,7 +1120,7 @@ def test_heuristics(p_range=None, num_to_do=71, heuristics=None):
     if heuristics is None:
         heuristics = ['fixNegsDiag', 'fixNegsEven', 'fixNegsReflect', 'fixNegsConstrainedOpt']
     num_heuristics = len(heuristics)
-    print '\t'.join(['p'] + heuristics)
+    print('\t'.join(['p'] + heuristics))
     for p in p_range:
         result = zeros((num_to_do, num_heuristics), Float64)
         has_nonzero = 0
@@ -1149,7 +1149,7 @@ def test_heuristics(p_range=None, num_to_do=71, heuristics=None):
                 #print "DISTANCE: ", dist
                 curr_row[j] = dist
         averages = average(result)
-        print p, '\t', '\t'.join(map(str, averages))
+        print(p, '\t', '\t'.join(map(str, averages)))
 
 if __name__ == '__main__':
     test_heuristics()

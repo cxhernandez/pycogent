@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Format classes for MotifResults objects."""
 
-from __future__ import division
+
 from matplotlib import use
 use('Agg')  #suppress graphical rendering
 
@@ -146,7 +146,7 @@ class MotifStatsBySequence(MotifFormatter):
                 pass
 
         #For each module
-        for module in self.Locations.keys():
+        for module in list(self.Locations.keys()):
 
             cons_seq, cons_con_seq =  self._make_conservation_consensus(module)
 
@@ -205,7 +205,7 @@ class MotifLocationsBySequence(MotifFormatter):
                     #Get the location dict for that module
                     location_dict = module.LocationDict
                     #For each sequence the module is in
-                    for seqID in location_dict.keys():
+                    for seqID in list(location_dict.keys()):
                         #For each module instance in the sequence
                         for index in location_dict[seqID]:
                             #Add module to dict
@@ -227,7 +227,7 @@ class MotifLocationsBySequence(MotifFormatter):
         #Get all indices for the sequence
         indices = []
         if seqID in self.Locations:
-            indices = self.Locations[seqID].keys()
+            indices = list(self.Locations[seqID].keys())
             contains_motifs=True
         indices.sort()
         #Current position in sequence
@@ -285,8 +285,8 @@ class MotifLocationsBySequence(MotifFormatter):
         # need to calculate this acrosss all
 
         all_indicies = []
-        for locs in  self.Locations.values():
-            all_indicies.extend(locs.keys())
+        for locs in  list(self.Locations.values()):
+            all_indicies.extend(list(locs.keys()))
 
         max_index_len = str(len(str(max(all_indicies))))
 
@@ -338,7 +338,7 @@ class SequenceByMotif(MotifFormatter):
         html_list = []
 
         #Get modules
-        modules = self.Locations.keys()
+        modules = list(self.Locations.keys())
         modules.sort()
         self.ConservationThresh = cons_thresh
 
@@ -397,7 +397,7 @@ class SequenceByMotif(MotifFormatter):
                       cur_color, 
                       cons_seq, 
                       )]
-        sequences = self.Locations[module].keys()
+        sequences = list(self.Locations[module].keys())
         sequences.sort()
         #For each sequence
         for seq in sequences:
@@ -432,7 +432,7 @@ class HighlightMotifs(MotifFormatter):
                 for module in motif.Modules:
                     mod_len = len(module)
                     mod_id = str(module.ID)
-                    for skey, indexes in module.LocationDict.items():
+                    for skey, indexes in list(module.LocationDict.items()):
                         if skey not in module_map:
                             module_map[skey] = []
                         for ix in indexes:
@@ -454,7 +454,7 @@ class HighlightMotifs(MotifFormatter):
         MotifFormatter.__init__(self)
         ModuleMap = self.makeModuleMap(MotifResults)
         module_ids = set([])
-        for skey, slist in ModuleMap.items():
+        for skey, slist in list(ModuleMap.items()):
             for stup in slist:
                 module_ids.add(stup[1])
         self.ColorMap = self.getColorMapS0(sorted(list(module_ids)))
@@ -503,7 +503,7 @@ class HighlightMotifs(MotifFormatter):
             - {seq_id:{gapped_coord:ungapped_coord}}
         """
         gap_map = {}
-        for k,v in self.Alignment.items():
+        for k,v in list(self.Alignment.items()):
             gapped, ungapped = self.MolType.gapMaps(v)
             gap_map[k] = gapped
         return gap_map
@@ -695,7 +695,7 @@ class HighlightOnCrystal(MotifFormatter):
         self.ConservationThresh = float(cons_thresh)
         ModuleMap, ModuleConsMap = self.makeModuleMap(MotifResults)
         module_ids = set([])
-        for skey, slist in ModuleMap.items():
+        for skey, slist in list(ModuleMap.items()):
             for stup in slist:
                 module_ids.add(stup[1])
         self.ColorMapHex = self.getColorMapS0(sorted(list(module_ids)))
@@ -794,7 +794,7 @@ for sticks_cmd in sticks_command_list:
         curr_zip.close()
         
         alignment_html = {}
-        for k,v in pdb_aligned.items():
+        for k,v in list(pdb_aligned.items()):
             alignment_html[k]=self.highlightSeq(seq_id,v[0],pdb_id,v[1])
 
         #set up return dictionary
@@ -838,7 +838,7 @@ for sticks_cmd in sticks_command_list:
         #Get locations by sequence
         locations = \
             MotifLocationsBySequence(self.MotifResults).Locations[seq_id]
-        for chain, aligned in pdb_aligned.items():
+        for chain, aligned in list(pdb_aligned.items()):
             #Get subject gap map
             subject_gapped,subject_ungapped = \
                 self.MotifResults.MolType.gapMaps(aligned[0])
@@ -847,7 +847,7 @@ for sticks_cmd in sticks_command_list:
                 self.MotifResults.MolType.gapMaps(aligned[1])
             
 
-            for curr_ix, curr_module in locations.items():
+            for curr_ix, curr_module in list(locations.items()):
                 curr_module_len = len(str(curr_module))
                 curr_module_id = curr_module.ID
                 #curr_color = self.ColorMap[curr_module_id]
@@ -896,7 +896,7 @@ for sticks_cmd in sticks_command_list:
         #Get locations by sequence
         locations = \
             MotifLocationsBySequence(self.MotifResults).Locations[seq_id]
-        for chain, aligned in pdb_aligned.items():
+        for chain, aligned in list(pdb_aligned.items()):
             #Get subject gap map
             subject_gapped,subject_ungapped = \
                 self.MotifResults.MolType.gapMaps(aligned[0])
@@ -904,7 +904,7 @@ for sticks_cmd in sticks_command_list:
             pdb_gapped,pdb_ungapped = \
                 self.MotifResults.MolType.gapMaps(aligned[1])
             
-            for curr_ix, curr_module in locations.items():
+            for curr_ix, curr_module in list(locations.items()):
                 curr_module_id = curr_module.ID
                 curr_module_conserved = conserved_positions[curr_module_id]
                 #get index list
@@ -941,7 +941,7 @@ for sticks_cmd in sticks_command_list:
         of = None
         try:
             of = open(pdb_file)
-        except Exception, e:
+        except Exception as e:
             of = GzipFile(pdb_file + ".gz")
         return of 
     
@@ -1074,7 +1074,7 @@ for sticks_cmd in sticks_command_list:
                     
                     if mod_id not in module_cons_map:
                         module_cons_map[mod_id] = self._make_conservation_consensus(module)
-                    for skey, indexes in module.LocationDict.items():
+                    for skey, indexes in list(module.LocationDict.items()):
                         if skey not in module_map:
                             module_map[skey] = []
                         for ix in indexes:
@@ -1098,7 +1098,7 @@ class ColorSecondaryStructurePostscript(MotifFormatter):
                 for module in motif.Modules:
                     mod_len = len(module)
                     mod_id = str(module.ID)
-                    for skey, indexes in module.LocationDict.items():
+                    for skey, indexes in list(module.LocationDict.items()):
                         if skey not in module_map:
                             module_map[skey] = []
                         for ix in indexes:
@@ -1120,7 +1120,7 @@ class ColorSecondaryStructurePostscript(MotifFormatter):
         MotifFormatter.__init__(self)
         self.ModuleMap = self.makeModuleMap(MotifResults)
         module_ids = set([])
-        for skey, slist in self.ModuleMap.items():
+        for skey, slist in list(self.ModuleMap.items()):
             for stup in slist:
                 module_ids.add(stup[1])
         self.ColorMap = self.getColorMapRgb(MotifResults)
@@ -1169,7 +1169,7 @@ class ColorSecondaryStructurePostscript(MotifFormatter):
             - {seq_id:{gapped_coord:ungapped_coord}}
         """
         gap_map = {}
-        for k,v in self.Alignment.items():
+        for k,v in list(self.Alignment.items()):
             gapped, ungapped = self.MolType.gapMaps(v)
             gap_map[k] = gapped
         return gap_map
@@ -1190,7 +1190,7 @@ class ColorSecondaryStructurePostscript(MotifFormatter):
         self.GapMap[seq_id]= gapped
         if self.Strict:
             if seq_id not in self.ModuleMap:
-                raise IndexError, 'seq_id %s not in ModuleMap'%(seq_id)
+                raise IndexError('seq_id %s not in ModuleMap'%(seq_id))
         else:
             if seq_id not in self.ModuleMap:
                 return [],[]
@@ -1254,7 +1254,7 @@ class ColorSecondaryStructurePostscript(MotifFormatter):
         self.GapMap[seq_id]= gapped
         if self.Strict:
             if seq_id not in self.ModuleMap:
-                raise IndexError, 'seq_id %s not in ModuleMap'%(seq_id)
+                raise IndexError('seq_id %s not in ModuleMap'%(seq_id))
         else:
             if seq_id not in self.ModuleMap:
                 return [],[]
@@ -1310,7 +1310,7 @@ class ColorSecondaryStructureMatplotlib(MotifFormatter):
                 for module in motif.Modules:
                     mod_len = len(module)
                     mod_id = str(module.ID)
-                    for skey, indexes in module.LocationDict.items():
+                    for skey, indexes in list(module.LocationDict.items()):
                         if skey not in module_map:
                             module_map[skey] = []
                         for ix in indexes:
@@ -1332,7 +1332,7 @@ class ColorSecondaryStructureMatplotlib(MotifFormatter):
         MotifFormatter.__init__(self)
         self.ModuleMap = self.makeModuleMap(MotifResults)
         module_ids = set([])
-        for skey, slist in self.ModuleMap.items():
+        for skey, slist in list(self.ModuleMap.items()):
             for stup in slist:
                 module_ids.add(stup[1])
         self.ColorMap = self.getColorMapRgb(MotifResults)
@@ -1383,7 +1383,7 @@ class ColorSecondaryStructureMatplotlib(MotifFormatter):
             - {seq_id:{gapped_coord:ungapped_coord}}
         """
         gap_map = {}
-        for k,v in self.Alignment.items():
+        for k,v in list(self.Alignment.items()):
             gapped, ungapped = self.MolType.gapMaps(v)
             gap_map[k] = gapped
         return gap_map
@@ -1404,7 +1404,7 @@ class ColorSecondaryStructureMatplotlib(MotifFormatter):
         self.GapMap[seq_id]= gapped
         if self.Strict:
             if seq_id not in self.ModuleMap:
-                raise IndexError, 'seq_id %s not in ModuleMap'%(seq_id)
+                raise IndexError('seq_id %s not in ModuleMap'%(seq_id))
         else:
             if seq_id not in self.ModuleMap:
                 return [],[]
@@ -1468,7 +1468,7 @@ class ColorSecondaryStructureMatplotlib(MotifFormatter):
         self.GapMap[seq_id]= gapped
         if self.Strict:
             if seq_id not in self.ModuleMap:
-                raise IndexError, 'seq_id %s not in ModuleMap'%(seq_id)
+                raise IndexError('seq_id %s not in ModuleMap'%(seq_id))
         else:
             if seq_id not in self.ModuleMap:
                 return [],[]
@@ -1524,7 +1524,7 @@ class MotifsUpperCase(MotifFormatter):
                 for module in motif.Modules:
                     mod_len = len(module)
                     mod_id = str(module.ID)
-                    for skey, indexes in module.LocationDict.items():
+                    for skey, indexes in list(module.LocationDict.items()):
                         if skey not in module_map:
                             module_map[skey] = []
                         for ix in indexes:
@@ -1558,7 +1558,7 @@ class MotifsUpperCase(MotifFormatter):
         """Call method for ColorSecondaryStructure class.  """
         aln = SequenceCollection(aln)
         new_aln = {}
-        for k,v in aln.NamedSeqs.items():
+        for k,v in list(aln.NamedSeqs.items()):
             new_aln[k]=self.getUpperCaseSequence(k,v)
         
         
@@ -1567,7 +1567,7 @@ class MotifsUpperCase(MotifFormatter):
         out_file = open(out_path,'w')
         out_file.write(fasta_from_alignment(new_aln))
         out_file.close()
-        print out_path
+        print(out_path)
         return new_aln
             
     def getGapMap(self):
@@ -1576,7 +1576,7 @@ class MotifsUpperCase(MotifFormatter):
             - {seq_id:{gapped_coord:ungapped_coord}}
         """
         gap_map = {}
-        for k,v in self.Alignment.items():
+        for k,v in list(self.Alignment.items()):
             gapped, ungapped = self.MolType.gapMaps(v)
             gap_map[k] = gapped
         return gap_map
@@ -1641,7 +1641,7 @@ class MotifSequenceConstraints(MotifFormatter):
                 for module in motif.Modules:
                     mod_len = len(module)
                     mod_id = str(module.ID)
-                    for skey, indexes in module.LocationDict.items():
+                    for skey, indexes in list(module.LocationDict.items()):
                         if skey not in module_map:
                             module_map[skey] = []
                         for ix in indexes:
@@ -1704,7 +1704,7 @@ class MotifSequenceConstraints(MotifFormatter):
             - {seq_id:{gapped_coord:ungapped_coord}}
         """
         gap_map = {}
-        for k,v in self.Alignment.items():
+        for k,v in list(self.Alignment.items()):
             gapped, ungapped = self.MolType.gapMaps(v)
             gap_map[k] = gapped
         return gap_map
@@ -1725,7 +1725,7 @@ class MotifSequenceConstraints(MotifFormatter):
         self.GapMap[seq_id]= gapped
         if self.Strict:
             if seq_id not in self.ModuleMap:
-                raise IndexError, 'seq_id %s not in ModuleMap'%(seq_id)
+                raise IndexError('seq_id %s not in ModuleMap'%(seq_id))
         else:
             if seq_id not in self.ModuleMap:
                 return '',''
@@ -1760,7 +1760,7 @@ class MotifSequenceConstraints(MotifFormatter):
         
         #Get seq_mask_dict.  Calling this will construct self.GapMap for given
         # sequence.
-        for seq_id,seq in alignment.items():
+        for seq_id,seq in list(alignment.items()):
             curr_seq_mask = self.getSeqMask(seq_id,seq)
                     
             #for each module

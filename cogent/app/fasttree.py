@@ -85,11 +85,10 @@ class FastTree(CommandLineApplication):
 
         # Build up the command, consisting of a BaseCommand followed by
         # input and output (file) specifications
-        command = self._command_delimiter.join(filter(None,\
-            [self.BaseCommand,str(input_arg),'>',str(outfile),'2>',\
-                str(errfile)]))
+        command = self._command_delimiter.join([_f for _f in [self.BaseCommand,str(input_arg),'>',str(outfile),'2>',\
+                str(errfile)] if _f])
         if self.HaltExec:
-            raise AssertionError, "Halted exec with command:\n" + command
+            raise AssertionError("Halted exec with command:\n" + command)
         # The return value of system is a 16-bit number containing the signal 
         # number that killed the process, and then the exit status. 
         # We only want to keep the exit status so do a right bitwise shift to 
@@ -99,9 +98,8 @@ class FastTree(CommandLineApplication):
         # Determine if error should be raised due to exit status of 
         # appliciation
         if not self._accept_exit_status(exit_status):
-            raise ApplicationError, \
-             'Unacceptable application exit status: %s, command: %s'\
-                % (str(exit_status),command)
+            raise ApplicationError('Unacceptable application exit status: %s, command: %s'\
+                % (str(exit_status),command))
 
         out = open(outfile,"r")
 
@@ -138,8 +136,7 @@ def build_tree_from_alignment(aln, moltype, best_tree=False, params=None):
     elif moltype == PROTEIN:
         params['-nt'] = False
     else:
-        raise ValueError, \
-                "FastTree does not support moltype: %s" % moltype.label
+        raise ValueError("FastTree does not support moltype: %s" % moltype.label)
 
     if best_tree:
         params['-slow'] = True

@@ -27,7 +27,7 @@ def parse_VertFile(VertFile):
     for line in VertFile.readlines():
         elements = line.split()
         try:
-            vertex = map(float, elements[0:3])
+            vertex = list(map(float, elements[0:3]))
         except ValueError:
             continue
         vertex_list.append(vertex)

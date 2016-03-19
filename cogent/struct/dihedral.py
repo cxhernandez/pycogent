@@ -65,9 +65,9 @@ def angle(v1,v2):
 def calc_angle(vec1,vec2,vec3):
     """Calculates a flat angle from three coordinates."""
     if len(vec1) == 3:
-        v1, v2, v3 = map(create_vector,[vec1,vec2,vec3])
+        v1, v2, v3 = list(map(create_vector,[vec1,vec2,vec3]))
     else:
-        v1, v2, v3 = map(create_vector2d,[vec1,vec2,vec3])
+        v1, v2, v3 = list(map(create_vector2d,[vec1,vec2,vec3]))
     v12 = v2 - v1
     v23 = v2 - v3
     return angle(v12, v23)
@@ -87,7 +87,7 @@ def create_vectors(vec1,vec2,vec3,vec4):
     (dihedral does not work for them because
     the Win and Linux libraries are not identical.
     """
-    return map(create_vector,[vec1,vec2,vec3,vec4])
+    return list(map(create_vector,[vec1,vec2,vec3,vec4]))
 
 def dihedral(vec1,vec2,vec3,vec4):
     """

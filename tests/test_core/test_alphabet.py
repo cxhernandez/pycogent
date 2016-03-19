@@ -88,7 +88,7 @@ class EnumerationTests(TestCase):
         self.assertEqual(a.Gap, '-')
         self.assertEqual(a.GapIndex, 2)
 
-        a = Enumeration(range(257))    #too big to fit in uint8
+        a = Enumeration(list(range(257)))    #too big to fit in uint8
         self.assertEqual(a.ArrayType, uint16)
 
     def test_index(self):

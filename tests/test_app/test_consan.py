@@ -64,7 +64,7 @@ class ConsanTest(TestCase):
         input = self.input1
         input.extend(self.input2)
         res = c(input)
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus'])
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus'])
         self.assertEqual(res['ExitStatus'],0)
         res.cleanUp()
 

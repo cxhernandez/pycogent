@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from __future__ import division
+
 from cogent.maths.stats.special import lgam
 from cogent.maths.optimisers import minimise
 from math import ceil, e
@@ -109,7 +109,7 @@ def brillouin_d(counts):
     """Brilloun index of alpha diversity: Pielou 1975, by way of SDR-IV."""
     nz = counts[counts.nonzero()]
     n = nz.sum()
-    return (lgam(n+1) - array(map(lgam, nz+1)).sum())/n
+    return (lgam(n+1) - array(list(map(lgam, nz+1))).sum())/n
 
 def kempton_taylor_q(counts, lower_quantile=.25, upper_quantile=.75):
     """Kempton-Taylor (1976) q index of alpha diversity, by way of SDR-IV.
@@ -488,7 +488,7 @@ def diversity(indices,f=chao1,step=1,start=None,verbose=False):
         except (ZeroDivisionError, FloatingPointError, e):
             curr = 0
         if verbose:
-            print curr
+            print(curr)
         result.append(curr)
         i=j
     return array(result)

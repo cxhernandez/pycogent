@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from __future__ import division
+
 from numpy import array, zeros, float64 as Float64
 from cogent.util.unit_test import TestCase, main
 from cogent.parse.tree import DndParser
@@ -77,17 +77,17 @@ class VoronoiTests(GeneralTests):
         aln4_exp = {'seq1':.1875, 'seq2':.1875,'seq3':.1875,'seq4':.1875,\
             'seq5':.25}
         aln5_exp = {'seq_0':0.33333,'seq_1':0.25,'seq_2':0.4167}
-        aln6_exp = dict(zip(map(str,[1,2,3,4,5,6,7,8,9,10]),\
+        aln6_exp = dict(list(zip(list(map(str,[1,2,3,4,5,6,7,8,9,10])),\
             [0.0962,0.0925,0.1061,0.1007,0.0958,0.0977,0.0914,\
-            0.0934,0.1106,0.1156]))
+            0.0934,0.1106,0.1156])))
  
-        self.assertFloatEqualAbs(VA(self.aln2).values(),aln2_exp.values(),
+        self.assertFloatEqualAbs(list(VA(self.aln2).values()),list(aln2_exp.values()),
             eps=err)
-        self.assertFloatEqualAbs(VA(self.aln4).values(),aln4_exp.values(),
+        self.assertFloatEqualAbs(list(VA(self.aln4).values()),list(aln4_exp.values()),
             eps=err)
-        self.assertFloatEqualAbs(VA(self.aln5).values(),aln5_exp.values(),
+        self.assertFloatEqualAbs(list(VA(self.aln5).values()),list(aln5_exp.values()),
             eps=err)
-        self.assertFloatEqualAbs(VA(self.aln6).values(),aln6_exp.values(),
+        self.assertFloatEqualAbs(list(VA(self.aln6).values()),list(aln6_exp.values()),
             eps=err)
 
         results = []
@@ -104,11 +104,11 @@ class VoronoiTests(GeneralTests):
         aln4_exp = {'seq1':.1851, 'seq2':.1851,'seq3':.1851,'seq4':.1851,\
             'seq5':.259}
         
-        self.assertFloatEqualAbs(VOR(self.aln2).values(),aln2_exp.values(),
+        self.assertFloatEqualAbs(list(VOR(self.aln2).values()),list(aln2_exp.values()),
             eps=err)
-        self.assertFloatEqualAbs(VOR(self.aln3).values(),aln3_exp.values(),\
+        self.assertFloatEqualAbs(list(VOR(self.aln3).values()),list(aln3_exp.values()),\
             eps=err)
-        self.assertFloatEqualAbs(VOR(self.aln4).values(),aln4_exp.values(),\
+        self.assertFloatEqualAbs(list(VOR(self.aln4).values()),list(aln4_exp.values()),\
             eps=err)
 
         #this is the exact method, so the answer should be exactly the same
@@ -126,20 +126,20 @@ class VoronoiTests(GeneralTests):
         aln3_exp = {'seq1':.29167, 'seq2':.29167, 'seq3':.4167}
         aln4_exp = {'seq1':.1851, 'seq2':.1851,'seq3':.1851,'seq4':.1851,\
             'seq5':.259}
-        aln6_exp = dict(zip(map(str,[1,2,3,4,5,6,7,8,9,10]),\
+        aln6_exp = dict(list(zip(list(map(str,[1,2,3,4,5,6,7,8,9,10])),\
             [0.0840,0.0763,0.1155,0.1019,0.0932,0.0980,0.0864,\
-            0.0999,0.1121,0.1328]))
+            0.0999,0.1121,0.1328])))
  
         # the following assertSimilarMeans statements were added to replace 
         # stochastic assertFloatEqualAbs calls below
-        self.assertSimilarMeans(VOR(self.aln2,force_monte_carlo=True).values(),
-                                 aln2_exp.values())
-        self.assertSimilarMeans(VOR(self.aln3,force_monte_carlo=True).values(),
-                                 aln3_exp.values())
-        self.assertSimilarMeans(VOR(self.aln4,force_monte_carlo=True).values(),
-                                 aln4_exp.values())
-        self.assertSimilarMeans(VOR(self.aln6,n=1000).values(),
-                                 aln6_exp.values())
+        self.assertSimilarMeans(list(VOR(self.aln2,force_monte_carlo=True).values()),
+                                 list(aln2_exp.values()))
+        self.assertSimilarMeans(list(VOR(self.aln3,force_monte_carlo=True).values()),
+                                 list(aln3_exp.values()))
+        self.assertSimilarMeans(list(VOR(self.aln4,force_monte_carlo=True).values()),
+                                 list(aln4_exp.values()))
+        self.assertSimilarMeans(list(VOR(self.aln6,n=1000).values()),
+                                 list(aln6_exp.values()))
 
         #self.assertFloatEqualAbs(VOR(self.aln2,force_monte_carlo=True)\
         #    .values(), aln2_exp.values(),eps=err)
@@ -165,8 +165,8 @@ class VoronoiTests(GeneralTests):
 
         # the following assertSimilarMeans statement was added to replace 
         # stochastic assertFloatEqualAbs call below
-        self.assertSimilarMeans(VOR(self.aln2, mc_threshold=15).values(), 
-                                 aln2_exp.values())
+        self.assertSimilarMeans(list(VOR(self.aln2, mc_threshold=15).values()), 
+                                 list(aln2_exp.values()))
         #self.assertFloatEqual(VOR(self.aln2,mc_threshold=15).values(),\
         #    aln2_exp.values(),err)
         
@@ -191,18 +191,17 @@ class VoronoiTests(GeneralTests):
         aln3_exp = {'seq1':.25, 'seq2':.25, 'seq3':.5}
         aln4_exp = {'seq1':.1667, 'seq2':.1667,'seq3':.1667,'seq4':.1667,\
             'seq5':.3333}       
-        aln6_exp = dict(zip(map(str,[1,2,3,4,5,6,7,8,9,10]),
+        aln6_exp = dict(list(zip(list(map(str,[1,2,3,4,5,6,7,8,9,10])),
             [0.09021,0.08039,0.113560,0.10399,0.092370,0.097130,
-            0.09198,0.09538,0.10927,0.12572]))
+            0.09198,0.09538,0.10927,0.12572])))
 
         # the following assertSimilarMeans statements were added to replace 
         # stochastic assertFloatEqualAbs calls below
-        self.assertSimilarMeans(mVOR(self.aln3,order="ABC").values(),
-                                 aln3_exp.values())
-        self.assertSimilarMeans(mVOR(self.aln4,order="ABC").values(),
-                                 aln4_exp.values())
-        self.assertSimilarMeans(mVOR(self.aln6,order=DNA_ORDER,n=3000)\
-                                 .values(), aln6_exp.values())
+        self.assertSimilarMeans(list(mVOR(self.aln3,order="ABC").values()),
+                                 list(aln3_exp.values()))
+        self.assertSimilarMeans(list(mVOR(self.aln4,order="ABC").values()),
+                                 list(aln4_exp.values()))
+        self.assertSimilarMeans(list(mVOR(self.aln6,order=DNA_ORDER,n=3000).values()), list(aln6_exp.values()))
 
         #self.assertFloatEqualAbs(mVOR(self.aln3,order="ABC").values(),\
         #    aln3_exp.values(),eps=err)
@@ -230,7 +229,7 @@ class PositionBasedTests(GeneralTests):
         exp = [{'G':1/4},{'Y':1/6,'F':1/2},{'V':1/3,'D':1/6,'Q':1/3},
             {'G':1/4},{'G':1/3,'F':1/6,'S':1/3}]
         for pos, weights in enumerate(exp):
-            for k,v in weights.items():
+            for k,v in list(weights.items()):
                 exp_data[PROTEIN_ORDER.index(k),pos] = v
         exp_aln2 = Profile(exp_data,Alphabet=PROTEIN_ORDER)
 
@@ -243,8 +242,7 @@ class PositionBasedTests(GeneralTests):
         err=1e-3
         aln2_exp = {'seq3': 0.2, 'seq2': 0.267, 'seq1': 0.267, 'seq4': 0.267}
 
-        self.assertFloatEqualAbs(PB(self.aln2,PROTEIN_ORDER)\
-            .values(), aln2_exp.values(),eps=err)
+        self.assertFloatEqualAbs(list(PB(self.aln2,PROTEIN_ORDER).values()), list(aln2_exp.values()),eps=err)
 
 class SsTests(GeneralTests):
     """Tests for SS function"""
@@ -254,16 +252,16 @@ class SsTests(GeneralTests):
         err=1e-3
         aln4_exp = {'seq1':.1910, 'seq2':.1910,'seq3':.1910,'seq4':.1910,\
             'seq5':.2361}
-        aln6_exp = dict(zip(map(str,[1,2,3,4,5,6,7,8,9,10]),
+        aln6_exp = dict(list(zip(list(map(str,[1,2,3,4,5,6,7,8,9,10])),
             [0.0977,0.0942,0.1045,0.0997,0.0968,0.0988,
-            0.0929,0.0950,0.1076,0.1122]))
+            0.0929,0.0950,0.1076,0.1122])))
         aln7_exp = {'seq1':.1792, 'seq2':.2447,'seq3':.2880,'seq4':.2880}
 
-        self.assertFloatEqualAbs(SS(self.aln4).values(),aln4_exp.values(),
+        self.assertFloatEqualAbs(list(SS(self.aln4).values()),list(aln4_exp.values()),
             eps=err) 
-        self.assertFloatEqualAbs(SS(self.aln6).values(),aln6_exp.values(),
+        self.assertFloatEqualAbs(list(SS(self.aln6).values()),list(aln6_exp.values()),
             eps=err)
-        self.assertFloatEqualAbs(SS(self.aln7).values(),aln7_exp.values(),
+        self.assertFloatEqualAbs(list(SS(self.aln7).values()),list(aln7_exp.values()),
             eps=err)
 
 
@@ -310,13 +308,13 @@ class GscTests(GeneralTests):
         err = 1e-3
         tree6_exp = {'A': 0.19025, 'B': 0.19025, 'C': 0.2717, 'D': 0.3478}
         tree7_exp = {'A':.25, 'B':.25, 'C':.25, 'D':.25}
-        tree8_exp = dict(zip('ABCDEFGH',[.1,.1,.2,.06,.06,.16,.16,.16]))
-        self.assertFloatEqualAbs(GSC(self.tree6).values(),\
-            tree6_exp.values(),eps=err)
-        self.assertFloatEqualAbs(GSC(self.tree7).values(),\
-            tree7_exp.values(),eps=err)
-        self.assertFloatEqualAbs(GSC(self.tree8).values(),\
-            tree8_exp.values(),eps=err)
+        tree8_exp = dict(list(zip('ABCDEFGH',[.1,.1,.2,.06,.06,.16,.16,.16])))
+        self.assertFloatEqualAbs(list(GSC(self.tree6).values()),\
+            list(tree6_exp.values()),eps=err)
+        self.assertFloatEqualAbs(list(GSC(self.tree7).values()),\
+            list(tree7_exp.values()),eps=err)
+        self.assertFloatEqualAbs(list(GSC(self.tree8).values()),\
+            list(tree8_exp.values()),eps=err)
 
 
 #Rooted tree relating 15 HIV-1 isolates. From Altschul (1989) Fig 2.

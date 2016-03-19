@@ -12,10 +12,10 @@ Provides the following major classes and factory functions:
     ShortBitvector and LongBitvector: subclass ImmutableBitvector and are
     produced by the factory function Bitvector(). Short uses an int, while
     Long uses a long. ShortBitvectors in particular are _very_ fast, but are
-    limited to 31 bits. Bitvector() will return the appropriate kind of 
+    limited to 31 bits. Bitvector() will return the appropriate kind of
     vector for your sequence.
 
-    MutableBitvector: always a LongBitvector. Can be changed through 
+    MutableBitvector: always a LongBitvector. Can be changed through
     __getitem__, e.g. vec[3] = 0. Use freeze() and thaw() methods to
     convert between mutable and immutable Bitvectors (both types define both
     methods).
@@ -37,10 +37,11 @@ Provides the following major classes and factory functions:
 
 from cogent.util.misc import Delegator
 import re
-from string import maketrans
 from operator import and_, or_, xor
 from numpy import log2
-from sys import maxint
+from sys import maxsize
+
+maketrans = str.maketrans
 
 __author__ = "Jeremy Widmann"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -51,7 +52,7 @@ __maintainer__ = "Jeremy Widmann"
 __email__ = "jeremy.widmann@colorado.edu"
 __status__ = "Production"
 
-_bits_in_int = int(round(log2(maxint)))
+_bits_in_int = int(round(log2(maxsize)))
 
 
 def is_nonzero_string_char(char):
@@ -79,7 +80,7 @@ def seq_to_bitstring(seq):
         return ''.join(map(is_nonzero_string_char, seq))
     else:
         return ''.join(map(is_nonzero_char, seq))
-        
+
 def is_nonzero_string_int(char):
     """Tests whether input character is not '0', returning 1 or 0."""
     if char == '0' or char == '':
@@ -102,16 +103,16 @@ def seq_to_bitlist(seq):
     if not seq:
         return []
     if isinstance(seq, str):
-        return map(is_nonzero_string_int, seq)
+        return list(map(is_nonzero_string_int, seq))
     else:
-        return map(is_nonzero_int, seq)
+        return list(map(is_nonzero_int, seq))
 
 def num_to_bitstring(num, length):
     """Returns string of bits from number, truncated at length.
 
     Algorithm: While the number storing the bitvector is greater than
-    zero, find the last digit as (num mod 2) and then bit-shift the string to 
-    the right to delete the last digit. Add the digits into a string from 
+    zero, find the last digit as (num mod 2) and then bit-shift the string to
+    the right to delete the last digit. Add the digits into a string from
     right to left (in reverse order).
 
     In other words, when length is too small for the number, takes the last
@@ -120,7 +121,7 @@ def num_to_bitstring(num, length):
     Warning: this is not terribly efficient, since the entire number
     must be rewritten at each shift step. In mutable bitvectors,
     use caching to reduce the number of conversions required.
-               
+
     """
     bits = [0] * length #start with all zeroes
     #successively find the last bit of curr, replacing the
@@ -131,7 +132,7 @@ def num_to_bitstring(num, length):
         num >>= 1
         length -= 1
     return ''.join(map(str, bits))
-    
+
 def bitcount(num, length, value=1):
     """Counts the bits in num that are set to value (1 or 0, default 1)."""
     one_count = 0
@@ -176,7 +177,7 @@ class ImmutableBitvector(object):
                 other_length = self_length
         else:
             other_length = other._length
-            
+
         if self_length == other_length:
         #if they're the same length, just combine the vectors
             return Bitvector(func(self, other), self_length)
@@ -206,8 +207,8 @@ class ImmutableBitvector(object):
         #check that there actually are items in the vector
         length = self._length
         if not length:
-            raise IndexError, "Can't find items in empty vector!"
-        
+            raise IndexError("Can't find items in empty vector!")
+
         if isinstance(item, slice):
             return Bitvector(''.join(map(str,[self[i] \
                 for i in range(*item.indices(length))])))
@@ -217,10 +218,10 @@ class ImmutableBitvector(object):
                 item += length
             #check that key is in bounds
             if (item < 0) or (item >= length):
-                raise IndexError, "Index %s out of range." % (item,)
+                raise IndexError("Index %s out of range." % (item,))
             move_to = length - item - 1
             if move_to >= _bits_in_int:
-                result =  self & (1L << move_to)
+                result =  self & (1 << move_to)
             else:
                 result = self & (1 << move_to)
             if result:
@@ -261,7 +262,7 @@ class ImmutableBitvector(object):
         The list will contain the slices for the indices containing the given
         state.  If no state given (state = None) the list will consist of all
         of the subsequences, cut at the indices.
-        
+
         The list and self[0] are returned as a tuple.
 
         Truncates whichever sequence is shorter.
@@ -287,12 +288,57 @@ class ImmutableBitvector(object):
                 cut_seq.append(seq[cut_list[i]:cut_list[i+1]])
         first = self[0]
 
-        return filter(None, cut_seq), first
+        return [_f for _f in cut_seq if _f], first
 
-class ShortBitvector(ImmutableBitvector, int):
+
+class ShortBitvector(ImmutableBitvector):
     """Short bitvector, stored as an int."""
     __slots__ = ['_length']
-    
+
+    def __new__(cls, items='', length='ignored'):
+        """Creates new bitvector from sequence of items."""
+        if isinstance(items, str):
+            if items:   # guard against empty string
+                return int.__new__(cls, items, 2)
+            else:
+                return int.__new__(cls, 0)
+        else:
+            return int.__new__(cls, items)
+
+    def __or__(self, other):
+        """Returns position-wise OR (true if either true)."""
+        if isinstance(other, int):
+            return LongBitvector(self).__or__(other)
+        else:
+            return self.op(other, int.__or__)
+
+    def __and__(self, other):
+        """Returns position-wise AND (true if both true)."""
+        if isinstance(other, int):
+            return LongBitvector(self).__and__(other)
+        else:
+            return self.op(other, int.__and__)
+
+    def __xor__(self, other):
+        """Returns position-wise XOR of self and other (true if states differ).
+        """
+        if isinstance(other, int):
+            return LongBitvector(self).__xor__(other)
+        else:
+            return self.op(other, int.__xor__)
+
+    def __invert__(self):
+        """Returns complement (replace 1 with 0 and vice versa)."""
+        length = self._length
+        if length >= _bits_in_int:
+            mask = (1 << length) - 1
+        else:
+            mask = (1 << length) - 1
+        return Bitvector(mask & ~int(self), length)
+
+class LongBitvector(ImmutableBitvector, int):
+    """Long bitvector, stored as a long."""
+
     def __new__(cls, items='', length='ignored'):
         """Creates new bitvector from sequence of items."""
         if isinstance(items, str):
@@ -305,69 +351,25 @@ class ShortBitvector(ImmutableBitvector, int):
 
     def __or__(self, other):
         """Returns position-wise OR (true if either true)."""
-        if isinstance(other, long):
-            return LongBitvector(self).__or__(other)
-        else:
-            return self.op(other, int.__or__)
+        return self.op(other, int.__or__)
 
     def __and__(self, other):
         """Returns position-wise AND (true if both true)."""
-        if isinstance(other, long):
-            return LongBitvector(self).__and__(other)
-        else:
-            return self.op(other, int.__and__)
+        return self.op(other, int.__and__)
 
     def __xor__(self, other):
         """Returns position-wise XOR of self and other (true if states differ).
         """
-        if isinstance(other, long):
-            return LongBitvector(self).__xor__(other)
-        else:
-            return self.op(other, int.__xor__)
+        return self.op(other, int.__xor__)
 
     def __invert__(self):
         """Returns complement (replace 1 with 0 and vice versa)."""
         length = self._length
-        if length >= _bits_in_int:
-            mask = (1L << length) - 1
-        else:
-            mask = (1 << length) - 1
-        return Bitvector(mask & ~int(self), length)
-
-class LongBitvector(ImmutableBitvector, long):
-    """Long bitvector, stored as a long."""
-    
-    def __new__(cls, items='', length='ignored'):
-        """Creates new bitvector from sequence of items."""
-        if isinstance(items, str):
-            if items:   #guard against empty string
-                return long.__new__(cls, items, 2)
-            else:
-                return long.__new__(cls, 0)
-        else:
-            return long.__new__(cls, items)
-
-    def __or__(self, other):
-        """Returns position-wise OR (true if either true)."""
-        return self.op(other, long.__or__)
-
-    def __and__(self, other):
-        """Returns position-wise AND (true if both true)."""
-        return self.op(other, long.__and__)
-
-    def __xor__(self, other):
-        """Returns position-wise XOR of self and other (true if states differ).
-        """
-        return self.op(other, long.__xor__)
-
-    def __invert__(self):
-        """Returns complement (replace 1 with 0 and vice versa)."""
-        length = self._length
-        return Bitvector(((1L << length) - 1) & ~long(self), length)
+        return Bitvector(((1 << length) - 1) & ~int(self), length)
 
 def Bitvector(items='', length=None, constructor=None):
     """Factory function returning short or long Bitvector depending on length.
-    
+
     Note: uses explict test rather than try/except to fix memory leak.
 
     Now is the only way to convert an arbitrary sequence of true/false values
@@ -378,14 +380,14 @@ def Bitvector(items='', length=None, constructor=None):
         num = items
         if length is None:
             length = len(items)
-    elif isinstance(items, int) or isinstance(items, long):
+    elif isinstance(items, int) or isinstance(items, int):
         num = items
         if length is None:
-            raise TypeError, "Must specify length if initializing with number."
+            raise TypeError("Must specify length if initializing with number.")
     else:
         bitstring = seq_to_bitstring(items)
         if bitstring:
-            num = long(bitstring, 2)
+            num = int(bitstring, 2)
             if length is None:
                 length = len(items)
         else:
@@ -397,7 +399,7 @@ def Bitvector(items='', length=None, constructor=None):
             constructor = ShortBitvector
         else:
             constructor = LongBitvector
-                
+
     return constructor(num, length)
 
 # Original version with memory leak under Python 2.3
@@ -473,10 +475,10 @@ class MutableBitvector(Delegator):
         length = self._length
         #handle slice assignment. Warning: does not allow change in length!
         if isinstance(item, slice):
-            for i, val in zip(range(*item.indices(length)), value):
+            for i, val in zip(list(range(*item.indices(length))), value):
                 self[i] = is_nonzero_int(val)
             return
-        
+
         #otherwise, check that the key is in range
         vec = self._handler
         curr_val = vec[item]
@@ -488,22 +490,22 @@ class MutableBitvector(Delegator):
                 item += length
             #check that key is in bounds
             if (item < 0) or (item >= length):
-                raise IndexError, "Index %s out of range." % (item,)
-            
+                raise IndexError("Index %s out of range." % (item,))
+
             #figure out offset
             move_to = length - item - 1
             if value == 0:
                 #make mask of '1', and combine with &
-                result = vec &((1L << length) - 1) ^ (1L << move_to)
+                result = vec &((1 << length) - 1) ^ (1 << move_to)
 
             elif value == 1:
                 #make mask of '0', and combine with |
-                result = vec | (1L << move_to)
+                result = vec | (1 << move_to)
 
             else:
                 #complain if we got anything else
-                raise ValueError, "Item not 0 or 1: " + str(value)
-            
+                raise ValueError("Item not 0 or 1: " + str(value))
+
             self.replace(result)
 
     def __cmp__(self, other):
@@ -562,7 +564,7 @@ def VectorFromCases(seq, constructor=LongBitvector):
 
     Primarily used for identifying binding sites denoted by uppercase bases.
     """
-    return constructor(''.join(map(str, map(int, [i.isupper() for i in seq]))))
+    return constructor(''.join(map(str, list(map(int, [i.isupper() for i in seq])))))
 
 def VectorFromMatches(seq, pattern, overlapping=1, constructor=LongBitvector):
     """Replaces self with 1(0) for each position in sequence (not) matching.
@@ -639,7 +641,7 @@ def VectorFromMatches(seq, pattern, overlapping=1, constructor=LongBitvector):
                         start = match_start + 1
                     else:
                         start = match_end
-                except AttributeError, TypeError:
+                except AttributeError as TypeError:
                     #match is None if no more in string
                     break
     else:   #sequence was zero-length
@@ -657,12 +659,12 @@ def VectorFromRuns(seq, length, constructor=LongBitvector):
     """
     if not length:
         return constructor('')
-    
+
     bits = ['0']*length
     for start, run in seq:
         if start + run > length:
-            raise IndexError, "start %s + run %s exceeds seq length %s" % \
-                (start, run, length)
+            raise IndexError("start %s + run %s exceeds seq length %s" % \
+                (start, run, length))
         bits[start:start+run] = ['1']*run
     return constructor(''.join(bits))
 
@@ -679,26 +681,26 @@ def VectorFromSpans(seq, length, constructor=LongBitvector):
     """
     if not length:
         return constructor('')
-    
+
     bits = ['0']*length
     for start, stop in seq:
         if stop > length:
-            raise IndexError, "stop %s exceeds seq length %s" % (stop, length)
+            raise IndexError("stop %s exceeds seq length %s" % (stop, length))
         run = stop - start
         bits[start:stop] = ['1']*run
-    
+
     return constructor(''.join(bits))
 
 def VectorFromPositions(seq, length, constructor=LongBitvector):
     """Returns vector with 1 at positions specified by sequence of positions.
 
     seq should be a sequence of ints (position).
-    
+
     length should be an int giving the total length of the sequence.
     """
     if not length:
         return constructor('')
-    
+
     bits = ['0']*length
     for i in seq:
         bits[i] = '1'
@@ -733,9 +735,9 @@ class PackedBases(LongBitvector):
         """
         seq = sequence.translate(cls._sequence_to_bits)
         if not seq:
-            return long.__new__(cls, 0L)
+            return int.__new__(cls, 0)
         else:
-            return long.__new__(cls, long(seq, 4))  #note base 4 conversion
+            return int.__new__(cls, int(seq, 4))  #note base 4 conversion
 
     def __init__(self, sequence='', Rna=True):
         """Returns new PackedBases object."""
@@ -760,4 +762,3 @@ class PackedBases(LongBitvector):
         else:
             num2base = self._dna_bases
         return ''.join([num2base[i] for i in bits])
-

@@ -190,8 +190,8 @@ class RangeTreeTests(TestCase):
         #all elements unique, so should be same as num nodes
         self.assertEqual(len(i), len(list(t.traverse(self_before=True))))
         #check that we got everything
-        i_keys = i.keys()
-        i_vals = i.values()
+        i_keys = list(i.keys())
+        i_vals = list(i.values())
         for node in t.traverse(self_before=True):
             assert node.Name in i_keys
             assert node in i_vals
@@ -397,7 +397,7 @@ class RangeTreeTests(TestCase):
         self.assertEqual(len(list(t.traverse())), 8)
         self.assertEqual(len(list(t.traverse(self_before=True))), 15)
         #check that leaves were created in right order
-        self.assertEqual([i.Id for i in t.traverse()], range(8))
+        self.assertEqual([i.Id for i in t.traverse()], list(range(8)))
         #check that whole toplogy is right wrt ids...
         nodes = list(t.traverse(self_before=True))
         obs = [i.Id for i in nodes]
@@ -531,7 +531,7 @@ class RangeTreeTests(TestCase):
             result[ans] += 1
         self.assertEqual(len(result), 1)
         self.assertEqual(sum(result.values()), 20)
-        self.assertEqual(result.keys()[0], id(t))
+        self.assertEqual(list(result.keys())[0], id(t))
          
 
     def test_outgroupLast(self):
@@ -558,7 +558,7 @@ class RangeTreeTests(TestCase):
         
         t = deepcopy(t_orig)
         idx = t.indexByAttr('Name')
-        to_keep = map(idx.__getitem__, 'abch')
+        to_keep = list(map(idx.__getitem__, 'abch'))
         curr_leaves = list(t.traverse())
         t.filter(to_keep)
         curr_leaves = list(t.traverse())
@@ -572,7 +572,7 @@ class RangeTreeTests(TestCase):
         #test same thing but omitting
         t = deepcopy(t_orig)
         idx = t.indexByAttr('Name')
-        to_omit = map(idx.__getitem__, 'abch')
+        to_omit = list(map(idx.__getitem__, 'abch'))
         t.filter(to_omit, keep=False)
         curr_leaves = list(t.traverse())
         for i in to_omit:
@@ -594,7 +594,7 @@ class RangeTreeTests(TestCase):
         idx = t.indexByAttr('Name')
         for i in t.traverse(self_after=True):
             i.BranchLength = 1
-        to_omit = map(idx.__getitem__, 'abdefg')
+        to_omit = list(map(idx.__getitem__, 'abdefg'))
         t.filter(to_omit, keep=False)
         self.assertEqual(str(t), '(c,h)')
 

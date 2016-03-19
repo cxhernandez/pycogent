@@ -79,7 +79,7 @@ class Stem(object):
         if item < 0:
             item = length - item
         if (item < 0) or (item >= length):
-            raise IndexError, "Index %s out of range." % item
+            raise IndexError("Index %s out of range." % item)
         #return appropriate base pair
         return Stem(self.Start + item, self.End - item)
         
@@ -118,7 +118,7 @@ class Stem(object):
         """String representation contains Start,End,Length."""
         return '(%s,%s,%s)' % (self.Start, self.End, self.Length)
     
-    def __nonzero__(self):
+    def __bool__(self):
         """Nonzero if length > 0."""
         return self.Length > 0
 
@@ -142,7 +142,7 @@ class Partners(list):
     def __setitem__(self, index, item):
         """Sets self[index] to item, enforcing integrity constraints."""
         if index == item:
-            raise ValueError, "Cannot set base %s to pair with itself." % item
+            raise ValueError("Cannot set base %s to pair with itself." % item)
         #if item already paired, raise Error or make partner unpaired
         if item and self[item]:
             self[self[item]] = None
@@ -202,8 +202,8 @@ class Pairs(list):
             
             if result[upstream] or result[downstream]:
                 if strict:
-                    raise ValueError, "Pairs contain conflicting partners: %s"\
-                        % self
+                    raise ValueError("Pairs contain conflicting partners: %s"\
+                        % self)
             result[upstream] = downstream
         return result
             
@@ -218,7 +218,7 @@ class Pairs(list):
         strict specifies whether collisions cause fatal errors.
         """
         if self.hasPseudoknots():
-            raise PairError, "Pairs contains pseudoknots %s"%(self)
+            raise PairError("Pairs contains pseudoknots %s"%(self))
         try:
             length = int(length)
         except ValueError: #raised when length can't be converted to int
@@ -235,8 +235,8 @@ class Pairs(list):
 
             if strict:
                 if (result[upstream] != '.') or (result[downstream] != '.'):
-                    raise ValueError, "Pairs contain conflicting partners: %s"\
-                        % self
+                    raise ValueError("Pairs contain conflicting partners: %s"\
+                        % self)
             result[upstream] = '('
             result[downstream] = ')'
         return ViennaStructure(''.join(result))
@@ -248,7 +248,7 @@ class Pairs(list):
         different types, e.g. lists and tuples, will sort according to type
         rather than to position).
         """
-        self[:] = map(tuple, self)
+        self[:] = list(map(tuple, self))
 
     def unique(self):
         """Returns copy of self omitting duplicate pairs, preserving order.
@@ -276,7 +276,7 @@ class Pairs(list):
             if up > down:
                 up, down = down, up
             seen[(up, down)] = True
-        result = seen.keys()
+        result = list(seen.keys())
         return Pairs(result)
 
     def symmetric(self):
@@ -291,7 +291,7 @@ class Pairs(list):
 
     def paired(self):
         """Returns copy of self omitting items where a 'partner' is None."""
-        return Pairs(filter(not_none, self))
+        return Pairs(list(filter(not_none, self)))
 
         
     def hasPseudoknots(self):
@@ -407,8 +407,7 @@ class StructureString(str):
         if a:
             for i in Structure:
                 if i not in a:
-                    raise ValueError,\
-                    "Tried to include unknown symbol '%s'" % i
+                    raise ValueError("Tried to include unknown symbol '%s'" % i)
         
         return str.__new__(cls,Structure)
 
@@ -455,8 +454,7 @@ class StructureString(str):
                
         #test whether there are any open pairs left unaccounted for        
         if stack:
-           raise IndexError, \
-           "Too many open pairs in structure:\n%s" % self
+           raise IndexError("Too many open pairs in structure:\n%s" % self)
         return Partners(result)
 
     def toPairs(self):
@@ -478,8 +476,7 @@ class StructureString(str):
                result[stack.pop()] = i
         #test whether there are any open pairs left unaccounted for        
         if stack:
-           raise IndexError, \
-           "Too many open pairs in structure:\n%s" % self
+           raise IndexError("Too many open pairs in structure:\n%s" % self)
         return Pairs([(key,result[key]) for key in result])
 
     def toTree(self):
@@ -594,7 +591,7 @@ class StructureNode(TreeNode):
         if self.Parent is None:
             return None
         else:
-            ids = map(id, self.Parent.Children)
+            ids = list(map(id, self.Parent.Children))
             return ids.index(id(self))
 
     def _set_index(self, index):
@@ -604,7 +601,7 @@ class StructureNode(TreeNode):
         the old list before self is removed.
         """
         if self.Parent is None:
-            raise TreeError, "Can't set Index in node %s without parent." % self
+            raise TreeError("Can't set Index in node %s without parent." % self)
         else:
             curr_parent = self.Parent
             curr_parent.removeNode(self)
@@ -653,8 +650,8 @@ class StructureNode(TreeNode):
             else:
                 return "Junction"
         #should never get down here, since all cases are handled above
-        raise ValueError, '_get_type failed on node with start %s, end %s' % \
-            (self.Start, self.End)
+        raise ValueError('_get_type failed on node with start %s, end %s' % \
+            (self.Start, self.End))
     Type = property(_get_type)
         
     def renumber(self, start=0):
@@ -979,8 +976,8 @@ def classify(struct, verbose=False):
     try:
         Vienna(struct)
     except IndexError:
-        raise IndexError, "Trying to classify an invalid Vienna structure: %s"\
-        %(struct)
+        raise IndexError("Trying to classify an invalid Vienna structure: %s"\
+        %(struct))
     
     MAX_STEMS=1000
 
@@ -989,7 +986,7 @@ def classify(struct, verbose=False):
     ITEMS = 1
     DEGREE = 2
 
-    STEM, LOOP, BULGE, JUNCTION, END, FLEXIBLE = map(ord, 'SLBJEF')
+    STEM, LOOP, BULGE, JUNCTION, END, FLEXIBLE = list(map(ord, 'SLBJEF'))
     #WARNING: won't work if more than max_stems come off a junction
     LEVELS = [FLEXIBLE, LOOP, BULGE] + [JUNCTION]*MAX_STEMS
 
@@ -998,12 +995,12 @@ def classify(struct, verbose=False):
     stack = [None,[],0]
     curr_level = stack
     if verbose:
-        print 'curr_level:', curr_level
-        print 'result:', result
+        print('curr_level:', curr_level)
+        print('result:', result)
 
     for i, c in enumerate(struct):
         if verbose:
-            print 'pos, char:',i,c
+            print('pos, char:',i,c)
         #open parens add new level to stack
         if c == '(':
             curr_level = [curr_level,[],1]
@@ -1018,8 +1015,8 @@ def classify(struct, verbose=False):
             curr_level = curr_level[PARENT]
             curr_level[DEGREE] += 1
         if verbose:
-            print 'curr_level:', curr_level
-            print 'result', result
+            print('curr_level:', curr_level)
+            print('result', result)
             
     #handle ends and flexible bases
     end_items = curr_level[ITEMS]

@@ -78,22 +78,22 @@ class MagePointFromStringTests(TestCase):
         self.assertEqual(str(m), \
         '{construction} width5 ' + ' '.join(map(str, [0.0,0.707,-1.225])))
         m = MagePointFromString('3, 4, 5')
-        self.assertEqual(str(m), ' '.join(map(str, map(float, [3, 4, 5]))))
+        self.assertEqual(str(m), ' '.join(map(str, list(map(float, [3, 4, 5])))))
         m = MagePointFromString('{b2}P 0.000 0.000 0.000')
         self.assertEqual(str(m), '{b2} P ' + \
-            ' '.join(map(str, map(float, [0,0,0]))))
+            ' '.join(map(str, list(map(float, [0,0,0])))))
         m = MagePointFromString('P -2650192.000 4309510.000 3872241.000')
         self.assertEqual(str(m), 'P ' + \
-            ' '.join(map(str, map(float, [-2650192,4309510,3872241]))))
+            ' '.join(map(str, list(map(float, [-2650192,4309510,3872241])))))
         m = MagePointFromString('{"}P -2685992.000 5752262.000 535328.000')
         self.assertEqual(str(m), '{"} P ' + \
-            ' '.join(map(str, map(float, [-2685992,5752262,535328]))))
+            ' '.join(map(str, list(map(float, [-2685992,5752262,535328])))))
         m = MagePointFromString('{ 1, d, 0       } P   1.000, 0.618, 0.000')
         self.assertEqual(str(m), '{ 1, d, 0       } P ' + \
-            ' '.join(map(str, map(float, [1.000, 0.618, 0.000]))))
+            ' '.join(map(str, list(map(float, [1.000, 0.618, 0.000])))))
         m = MagePointFromString('{"}width1  -1.022 0.969 -0.131')
         self.assertEqual(str(m), '{"} width1 ' + \
-            ' '.join(map(str, map(float, [-1.022,0.969,-0.131]))))
+            ' '.join(map(str, list(map(float, [-1.022,0.969,-0.131])))))
         m = MagePointFromString(\
             'width3 {A label with spaces } A blue r=3.7 5, 6, 7')
         self.assertEqual(m.Width, 3)
@@ -103,7 +103,7 @@ class MagePointFromStringTests(TestCase):
         self.assertEqual(m.Color, 'blue')
         self.assertEqual(m.State, 'A')
         self.assertEqual(str(m),'{A label with spaces } A blue width3 r=3.7 ' +\
-            ' '.join(map(str, map(float, [5, 6, 7]))))
+            ' '.join(map(str, list(map(float, [5, 6, 7])))))
 
 class MageParserTests(TestCase):
     """Tests for the MageParser"""

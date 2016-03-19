@@ -22,8 +22,7 @@ __status__ = "Development"
 #IMPORTANT!!!!
 #pfold_path must be set manually to the bin dir in the install dir of pfold
 if 'PFOLD_BIN_DIR' not in os.environ:
-    raise RuntimeError, \
-        "The pfold app controller requires PFOLD_BIN_DIR environment variable"
+    raise RuntimeError("The pfold app controller requires PFOLD_BIN_DIR environment variable")
 else:
     pfold_path = os.environ['PFOLD_BIN_DIR']
 

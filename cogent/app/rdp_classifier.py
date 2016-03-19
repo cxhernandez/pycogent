@@ -189,7 +189,7 @@ class RdpClassifier(CommandLineApplication):
         This seems to be a repeated pattern; may be useful in
         superclass.
         """
-        commands = filter(None, map(str, tokens))
+        commands = [_f for _f in map(str, tokens) if _f]
         return self._command_delimiter.join(commands).strip()
 
     def _get_result_paths(self,data):
@@ -436,7 +436,7 @@ def assign_taxonomy(
             output_file = open(output_fp, 'w')
         except OSError:
             raise OSError("Can't open output file for writing: %s" % output_fp)
-        for seq_id, assignment in assignments.items():
+        for seq_id, assignment in list(assignments.items()):
             lineage, confidence = assignment
             output_file.write(
                 '%s\t%s\t%1.3f\n' % (seq_id, lineage, confidence))

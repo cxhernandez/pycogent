@@ -10,7 +10,7 @@ __status__ = "Development"
 
 
 from sys import argv
-from string import strip
+strip = str.strip
 from os import listdir,path 
 from optparse import OptionParser
 from datetime import datetime
@@ -60,13 +60,13 @@ def parse_kegg_taxonomy(lines):
                 del taxonomy_stack[level:]
                 taxonomy_stack[level-1] = name
         else:   #line defining an individual taxonomy entry
-            fields = map(strip, line.split('\t'))
+            fields = list(map(strip, line.split('\t')))
             #add genus, species, and common name as three additional fields
             raw_species_name = fields[-1]
             species_fields = raw_species_name.split()
             if not species_fields:
-                print "ERROR"
-                print line
+                print("ERROR")
+                print(line)
             genus_name = species_fields[0]
             if len(species_fields) > 1:
                 species_name = species_fields[1]
@@ -87,4 +87,4 @@ if __name__ == '__main__':
     from sys import argv
     filename = argv[1]
     for result_line in parse_kegg_taxonomy(open(filename,"U")):
-        print result_line.strip() 
+        print(result_line.strip()) 

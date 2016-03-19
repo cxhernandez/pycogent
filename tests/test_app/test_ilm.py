@@ -49,7 +49,7 @@ class xhlxplotTest(TestCase):
 
         x = xhlxplot(InputHandler='_input_as_lines')
         res = x(self.input)
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus'])
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus'])
         self.assertEqual(res['ExitStatus'],0)
         assert res['StdOut'] is not None
 
@@ -101,7 +101,7 @@ class IlmTest(TestCase):
 
         i = ILM(InputHandler='_input_as_lines')
         res = i(self.input)
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus'])
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus'])
         #self.assertEqual(res['ExitStatus'],0)
         assert res['StdOut'] is not None
         res.cleanUp()
@@ -144,7 +144,7 @@ class hlxplotTest(TestCase):
 
         h = hlxplot(InputHandler='_input_as_lines')
         res = h(self.input)
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus'])
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus'])
         self.assertEqual(res['ExitStatus'],0)
         assert res['StdOut'] is not None
 

@@ -25,7 +25,7 @@ class UniFracTreeNode(PhyloNode):
     
     Can expect Length and Name (= Name) to be set by DndParser.
     """
-    def __nonzero__(self):
+    def __bool__(self):
         """Returns True if self.Children."""
         return bool(self.Children)
 
@@ -88,13 +88,13 @@ def count_envs(lines, ignore_chars=0):
 
 def sum_env_dict(envs):
     """Sums counts from the data structure produced by count_envs."""
-    return sum([sum(env.values()) for env in envs.values()])
+    return sum([sum(env.values()) for env in list(envs.values())])
 
 def get_unique_envs(envs):
     """extract all unique envs from envs dict"""
     result = set()
-    for v in envs.values():
-        result.update(v.keys())
+    for v in list(envs.values()):
+        result.update(list(v.keys()))
     #sort envs for convenience in testing and display
     return sorted(result), len(result)
 
@@ -113,13 +113,13 @@ def index_envs(env_counts, tree_index, array_constructor=int):
     result = zeros((num_nodes, num_envs), array_constructor)
     #figure out taxon label to index map
     node_to_index = {}
-    for i, node in tree_index.items():
+    for i, node in list(tree_index.items()):
         if node.Name is not None:
             node_to_index[node.Name] = i
     #walk over env_counts, adding correct slots in array
     for name in env_counts:
         curr_row_index = node_to_index[name]
-        for env, count in env_counts[name].items():
+        for env, count in list(env_counts[name].items()):
             result[curr_row_index, env_to_index[env]] = count
     #return all the data structures we created; will be useful for other tasks
     return result, unique_envs, env_to_index, node_to_index
@@ -127,7 +127,7 @@ def index_envs(env_counts, tree_index, array_constructor=int):
 def get_branch_lengths(tree_index):
     """Returns array of branch lengths, in tree index order."""
     result = zeros(len(tree_index), float)
-    for i, node in tree_index.items():
+    for i, node in list(tree_index.items()):
         try:
             if node.Length is not None:
                 result[i] = node.Length
@@ -200,7 +200,7 @@ def delete_empty_parents(bound_indices):
     It might be worth testing whether collapsing these stalks provides time 
     savings.
     """
-    return filter(_is_parent_empty, bound_indices)
+    return list(filter(_is_parent_empty, bound_indices))
 
 def traverse_reduce(bound_indices, f):
     """Applies a[i] = f(a[j:k]) over list of [(a[i], a[j:k])].
@@ -470,7 +470,7 @@ def env_unique_fraction(branch_lengths, m):
     """ 
     total_bl = branch_lengths.sum()
     if total_bl <= 0:
-        raise ValueError, "total branch length in tree must be > 0"
+        raise ValueError("total branch length in tree must be > 0")
 
     n_rows_nodes, n_col_envs = m.shape
     env_bl_sums = zeros(n_col_envs)

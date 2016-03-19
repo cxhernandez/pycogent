@@ -21,8 +21,7 @@ __email__ = "ens01svn@cs.umu.se"
 __status__ = "Development"
 
 if 'CMfinder' not in os.environ:
-    raise RuntimeError, \
-        'cmfinder cannot run if the CMfinder environment variable is not set.'
+    raise RuntimeError('cmfinder cannot run if the CMfinder environment variable is not set.')
 
 class CMfinder(CommandLineApplication):
     """The application controller for CMfinder 0.2 application
@@ -113,7 +112,7 @@ class CombMotif(CommandLineApplication):
 
     def _input_as_lines(self,data):
         """ """
-        print 'Use input as string with cmfinder input_filename as input'
+        print('Use input as string with cmfinder input_filename as input')
         exit(1)
 
     def _get_result_paths(self,data):

@@ -9,8 +9,9 @@ amino acid) of amino acid properties, while AAIndex2 contains pairwise measures
 """
 import re
 from cogent.parse.record_finder import DelimitedRecordFinder
-from string import rstrip
 from cogent.maths.matrix.distance import DistanceMatrix
+
+rstrip = str.rstrip
 
 __author__ = "Greg Caporaso"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -26,12 +27,12 @@ class AAIndexParser(object):
         This file is an abstract class for the parsers of the two AAIndex
         files.  The only real difference between the files is that AAIndex1
         has one additional field, labeled in here as Correlating.
-    
+
     """
 
     def __init__(self):
         """ Initialize the object. """
-        
+
     def __call__(self, infile):
         """ Parse AAIndex file into dict of AAIndex objects with ID as key
 
@@ -44,7 +45,7 @@ class AAIndexParser(object):
                 aa2p = AAIndex2Parser()
                 aaIndex2Objects = aa2p('data/AAIndex2')
         """
-        
+
         result = {}
 
         # Break down the file into records delimited by '//' and then
@@ -52,7 +53,7 @@ class AAIndexParser(object):
         # in a dict keyed by the records unique ID string
         AAIndexRecordFinder = DelimitedRecordFinder('//', constructor=rstrip)
         # parser is a generator of AAIndexRecords from file
-        parser = AAIndexRecordFinder(infile)       
+        parser = AAIndexRecordFinder(infile)
 
         for r in parser:
             new_record = self._parse_record(r)
@@ -94,9 +95,9 @@ class AAIndexParser(object):
                     i += 1
                 break
             i += 1
-        # return the field of interest   
+        # return the field of interest
         return result
-        
+
 class AAIndex1Parser(AAIndexParser):
     """ Parse AAIndex1 file & return it as dict of AAIndex1 objects"""
 
@@ -127,7 +128,7 @@ class AAIndex1Parser(AAIndexParser):
 
         return AAIndex1Record(id, description, LITDB, authors,\
                 title, citations, comments, correlating, data)
-                    
+
 
     def _parse_correlating(self, raw):
         """ Parse Correlating entries from the current record """
@@ -150,16 +151,16 @@ class AAIndex1Parser(AAIndexParser):
                 except ValueError:
                     values += [data[i]]
             i += 1
-        result = dict(zip(keys, values))
+        result = dict(list(zip(keys, values)))
         return result
 
     def _parse_data(self, raw):
         """ Parse the data field from current record into a dict
         """
         # init for use in result
-        keys = 'ARNDCQEGHILKMFPSTWYV'  
+        keys = 'ARNDCQEGHILKMFPSTWYV'
         values = []
-        
+
         # get rid of leading white spaces, it makes../ the reg exp act weird
         raw = raw.lstrip()
         # split by any number/ types of white spaces
@@ -172,7 +173,7 @@ class AAIndex1Parser(AAIndexParser):
             except ValueError:
                 values += i
 
-        result = dict(zip(keys, values))
+        result = dict(list(zip(keys, values)))
         # return the dict
         return result
 
@@ -183,7 +184,7 @@ class AAIndex2Parser(AAIndexParser):
     def _parse_record(self, lines):
         """ Parse a single record and return it as a AAIndex2Record Object """
         # Init attributes of each record each run through
-       
+
         id = None
         description = None
         LITDB = None
@@ -212,7 +213,7 @@ class AAIndex2Parser(AAIndexParser):
             return None
 
         return AAIndex2Record(id, description, LITDB, authors,\
-            title, citations, comments, data)                       
+            title, citations, comments, data)
 
     def _parse_data(self, raw, rows, cols):
         """ Parse the data field from current record into dict """
@@ -251,13 +252,13 @@ class AAIndex2Parser(AAIndexParser):
                         except ValueError:
                             new_row[c] = data[i]
                         i += 1
-                result[r] = new_row                      
-            
+                result[r] = new_row
+
         return result
 
     def _parse_rowscols(self, raw):
         """ Returns two element list, 0: rows info, 1: cols info
-        
+
             This parses the data out of the data description line
             for each record in AAIndex2 so we know what the data is that
             we are looking at.
@@ -330,7 +331,7 @@ class AAIndex1Record(AAIndexRecord):
         """ AAIndex1 data to square distance matrix
 
         """
-        keys = self.Data.keys()
+        keys = list(self.Data.keys())
         if include_stops : keys += '*'
 
         # build result dict top layer, start empty
@@ -396,13 +397,13 @@ class AAIndex2Record(AAIndexRecord):
         return result
 
 def AAIndexLookup(records):
-    """ Build a dict of AAIndexObjects hashed by ID """    
+    """ Build a dict of AAIndexObjects hashed by ID """
     result = {}
     for r in records:
         result[r.ID] = r
 
     return result
-        
+
 def AAIndex1FromFiles(file):
     """ Taking a file or list of data return a dict of AAIndex1Objects """
     aap = AAIndex1Parser()
@@ -411,7 +412,7 @@ def AAIndex1FromFiles(file):
 def AAIndex2FromFiles(file):
     """ Taking a file or list of data return a dict of AAIndex2Objects """
     aap = AAIndex2Parser()
-    return AAIndexLookup(aap(file))    
+    return AAIndexLookup(aap(file))
 
 Woese_data = """//
 H WOEC730101
@@ -445,5 +446,4 @@ def getWoeseDistanceMatrix():
     for m in aaindexObjects:
         distance_matrices[m] = aaindexObjects[m].toDistanceMatrix()
 
-    return distance_matrices['WOEC730101']    
-
+    return distance_matrices['WOEC730101']

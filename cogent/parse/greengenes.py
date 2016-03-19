@@ -113,14 +113,14 @@ def main():
 
     if opts.print_fields:
         gg_parser = MinimalGreengenesParser(open(opts.input))
-        rec = gg_parser.next()
-        print '\n'.join(sorted(rec.keys()))
+        rec = next(gg_parser)
+        print('\n'.join(sorted(rec.keys())))
         exit(0)
 
     if not opts.fields:
-        print option_parser.usage()
-        print
-        print "Greengenes fields must be specified!"
+        print(option_parser.usage())
+        print()
+        print("Greengenes fields must be specified!")
         exit(1)
 
     if not opts.output:

@@ -127,9 +127,8 @@ class Uclust(CommandLineApplication):
         
         unsupported_parameters = set(data.keys()) - set(allowed_values)
         if unsupported_parameters:
-            raise ApplicationError,\
-             "Unsupported parameter(s) passed when calling uclust: %s" %\
-              ' '.join(unsupported_parameters)
+            raise ApplicationError("Unsupported parameter(s) passed when calling uclust: %s" %\
+              ' '.join(unsupported_parameters))
         
         for v in allowed_values:
             # turn the parameter off so subsequent runs are not
@@ -216,30 +215,28 @@ def process_uclust_pw_alignment_results(fasta_pairs_lines,uc_lines):
             strand_id = ''
             target_rev_match = False
         else:
-            raise UclustParseError, "Unknown strand type: %s" % matching_strand
+            raise UclustParseError("Unknown strand type: %s" % matching_strand)
         uc_query_id = hit[8]
         uc_target_id = hit[9]
         percent_id = float(hit[3])
         
-        fasta_pair = alignments.next()
+        fasta_pair = next(alignments)
         
         fasta_query_id = fasta_pair[0][0]
         aligned_query = fasta_pair[0][1]
         
         if fasta_query_id != uc_query_id:
-            raise UclustParseError,\
-             "Order of fasta and uc files do not match."+\
+            raise UclustParseError("Order of fasta and uc files do not match."+\
              " Got query %s but expected %s." %\
-              (fasta_query_id, uc_query_id)
+              (fasta_query_id, uc_query_id))
             
         fasta_target_id = fasta_pair[1][0]
         aligned_target = fasta_pair[1][1]
             
         if fasta_target_id != uc_target_id + strand_id:
-            raise UclustParseError, \
-             "Order of fasta and uc files do not match."+\
+            raise UclustParseError("Order of fasta and uc files do not match."+\
              " Got target %s but expected %s." %\
-              (fasta_target_id, uc_target_id + strand_id)
+              (fasta_target_id, uc_target_id + strand_id))
             
         if target_rev_match:
             query_id = uc_query_id + ' RC'
@@ -289,8 +286,7 @@ def clusters_from_uc_file(uc_lines,
         target_cluster = record[9].split()[0]
         if hit_type == 'H':
             if error_on_multiple_hits and query_id in all_hits:
-                raise UclustParseError, \
-                 ("Query id " + query_id + " hit multiple seeds. "
+                raise UclustParseError("Query id " + query_id + " hit multiple seeds. "
                   "This can happen if --allhits is "
                   "enabled in the call to uclust, which isn't supported by default. "
                   "Call clusters_from_uc_file(lines, error_on_multiple_hits=False) to "
@@ -304,8 +300,7 @@ def clusters_from_uc_file(uc_lines,
             # a new seed was identified -- create a cluster with this 
             # sequence as the first instance
             if query_id in clusters:
-                raise UclustParseError,\
-                 ("A seq id was provided as a seed, but that seq id already "
+                raise UclustParseError("A seq id was provided as a seed, but that seq id already "
                   "represents a cluster. Are there overlapping seq ids in your "
                   "reference and input files or repeated seq ids in either? "
                   "Offending seq id is %s" % query_id)
@@ -318,8 +313,7 @@ def clusters_from_uc_file(uc_lines,
             # lines separately from the H lines to detect overlapping seq ids 
             # between the reference and the input fasta files
             if query_id in clusters:
-                raise UclustParseError,\
-                 ("A seq id was provided as a seed, but that seq id already "
+                raise UclustParseError("A seq id was provided as a seed, but that seq id already "
                   "represents a cluster. Are there overlapping seq ids in your "
                   "reference and input files or repeated seq ids in either? "
                   "Offending seq id is %s" % query_id)
@@ -330,8 +324,7 @@ def clusters_from_uc_file(uc_lines,
         else:
             # shouldn't be possible to get here, but provided for 
             # clarity
-            raise UclustParseError,\
-             "Unexpected result parsing line:\n%s" % '\t'.join(record)
+            raise UclustParseError("Unexpected result parsing line:\n%s" % '\t'.join(record))
     
     # will need to return the full clusters dict, I think, to support
     # useful identifiers in reference database clustering
@@ -567,7 +560,7 @@ def get_clusters_from_fasta_filepath(
         remove_files(files_to_remove)
     except ApplicationError:
         remove_files(files_to_remove)
-        raise ApplicationError, ('Error running uclust. Possible causes are '
+        raise ApplicationError('Error running uclust. Possible causes are '
          'unsupported version (current supported version is v1.2.22) is installed or '
          'improperly formatted input file was provided')
     except ApplicationNotFoundError:
@@ -586,6 +579,6 @@ def get_clusters_from_fasta_filepath(
     if return_cluster_maps:
         return clusters, failures, seeds
     else:
-        return clusters.values(), failures, seeds
+        return list(clusters.values()), failures, seeds
 
 ## End uclust convenience functions

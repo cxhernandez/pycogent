@@ -16,8 +16,8 @@ def nexus_from_alignment(aln, seq_type, interleave_len=50):
         - seq_type: dna, rna, or protein
         - interleave_len: the line width"""
     if aln.isRagged():
-        raise ValueError, "Sequences in alignment are not all the same " +\
-                          "length. Cannot generate NEXUS format."
+        raise ValueError("Sequences in alignment are not all the same " +\
+                          "length. Cannot generate NEXUS format.")
     num_seq = len(aln.Seqs)
     if not aln or not num_seq:
         return ""
@@ -31,7 +31,7 @@ def nexus_from_alignment(aln, seq_type, interleave_len=50):
     cur_ix = 0
     while cur_ix < aln_len:
         nexus_out.extend(["    %s    %s" % (x, y[cur_ix:cur_ix + \
-            interleave_len]) for x, y in aln.NamedSeqs.items()])
+            interleave_len]) for x, y in list(aln.NamedSeqs.items())])
         nexus_out.append("")
         cur_ix += interleave_len
     nexus_out.append("    ;\nend;")

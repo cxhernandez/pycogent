@@ -10,12 +10,13 @@ Works for the following column format:
 ; COL 5             align_bp
 ; COL 6             certainty/seqpos_bp
 
-Structure part separated by '; ------' and ends with '; ******' 
+Structure part separated by '; ------' and ends with '; ******'
 """
 
-from string import split
 from cogent.struct.rna2d import Pairs
 from cogent.struct.pairs_util import adjust_base
+
+split = str.split
 
 __author__ = "Shandy Wikman"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -55,5 +56,5 @@ def column_parser(lines):
             seq = ''.join([seq,sline[1]])
             pair = (int(sline[3]),int(sline[4])) #(alignpos,align_bp)
             struct.append(pair)
-        
+
     return result

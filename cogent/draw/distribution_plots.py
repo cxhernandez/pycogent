@@ -67,7 +67,7 @@ def generate_box_plots(distributions, x_values=None, x_tick_labels=None,
         if len(distribution) == 0:
             raise ValueError("Some of the provided distributions are empty.")
         try:
-            map(float, distribution)
+            list(map(float, distribution))
         except:
             raise ValueError("Each value in each distribution must be a "
                              "number.")
@@ -192,7 +192,7 @@ def generate_comparative_plots(plot_type, data, x_values=None,
     # so that the grouped distributions don't overlap.
     for point, x_pos in zip(data, x_locations):
         dist_offset = 0
-        for dist_index, dist, dist_marker in zip(range(num_distributions),
+        for dist_index, dist, dist_marker in zip(list(range(num_distributions)),
                                                  point, distribution_markers):
             dist_location = x_pos + dist_offset
             distribution_plot_result = plotting_function(plot_axes, dist,
@@ -231,7 +231,7 @@ def _validate_input(data, x_values, data_point_labels, distribution_labels):
     Validates plotting options to make sure they are valid with the supplied
     data.
     """
-    if data is None or not data or isinstance(data, basestring):
+    if data is None or not data or isinstance(data, str):
         raise ValueError("The data must be a list type, and it cannot be "
                          "None or empty.")
 
@@ -274,7 +274,7 @@ def _validate_x_values(x_values, x_tick_labels, num_expected_values):
             raise ValueError("The number of x values must match the number "
                              "of data points.")
         try:
-            map(float, x_values)
+            list(map(float, x_values))
         except:
             raise ValueError("Each x value must be a number.")
 
@@ -316,7 +316,7 @@ def _get_distribution_markers(marker_type, marker_choices, num_markers):
                "distributions in your dataset.")
         marker_cycle = cycle(marker_choices[:])
         while len(marker_choices) < num_markers:
-            marker_choices.append(marker_cycle.next())
+            marker_choices.append(next(marker_cycle))
     return marker_choices[:num_markers]
 
 def _calc_data_point_locations(x_values, num_points, num_distributions,
@@ -338,7 +338,7 @@ def _calc_data_point_locations(x_values, num_points, num_distributions,
                          "of distributions cannot be negative.")
     if x_values is None:
         # Evenly space the x locations.
-        x_values = range(1, num_points + 1)
+        x_values = list(range(1, num_points + 1))
 
     assert (len(x_values) == num_points), "The number of x_values does not " +\
             "match the number of data points."
@@ -437,7 +437,7 @@ def _color_box_plot(plot_axes, box_plot, color):
         for j in range(5):
             boxX.append(box.get_xdata()[j])
             boxY.append(box.get_ydata()[j])
-        boxCoords = zip(boxX,boxY)
+        boxCoords = list(zip(boxX,boxY))
         boxPolygon = Polygon(boxCoords, facecolor=color)
         plot_axes.add_patch(boxPolygon)
 
@@ -481,7 +481,7 @@ def _set_axes_options(plot_axes, title=None, x_label=None, y_label=None,
                                            rotation=x_tick_labels_orientation)
     else:
         labels = plot_axes.set_xticklabels(
-                    range(1, len(plot_axes.get_xticklabels()) + 1),
+                    list(range(1, len(plot_axes.get_xticklabels()) + 1)),
                     rotation=x_tick_labels_orientation)
 
     # Set the y-axis range if specified.
@@ -507,7 +507,7 @@ def _create_legend(plot_axes, distribution_markers, distribution_labels,
                         for marker in distribution_markers]
         plot_axes.legend(legend_proxy, distribution_labels, loc='best')
     elif marker_type == 'symbols':
-        legend_proxy = [Line2D(range(1), range(1), color='white',
+        legend_proxy = [Line2D(list(range(1)), list(range(1)), color='white',
                         markerfacecolor='black', marker=marker)
                         for marker in distribution_markers]
         plot_axes.legend(legend_proxy, distribution_labels, numpoints=3,

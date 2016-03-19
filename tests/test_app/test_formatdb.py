@@ -6,7 +6,7 @@
 File created on 16 Sep 2009.
 
 """
-from __future__ import division
+
 from os.path import split, exists
 from cogent import LoadSeqs
 from cogent.util.unit_test import TestCase, main

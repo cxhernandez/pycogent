@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Very slow.  See compare.pyx
 
-from __future__ import division
+
 import cogent.util.progress_display as UI
 from cogent.util.modules import importVersionedModule, ExpectedImportError
 
@@ -63,7 +63,7 @@ def dotplot(seq1, seq2, window, threshold, min_gap_length=0, band=None, ui=None)
     
     if band is None:
         band = max(len(seq1), len(seq2))
-    diagonals = range(-min(len(seq1), band), min(len(seq2), band)+1)
+    diagonals = list(range(-min(len(seq1), band), min(len(seq2), band)+1))
     result = []
     for diag_segments in ui.imap(one_diagonal, diagonals, noun='offset'):
         result.extend(diag_segments)

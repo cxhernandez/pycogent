@@ -198,7 +198,7 @@ class Cmalign(CommandLineApplication):
             refined_filename = self._absolute(str(\
                 self.Parameters['-o'].Value))
         else:
-            raise ValueError, 'No alignment output file specified.'
+            raise ValueError('No alignment output file specified.')
         return refined_filename
 
     def _get_result_paths(self,data):
@@ -434,7 +434,7 @@ class Cmbuild(CommandLineApplication):
             refined_filename = self._absolute(str(\
                 self.Parameters['--refine'].Value))
         else:
-            raise ValueError, 'No refine output file specified.'
+            raise ValueError('No refine output file specified.')
         return refined_filename
     
     def _cm_out_filename(self):
@@ -443,7 +443,7 @@ class Cmbuild(CommandLineApplication):
             refined_filename = self._absolute(str(\
                 self.Parameters['-n'].Value))
         else:
-            raise ValueError, 'No cm output file specified.'
+            raise ValueError('No cm output file specified.')
         return refined_filename
     
     def _tempfile_as_multiline_string(self, data):
@@ -1054,7 +1054,7 @@ class Cmsearch(CommandLineApplication):
             tabfile_filename = self._absolute(str(\
                 self.Parameters['--tabfile'].Value))
         else:
-            raise ValueError, 'No tabfile output file specified.'
+            raise ValueError('No tabfile output file specified.')
         return tabfile_filename
     
     def _tempfile_as_multiline_string(self, data):
@@ -1250,8 +1250,8 @@ def cmbuild_from_alignment(aln, structure_string, refine=False, \
     """
     aln = Alignment(aln)
     if len(structure_string) != aln.SeqLen:
-        raise ValueError, """Structure string is not same length as alignment.  Structure string is %s long. Alignment is %s long."""%(len(structure_string),\
-        aln.SeqLen)
+        raise ValueError("""Structure string is not same length as alignment.  Structure string is %s long. Alignment is %s long."""%(len(structure_string),\
+        aln.SeqLen))
     else:
         struct_dict = {'SS_cons':structure_string}
     #Make new Cmbuild app instance.
@@ -1380,7 +1380,7 @@ def cmalign_from_alignment(aln, structure_string, seqs, moltype,\
     
     #Make new dict mapping original IDs
     new_alignment={}
-    for k,v in aligned.NamedSeqs.items():
+    for k,v in list(aligned.NamedSeqs.items()):
         new_alignment[int_keys.get(k,k)]=v
     #Create an Alignment object from alignment dict
     new_alignment = Alignment(new_alignment,MolType=moltype)
@@ -1436,7 +1436,7 @@ def cmalign_from_file(cm_file_path, seqs, moltype, alignment_file_path=None,\
     #turn on --withali flag if True.
     if include_aln:
         if alignment_file_path is None:
-            raise DataError, """Must have path to alignment file used to build CM if include_aln=True."""
+            raise DataError("""Must have path to alignment file used to build CM if include_aln=True.""")
         else:
             app.Parameters['--withali'].on(alignment_file_path)
                 
@@ -1453,7 +1453,7 @@ def cmalign_from_file(cm_file_path, seqs, moltype, alignment_file_path=None,\
     
     #Make new dict mapping original IDs
     new_alignment={}
-    for k,v in aligned.items():
+    for k,v in list(aligned.items()):
         new_alignment[int_keys.get(k,k)]=v
     #Create an Alignment object from alignment dict
     new_alignment = Alignment(new_alignment,MolType=moltype)

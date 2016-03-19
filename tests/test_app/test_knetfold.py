@@ -54,7 +54,7 @@ class KnetfoldTest(TestCase):
         k = Knetfold(InputHandler='_input_as_lines')
         res = k(self.input)
 
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus',
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus',
         'ct','coll','sec','fasta','pdf','mx0','mx1','mx2','mx3'])
         self.assertEqual(res['ExitStatus'],0)
         assert res['ct'] is not None

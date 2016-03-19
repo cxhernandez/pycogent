@@ -2,9 +2,9 @@
 """Application controller for stride."""
 
 try:
-    from cStringIO import StringIO
+    from io import StringIO
 except ImportError:
-    from StringIO import StringIO
+    from io import StringIO
 
 from cogent.struct.selection import einput
 from cogent.parse.stride import stride_parser
@@ -74,10 +74,10 @@ def stride_xtra(entities, **kwargs):
     dictionaries.
     """
     structures = einput(entities, 'S')
-    if len(structures.values()) > 1:
+    if len(list(structures.values())) > 1:
         raise ValueError('Entities from multiple structures are not supported.')
     stride_app = Stride(**kwargs)
     result = stride_app(entities)['StdOut'].readlines()
     result = stride_parser(result)
-    xtradata(result, structures.values()[0][(0,)])
+    xtradata(result, list(structures.values())[0][(0,)])
     return result

@@ -24,9 +24,9 @@ class ParameterCombinationsTests(TestCase):
         """Setup for ParameterCombinations tests"""
         self.mock_app = ParameterCombinationsApp
         self.params = {'-flag1':True,
-                       '--value1':range(0,5),
-                       '-delim':range(0,2),
-                       '-mix1':[None] + range(0,3)}
+                       '--value1':list(range(0,5)),
+                       '-delim':list(range(0,2)),
+                       '-mix1':[None] + list(range(0,3))}
         self.always_on = ['--value1']
         self.param_iter = ParameterCombinations(self.mock_app, self.params, 
                                                 self.always_on)
@@ -70,7 +70,7 @@ class ParameterCombinationsTests(TestCase):
     def test_reset(self):
         """Resets the iterator"""
         first = list(self.param_iter)
-        self.assertRaises(StopIteration, self.param_iter.next)
+        self.assertRaises(StopIteration, self.param_iter.__next__)
         self.param_iter.reset()
         second = list(self.param_iter)
         self.assertEqual(first, second)
@@ -80,9 +80,9 @@ class ParameterIterBaseTests(TestCase):
         """Setup for ParameterIterBase tests"""
         self.mock_app = ParameterCombinationsApp
         self.params = {'-flag1':True,
-                       '--value1':range(0,5),
-                       '-delim':range(0,2),
-                       '-mix1':[None] + range(0,3)}
+                       '--value1':list(range(0,5)),
+                       '-delim':list(range(0,2)),
+                       '-mix1':[None] + list(range(0,3))}
         self.always_on = ['--value1']
         self.param_base = ParameterIterBase(self.mock_app, self.params, 
                                                 self.always_on)
@@ -90,11 +90,11 @@ class ParameterIterBaseTests(TestCase):
     def test_init(self):
         """Test constructor"""
         exp_params = {'-flag1':[True, False],
-                      '--value1':range(0,5),
-                      '-delim':range(0,2) + [False],
+                      '--value1':list(range(0,5)),
+                      '-delim':list(range(0,2)) + [False],
                       '-mix1':[None,0,1,2] + [False]}
-        exp_keys = exp_params.keys()
-        exp_values = exp_params.values()
+        exp_keys = list(exp_params.keys())
+        exp_values = list(exp_params.values())
 
         self.assertEqual(sorted(self.param_base._keys), sorted(exp_keys))
         self.assertEqual(sorted(self.param_base._values), sorted(exp_values))
@@ -417,7 +417,7 @@ class CommandLineApplicationTests(TestCase):
         # because parameters are printed in arbitrary order
         app.Parameters['-F'].on('junk.txt')
         app.Parameters['--duh'].on()
-        self.failUnless(app.BaseCommand ==\
+        self.assertTrue(app.BaseCommand ==\
             'cd "/tmp/"; /tmp/CLAppTester.py -F "junk.txt" --duh'\
             or app.BaseCommand ==\
             'cd "/tmp/"; /tmp/CLAppTester.py --duh -F "junk.txt"')
@@ -1060,7 +1060,7 @@ class RemoveTests(TestCase):
             for f in fnames:
                 try:
                     remove(dir + f)
-                except OSError, e:
+                except OSError as e:
                     pass
            
         remove('/tmp/CLAppTester.py') 

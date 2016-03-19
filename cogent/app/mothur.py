@@ -4,7 +4,7 @@ mothur Version 1.6.0
 """
 
 
-from __future__ import with_statement
+
 from operator import attrgetter
 from os import path, getcwd, mkdir, remove, listdir, rmdir
 import re
@@ -160,7 +160,7 @@ class Mothur(CommandLineApplication):
         """Returns a Mothur batch script as a string"""
         def format_opts(*opts):
             """Formats a series of options for a Mothur script"""
-            return ', '.join(filter(None, map(str, opts)))
+            return ', '.join([_f for _f in map(str, opts) if _f])
         vars = {
             'in': self._input_filename,
             'unique': self._derive_unique_path(),
@@ -191,7 +191,7 @@ class Mothur(CommandLineApplication):
             'unique seqs': self._derive_unique_path(),
             'log': self._derive_log_path(),
             }
-        return dict([(k, ResultPath(v)) for (k,v) in paths.items()])
+        return dict([(k, ResultPath(v)) for (k,v) in list(paths.items())])
 
     # Methods to derive/guess output pathnames produced by MOTHUR.
     # TODO: test for input files that do not have a filetype extension
@@ -391,7 +391,7 @@ class MothurClassifySeqs(Mothur):
     def _format_function_arguments(self, opts):
         """Format a series of function arguments in a Mothur script."""
         params = [self.Parameters[x] for x in opts]
-        return ', '.join(filter(None, map(str, params)))
+        return ', '.join([_f for _f in map(str, params) if _f])
 
     def _compile_mothur_script(self):
         """Returns a Mothur batch script as a string"""
@@ -419,10 +419,10 @@ class MothurClassifySeqs(Mothur):
         input_dir = path.dirname(self._input_filename)
         for fn in listdir(input_dir):
             if fn.startswith(input_base):
-                for suffix, result_key in result_by_suffix.items():
+                for suffix, result_key in list(result_by_suffix.items()):
                     if fn.endswith(suffix):
                         paths[result_key] = path.join(input_dir, fn)
-        return dict([(k, ResultPath(v)) for (k,v) in paths.items()])
+        return dict([(k, ResultPath(v)) for (k,v) in list(paths.items())])
 
 
 def parse_mothur_assignments(lines):

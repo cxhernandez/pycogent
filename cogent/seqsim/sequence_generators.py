@@ -26,6 +26,7 @@ from cogent.maths.stats.util import Freqs
 from cogent.struct.rna2d import ViennaStructure
 from cogent.app.vienna_package import RNAfold
 from numpy import logical_and, fromstring, byte
+from functools import reduce
 
 __author__ = "Rob Knight"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -50,13 +51,13 @@ def permutations(n, k):
     """
     #Validation: k must be be between 0 and n (inclusive), and n must be >=0.
     if k > n:
-        raise IndexError, "can't choose %s items from %s" % (k, n)
+        raise IndexError("can't choose %s items from %s" % (k, n))
     elif k < 0:
-        raise IndexError, "can't choose negative number of items"
+        raise IndexError("can't choose negative number of items")
     elif n < 0:
-        raise IndexError, "can't choose from negative number of items"
+        raise IndexError("can't choose from negative number of items")
     product = 1
-    for i in xrange(n-k+1, n+1):
+    for i in range(n-k+1, n+1):
         product *= i
     return product
 
@@ -67,11 +68,11 @@ def combinations(n, k):
     """
     #Validation: k must be be between 0 and n (inclusive), and n must be >=0.
     if k > n:
-        raise IndexError, "can't choose %s items from %s" % (k, n)
+        raise IndexError("can't choose %s items from %s" % (k, n))
     elif k < 0:
-        raise IndexError, "can't choose negative number of items"
+        raise IndexError("can't choose negative number of items")
     elif n < 0:
-        raise IndexError, "can't choose from negative number of items"
+        raise IndexError("can't choose from negative number of items")
     #permutations(n, k) = permutations(n, n-k), so reduce computation by 
     #figuring out which requires calculation of fewer terms.
     if k > (n - k):
@@ -83,11 +84,11 @@ def combinations(n, k):
 
     product = 1
     #compute n!/(n-larger)! by multiplying terms from n to (n-larger+1)
-    for i in xrange(larger+1, n+1):
+    for i in range(larger+1, n+1):
         product *= i
 
     #divide by (smaller)! by multiplying terms from 2 to smaller
-    for i in xrange(2, smaller+1): #no need to divide by 1... 
+    for i in range(2, smaller+1): #no need to divide by 1... 
         product /= i    #ok to use integer division: should always be factor
 
     return product
@@ -134,10 +135,10 @@ class SequenceGenerator(object):
 
     def validate(self, state):
         """Check that state is allowable given the template."""
-        possibilities = map(len, map(self.Alphabet.__getitem__, self.Template))
+        possibilities = list(map(len, list(map(self.Alphabet.__getitem__, self.Template))))
         for max_allowed, curr in zip(possibilities, state):
             if curr >= max_allowed:
-                raise ValueError, "Tried to set a state to too high an index."
+                raise ValueError("Tried to set a state to too high an index.")
         
     def __str__(self):
         """Returns data about current iterator's template"""
@@ -151,17 +152,17 @@ class SequenceGenerator(object):
     def numPossibilities(self):
         """Same as __len__, except Python doesn't coerce result to an int"""
         if self.Template:
-            return reduce(mul, map(len, map(self.Alphabet.__getitem__, \
-                    self.Template)))
+            return reduce(mul, list(map(len, list(map(self.Alphabet.__getitem__, \
+                    self.Template)))))
         else:
             return 0
 
     def _index2state(self, index):
         """Takes an index and returns the corresponding state."""
-        expansions = map(self.Alphabet.__getitem__, self.Template)
+        expansions = list(map(self.Alphabet.__getitem__, self.Template))
         num_items = len(expansions)
-        lengths = map(len, expansions)
-        indices = range(num_items)
+        lengths = list(map(len, expansions))
+        indices = list(range(num_items))
         indices.reverse()     #want to traverse in reverse order
         states = [0] * num_items    #initialize with zero
         for i in indices:
@@ -183,7 +184,7 @@ class SequenceGenerator(object):
             if index < 0:
                 index = self.__len__() + index
             iterator = self.items(self._index2state(index))
-            return iterator.next()
+            return next(iterator)
 
     def _handle_slice(self, index):
         """Needs separate method, since __getitem__ can't yield _and_ return.
@@ -194,8 +195,7 @@ class SequenceGenerator(object):
         if (stop - start < 1):
             raise StopIteration
         if step < 1:
-            raise NotImplementedError, \
-                "Can't support negative step in irreversible sequence."""
+            raise NotImplementedError("Can't support negative step in irreversible sequence.""")
         else:
             index = start
             iterator = self.items(self._index2state(start))
@@ -203,9 +203,9 @@ class SequenceGenerator(object):
                 for i in range(step - 1):
                     if i >= stop - 1:
                         raise StopIteration
-                    iterator.next()
+                    next(iterator)
                 index += step
-                yield iterator.next()
+                yield next(iterator)
 
     def __iter__(self):
         """Iterator interface using self.Start as the start_state."""
@@ -218,9 +218,9 @@ class SequenceGenerator(object):
             return
         #figure out how many possibilities there are at each position, and
         #what the choices are
-        expansions = map(self.Alphabet.__getitem__, self.Template)
+        expansions = list(map(self.Alphabet.__getitem__, self.Template))
         num_positions = len(expansions)
-        lengths = map(len, expansions)
+        lengths = list(map(len, expansions))
         #set the starting state, i.e. the array of what the current choice is
         #at each position.
         if start_state is None:
@@ -270,7 +270,7 @@ class Partition(object):
         if num_pieces:
             self.NumPieces = num_pieces
         else:
-            raise ValueError, "Cannot divide items among zero bins."
+            raise ValueError("Cannot divide items among zero bins.")
         self.MinOccupancy = min_occupancy
         self._reset()
 
@@ -288,21 +288,19 @@ class Partition(object):
         min_occupancy = self.MinOccupancy #cache for efficiency
         #check the number of pieces
         if len(states) != num_pieces:
-            raise ValueError, "Tried to set state %s, but need %s pieces." % \
-            (states, num_pieces)
+            raise ValueError("Tried to set state %s, but need %s pieces." % \
+            (states, num_pieces))
         #check that no piece has too few items
         sum = 0
         for state in states:
             if state < min_occupancy:
-                raise ValueError, \
-                "Tried to set state %s, but need at least %s items per bin." %\
-                (states, min_occupancy)
+                raise ValueError("Tried to set state %s, but need at least %s items per bin." %\
+                (states, min_occupancy))
             sum += state
         #check that we have the right number of pieces
         if sum != self.NumItems:
-            raise ValueError, \
-            "Tried to set state %s, but it has %s pieces instead of %s." %\
-            (states, sum, self.NumItems)
+            raise ValueError("Tried to set state %s, but it has %s pieces instead of %s." %\
+            (states, sum, self.NumItems))
         
 
     def _reset(self, states=None):
@@ -322,9 +320,8 @@ class Partition(object):
             reserved = (num_pieces - 1) * min_occupancy
             #check that we can actually divide the pieces among the bins OK
             if reserved + min_occupancy > num_items:
-                raise ValueError, \
-                "Can't divide %s items into %s pieces with at least %s in each."\
-                % (num_items, num_pieces, min_occupancy)
+                raise ValueError("Can't divide %s items into %s pieces with at least %s in each."\
+                % (num_items, num_pieces, min_occupancy))
             #otherwise, fill the bins    
             bins = [min_occupancy] * num_pieces
             bins[0] = num_items - reserved
@@ -333,7 +330,7 @@ class Partition(object):
 
     def __iter__(self):
         """Defines iterator interface, starting with self._bins."""
-        return self.items()
+        return list(self.items())
 
     def _transform(self, value):
         """Transformation to be applied to return values.
@@ -368,7 +365,7 @@ class Partition(object):
             rightmost = sum = 0
             #figure out the sum of all the items to the right of the bin we're
             #going to decrement, and also which bin we're going to decrement
-            for i in xrange(len(bins)-2, -1, -1):
+            for i in range(len(bins)-2, -1, -1):
                 curr = bins[i]
                 if curr != delta:
                     rightmost = i
@@ -488,11 +485,11 @@ class Composition(Partition):
     def _transform(self, value):
         """Override superclass transform to yield Freqs.
         """
-        return Freqs(dict(zip(self.Alphabet, value)))
+        return Freqs(dict(list(zip(self.Alphabet, value))))
        
     def __iter__(self):
         """Defines iterator interface, starting with self._bins."""
-        return self.items()
+        return list(self.items())
 
 class MageFrequencies(object):
     """Takes a Freqs and optionally a label.
@@ -541,8 +538,8 @@ class SequenceHandle(list):
         if alphabet:
             for d in data:
                 if d not in alphabet:
-                    raise ValueError, "Item %s not in alphabet %s." \
-                    % (d, alphabet)
+                    raise ValueError("Item %s not in alphabet %s." \
+                    % (d, alphabet))
         super(SequenceHandle, self).__init__(data)
         self.Alphabet = alphabet
 
@@ -553,12 +550,12 @@ class SequenceHandle(list):
             try:
                 absent = item not in alphabet
             except TypeError:
-                raise ValueError, "Item %s not in alphabet %s." \
-                % (item, alphabet)
+                raise ValueError("Item %s not in alphabet %s." \
+                % (item, alphabet))
             else:
                 if absent:
-                    raise ValueError, "Item %s not in alphabet %s." \
-                    % (item, alphabet)
+                    raise ValueError("Item %s not in alphabet %s." \
+                    % (item, alphabet))
         super(SequenceHandle, self).__setitem__(index, item)
 
     def __setslice__(self, start, stop, values):
@@ -570,15 +567,15 @@ class SequenceHandle(list):
                 try:
                     absent = v not in alphabet
                 except TypeError:
-                    raise ValueError, "Item %s not in alphabet %s." \
-                    % (v, alphabet)
+                    raise ValueError("Item %s not in alphabet %s." \
+                    % (v, alphabet))
                 else:
                     if absent:
-                        raise ValueError, "Item %s not in alphabet %s." \
-                        % (v, alphabet)
+                        raise ValueError("Item %s not in alphabet %s." \
+                        % (v, alphabet))
         super(SequenceHandle, self).__setslice__(start, stop, values)
         if len(self) != orig_length:
-            raise ValueError, "Cannot change length of SequenceHandle."
+            raise ValueError("Cannot change length of SequenceHandle.")
 
     def __str__(self):
         """Returns self as a string, symbols joined."""
@@ -589,8 +586,7 @@ class SequenceHandle(list):
 
     def _naughty_method(self, *args, **kwargs):
         """Prevent other methods that change the length or set items."""
-        raise NotImplementedError, \
-            "May not change length of SequenceHandle."
+        raise NotImplementedError("May not change length of SequenceHandle.")
     #note how _many_ methods are naughty... 
     __delitem__ = __delslice__ = __iadd__ = __imul__ = append \
     = extend = insert = pop = remove = _naughty_method
@@ -626,15 +622,15 @@ class PairFrequency(Freqs):
         """
         symbol_freqs = BaseFrequency(freqs)
         if pairs is None:
-            symbols = symbol_freqs.keys()
+            symbols = list(symbol_freqs.keys())
             pairs = [(i, j) for i in symbols for j in symbols]
         pair_freqs = {}
         for i, j in pairs:
             try:
                 pair_freqs[(i,j)] = symbol_freqs[i]*symbol_freqs[j]
-            except KeyError, e:
-                print symbol_freqs
-                print i, j
+            except KeyError as e:
+                print(symbol_freqs)
+                print(i, j)
                 raise e
         super(PairFrequency, self).__init__(pair_freqs, pairs)
         self.normalize()
@@ -736,7 +732,7 @@ class PairedRegion(RegionModel):
             upstream = self.Current[0]
             downstream = self.Current[1]
             pairs = self.Composition.randomSequence(length)
-            for i in xrange(length):
+            for i in range(length):
                 upstream[i] = pairs[i][0]
                 downstream[i] = pairs[i][1]
             #downstream has the complements, but need to reverse it as well
@@ -789,7 +785,7 @@ class MatchingRegion(RegionModel):
     Wobble = {'A':'U', 'U':'AG', 'C':'G', 'G':'UC'}
 
     def __init__(self):
-        raise NotImplementedError, "NOT YET TESTED"
+        raise NotImplementedError("NOT YET TESTED")
 
     def _init_current(self):
         """Initializes Current and some private variables."""
@@ -811,7 +807,7 @@ class MatchingRegion(RegionModel):
     def monomers(self, freqs, **kwargs):
         """Calculates Freqs of possibilities for each base."""
         if kwargs.get('GU', False):
-            pairs = self.Wobble.items()
+            pairs = list(self.Wobble.items())
             self.GU = True
             for base, complements in pairs:
                 freqs = self.Composition.copy()
@@ -902,8 +898,7 @@ class SequenceModel(object):
                     helix_counts[index] += 1
                     #will give IndexError if the helix is added too many times
                 else:
-                    raise ValueError, \
-                    "SequenceModel got unknown label: %s" % label
+                    raise ValueError("SequenceModel got unknown label: %s" % label)
             result.append(pieces)
         self._order = result
         self.refresh()
@@ -958,22 +953,19 @@ class Rule(object):
     def validate(self):
         """Sanity checks on rule object."""
         if self.Length <= 0:
-            raise ValueError, "Helix length must be at least 1."
+            raise ValueError("Helix length must be at least 1.")
         if self.Length > self.DownstreamPosition + 1:
-            raise ValueError, \
-            "Helix length cannot be more than 1 greater than downstream start."
+            raise ValueError("Helix length cannot be more than 1 greater than downstream start.")
         if min(self.UpstreamSequence, self.UpstreamPosition, \
             self.DownstreamSequence, self.DownstreamPosition) < 0:
-            raise ValueError, \
-            "All sequences and positions must be >= 0."
+            raise ValueError("All sequences and positions must be >= 0.")
         if self.UpstreamSequence == self.DownstreamSequence:
             if self.UpstreamPosition >= self.DownstreamPosition:
-                raise ValueError, \
-                "Upstream position must have lower index than downstream."
+                raise ValueError("Upstream position must have lower index than downstream.")
             if self.DownstreamPosition-self.UpstreamPosition+1 < 2*self.Length:
-                raise ValueError, "Helices can't overlap."
+                raise ValueError("Helices can't overlap.")
         if self.UpstreamSequence > self.DownstreamSequence:
-            raise ValueError, "Upstream sequence must have the smaller index."
+            raise ValueError("Upstream sequence must have the smaller index.")
 
     def isCompatible(self, other):
         """Checks that the helices in self and other don't overlap.
@@ -1044,9 +1036,8 @@ class Module(object):
         struct = self.Structure
         seq_length = len(seq)
         if seq_length != len(struct):
-            raise ValueError, \
-            "Lengths of sequence '%s' and structure '%s' differ." % \
-            (seq, struct)
+            raise ValueError("Lengths of sequence '%s' and structure '%s' differ." % \
+            (seq, struct))
         else:
             return seq_length
 
@@ -1146,8 +1137,8 @@ class Motif(object):
         """Check upstream sequence of each rule to make sure the helix can fit."""
         for r in self.Rules:
             if not r.fitsInSequence(self.Modules[r.UpstreamSequence].Sequence):
-               raise ValueError, "Rule '%s' can't fit in sequence '%s'." \
-               % (r, self.Modules[r.UpstreamSequence].Sequence)
+               raise ValueError("Rule '%s' can't fit in sequence '%s'." \
+               % (r, self.Modules[r.UpstreamSequence].Sequence))
                 
     def _check_rule_overlaps(self):
         """Check every pair of rules for overlaps in covered regions."""
@@ -1157,8 +1148,8 @@ class Motif(object):
             for second in range(first):
                 second_rule = rules[second]
                 if not first_rule.isCompatible(second_rule):
-                    raise ValueError, "Rules '%s' and '%s' incompatible." \
-                    % (first, second)
+                    raise ValueError("Rules '%s' and '%s' incompatible." \
+                    % (first, second))
 
     def _check_rule_match(self, rule, pairlist, locations):
         """Check whether rule matches pairlist given module locations.
@@ -1206,7 +1197,7 @@ class Motif(object):
         full_length = Module(sequence, structure)   #more convenient as object
         modules = self.Modules
         if len(positions) != len(modules):
-            raise ValueError, "len(positions) must match number of modules."
+            raise ValueError("len(positions) must match number of modules.")
         for position, module in zip(positions, modules):
             if not module.matches(full_length, position):
                 return False
@@ -1235,7 +1226,7 @@ class Motif(object):
         """
         modules = self.Modules
         if len(positions) != len(modules):
-            raise ValueError, "len(positions) must match number of modules."
+            raise ValueError("len(positions) must match number of modules.")
         if offsets:
             positions = [p+o for p, o in zip(positions, offsets)]
         result = True
@@ -1243,14 +1234,14 @@ class Motif(object):
             matched, ss, mask, diffs = \
                 module.structureMatches(structure, position) 
             if debug:
-                print 'STRUC:', structure[position:position+len(ss)]
-                print 'SS   :', ss.tostring()
-                print 'MASK :', ''.join(map(str, map(int, mask)))
-                print 'DIFFS:', ''.join(map(str, map(int,diffs)))
-                print 'WHERE:'
+                print('STRUC:', structure[position:position+len(ss)])
+                print('SS   :', ss.tostring())
+                print('MASK :', ''.join(map(str, list(map(int, mask)))))
+                print('DIFFS:', ''.join(map(str, list(map(int,diffs)))))
+                print('WHERE:')
                 all = ['.'] * len(structure)
                 all[position:position+len(ss)] = ['x']*len(ss)
-                print ''.join(all)
+                print(''.join(all))
             if not matched: 
                 if debug:
                     result = False
@@ -1267,10 +1258,10 @@ class Motif(object):
                     all = ['.'] * len(structure)
                     all[up] = '('
                     all[down] = ')'
-                    print ''.join(all)
+                    print(''.join(all))
                     if not pairlist[up] == down:
-                        print structure
-                        raise Exception, "Failed to find partner in pairlist"
+                        print(structure)
+                        raise Exception("Failed to find partner in pairlist")
             if not self._check_rule_match(rule, pairlist, positions):
                 return False
         #if we got here, all the modules matched and all the rules were OK
@@ -1292,8 +1283,8 @@ class SequenceEmbedder(object):
         """
         self.Model = model
         self.Motif = motif
-        self.NumToDo = long(num_to_do)
-        self.Length = long(length)
+        self.NumToDo = int(num_to_do)
+        self.Length = int(length)
         self.WithReplacement = with_replacement #allows adjacent modules
         self.GU = GU
         self.RandomRegion = UnpairedRegion('N'*(length - len(self.Model)), \
@@ -1328,7 +1319,7 @@ class SequenceEmbedder(object):
         locations = []
         with_replacement = self.WithReplacement
         if (not with_replacement) and (random_positions < num_modules):
-            raise ValueError, "Not enough positions to place modules."
+            raise ValueError("Not enough positions to place modules.")
         while len(locations) < num_modules:
             if with_replacement:
                 curr = randrange(random_positions + 1)
@@ -1376,7 +1367,7 @@ class SequenceEmbedder(object):
         structs = []
         orig_positions = self._fixed_positions
         self.Positions = orig_positions
-        for i in xrange(self.NumToDo):
+        for i in range(self.NumToDo):
             self.refresh()
             if not orig_positions:
                 self.Positions = self._choose_locations()
@@ -1384,7 +1375,7 @@ class SequenceEmbedder(object):
             #adjust positions to account for inserted modules
             curr_positions = self.Positions[:]
             insert_length = len(self.Primer5)
-            module_lengths = map(len, list(self.Model))
+            module_lengths = list(map(len, list(self.Model)))
             for i in range(len(curr_positions)):
                 curr_positions[i] += insert_length
                 insert_length += module_lengths[i]
@@ -1399,24 +1390,24 @@ class SequenceEmbedder(object):
             odd = not odd
         good_count = 0
         if self.Debug:
-            print "DEBUGGING"   #debug code: prints seqs, structs, matches
+            print("DEBUGGING")   #debug code: prints seqs, structs, matches
         for seq, struct, position in zip(seqs, structs, positions):
             matched = self.Motif.structureMatches(struct, position, \
                 self.MatchOffsets,debug=self.Debug)
             if matched:
                 good_count += 1
             if self.Debug or (matched and self.ReportSeqs):
-                module_lengths = map(len, list(self.Model))
+                module_lengths = list(map(len, list(self.Model)))
                 if self.Debug:
-                    print "Module lengths:", module_lengths
-                    print "Positions:", position
-                print seq
-                print struct
+                    print("Module lengths:", module_lengths)
+                    print("Positions:", position)
+                print(seq)
+                print(struct)
                 temp = [' '] * len(seq)
                 for l, p in zip(module_lengths, position):
                     temp[p:p+l] = ['*']*l
-                print ''.join(temp)
+                print(''.join(temp))
                 if self.Debug:
-                    print "Offsets:", self.MatchOffsets
-                print matched
+                    print("Offsets:", self.MatchOffsets)
+                print(matched)
         return good_count

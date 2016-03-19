@@ -126,7 +126,7 @@ class Parameter(object):
     
     def _get_id(self):
         """Construct and return the identifier"""
-        return ''.join(map(str,filter(is_not_None,[self.Prefix,self.Name])))
+        return ''.join(map(str,list(filter(is_not_None,[self.Prefix,self.Name]))))
 
     Id = property(_get_id)
 
@@ -263,7 +263,7 @@ class ValuedParameter(Parameter):
         else:
             parts = [self.Prefix,self.Name,self.Delimiter,\
                 self.Quote,self.Value,self.Quote]
-            return ''.join(map(str,filter(is_not_None,parts)))
+            return ''.join(map(str,list(filter(is_not_None,parts))))
     
     def __eq__(self,other):
         """Return True if two parameters are equal"""
@@ -313,9 +313,8 @@ class ValuedParameter(Parameter):
             in an error, since this is the same as turning the parameter off.
         """
         if val is None:
-            raise ParameterError,\
-            "Turning the ValuedParameter on with value None is the same as "+\
-            "turning it off. Use another value."
+            raise ParameterError("Turning the ValuedParameter on with value None is the same as "+\
+            "turning it off. Use another value.")
         elif self.IsPath:
             self.Value = FilePath(val)
         else:
@@ -391,7 +390,7 @@ class MixedParameter(ValuedParameter):
         else:
             parts = [self.Prefix,self.Name,self.Delimiter,\
                 self.Quote,self.Value,self.Quote]
-            return ''.join(map(str,filter(is_not_None,parts)))
+            return ''.join(map(str,list(filter(is_not_None,parts))))
 
     def isOn(self):
         """Returns True if the MixedParameter is turned on
@@ -425,9 +424,8 @@ class MixedParameter(ValuedParameter):
             will let the parameter behave as a flag.
         """
         if val is False:
-            raise ParameterError,\
-            "Turning the ValuedParameter on with value False is the same as "+\
-            "turning it off. Use another value."
+            raise ParameterError("Turning the ValuedParameter on with value False is the same as "+\
+            "turning it off. Use another value.")
         elif self.IsPath:
             self.Value = FilePath(val)
         else:
@@ -470,9 +468,9 @@ class Parameters(MappedDict):
 
     def _raiseNotImplemented(self,*args):
         """Raises an error for an attempt to change a Parameters object"""
-        raise NotImplementedError, 'Parameters object is immutable'
+        raise NotImplementedError('Parameters object is immutable')
 
     def all_off(self):
         """Turns all parameters in the dictionary off"""
-        for v in self.values():
+        for v in list(self.values()):
             v.off()

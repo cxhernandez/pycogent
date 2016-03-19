@@ -3,7 +3,6 @@
 """
 import sys
 
-from string import maketrans, strip, rstrip
 from pprint import pprint, pformat
 from cogent.parse.record_finder import DelimitedRecordFinder,\
     LabeledRecordFinder, is_empty, TailedRecordFinder
@@ -11,6 +10,8 @@ from cogent.parse.record import RecordError, FieldError
 from cogent.util.misc import identity, curry,\
         NestedSplitter, list_flatten
 from cogent.core.sequence import Sequence
+
+maketrans, strip, rstrip = str.maketrans, str.strip, str.rstrip
 
 __author__ = "Zongzhi Liu and Sandra Smit"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -25,48 +26,48 @@ __status__ = "Development"
 all_chars = maketrans('','')
 
 def rstrip_(chars=None):
-    return curry(rstrip, chars=chars) 
+    return curry(rstrip, chars=chars)
 
-EbiFinder = DelimitedRecordFinder('//', 
+EbiFinder = DelimitedRecordFinder('//',
         constructor=rstrip)
 
 no_indent = lambda s: not s.startswith(' ')
-hanging_paragraph_finder = LabeledRecordFinder(no_indent, constructor=None) 
+hanging_paragraph_finder = LabeledRecordFinder(no_indent, constructor=None)
 
 endswith_period = lambda x: x.endswith('.')
 period_tail_finder = TailedRecordFinder(endswith_period)
 
 
 #################################
-# pairs_to_dict 
-def pairs_to_dict(key_values, dict_mode=None, 
+# pairs_to_dict
+def pairs_to_dict(key_values, dict_mode=None,
         all_keys=None, handlers={}, default_handler=None):
     """generate a function which return a dict from a sequence of key_value
-    pairs. 
+    pairs.
 
     key_values: (key, value) pairs, from any sequence type. Example:
     [('a', 1), ('b', 2), ('b', 3)]
 
     dict_mode: one of four modes to build a dict from pairs.
-    'overwrite_value': default, same as dict(key_values) 
+    'overwrite_value': default, same as dict(key_values)
     the key_values example get {'a': 1, 'b': 3}
     'no_duplicated_key': raise error when there is duplicated key;
     or a dict with a list of values when there is duplicated key
-    'allow_muti_value': a duplicated key will have a list of values, 
+    'allow_muti_value': a duplicated key will have a list of values,
     the example get {'a': 1, 'b': [2, 3]}
-    'always_multi_value': always group value(s) into a list for each key; 
+    'always_multi_value': always group value(s) into a list for each key;
     the example get {'a': [1], 'b': [2, 3]}
 
     all_keys: if a key not found in all_keys, raise error; recommend to use a
     dict for all_keys for efficiency.
 
     Each value will be converted, if a valid handler can be found in handlers
-    or a default_handler is provided. 
+    or a default_handler is provided.
     handler = handlers.get(key, default_handler)
 
     When handlers provided but no valid handler is found for a key: raise
     ValueError.
-    Always use original value, if no handlers provided, for example, 
+    Always use original value, if no handlers provided, for example,
     pairs_to_dict(adict.items()) will return adict.
 
     Note: use default_handler=identity is often useful if you want to return
@@ -84,11 +85,11 @@ def pairs_to_dict(key_values, dict_mode=None,
         multiples = {} #auxillary dict recording the keys with multi_values
         def add_item(dictionary, key, value):
             """add key, value to dictionary in place
-            
+
             Warning: using outer auxillary dictionary: multiples"""
             if key in dictionary:
                 if not key in multiples:
-                    multiples[key] = True 
+                    multiples[key] = True
                     dictionary[key] = [dictionary[key]]
                 dictionary[key].append(value)
             else:
@@ -109,12 +110,12 @@ def pairs_to_dict(key_values, dict_mode=None,
         raise ValueError('Unknown dict_mode:%s. \ndict_mode must be one of '
                 'overwrite_value, no_duplicated_key, allow_multi_value and '
                 'always_multi_value.' % dict_mode)
-        
-    #generate the handle_value function. 
-    if not handlers and not default_handler:
-        handle_value = lambda x, y: (x, y) 
 
-    else:  #handlers not empty, 
+    #generate the handle_value function.
+    if not handlers and not default_handler:
+        handle_value = lambda x, y: (x, y)
+
+    else:  #handlers not empty,
         def handle_value(key, raw_value):
             handler = handlers.get(key, default_handler)
             if handler:
@@ -124,10 +125,10 @@ def pairs_to_dict(key_values, dict_mode=None,
             return key, value
 
     #build the result dict.
-    result = {}    
+    result = {}
     for key, raw_value in key_values:
         if all_keys and key not in all_keys:
-            raise ValueError('key: %s not in all_keys: %s' 
+            raise ValueError('key: %s not in all_keys: %s'
                     % (repr(key), all_keys))
         key, value = handle_value(key, raw_value)
         add_item(result, key, value)
@@ -138,7 +139,7 @@ def pairs_to_dict(key_values, dict_mode=None,
 
 def linecode_maker(line):
     """return the linecode and the line.
-    
+
     The two-character line code that begins each line is always followed
     by three blanks, so that the actual information begins with the sixth
     character."""
@@ -147,7 +148,7 @@ def linecode_maker(line):
 
 def labeloff(lines, splice_from=5):
     """strip off the first splice_from characters from each line
-    
+
     Warning: without check!"""
     return [line[splice_from:] for line in lines]
 
@@ -155,34 +156,34 @@ def join_parser(lines, join_str=' ', chars_to_strip=' ;.'):
     """return a joined str from a list of lines, strip off chars requested from
     the joined str"""
     #a str will not be joined
-    if isinstance(lines, basestring):
+    if isinstance(lines, str):
         result = lines
     else:
         result = join_str.join(lines)
 
     return result.strip(chars_to_strip)
-    
-def join_split_parser(lines, delimiters=';', item_modifier=strip, 
+
+def join_split_parser(lines, delimiters=';', item_modifier=strip,
         same_level=False, **kwargs):
     """return a nested list from lines, join lines before using NestedSplitter.
 
     delimiters: delimiters used by NestedSplitter
     item_modifier: passed to NestedSplitter, modify each splitted item.
     kwargs: passed to join_parser
-    
+
     Examples:
     join_split_parser(['aa; bb;', 'cc.']) -> ['aa', 'bb', 'cc']
-    join_split_parser(['aa; bb, bbb;', 'cc.'], delimiters=';,') 
+    join_split_parser(['aa; bb, bbb;', 'cc.'], delimiters=';,')
     -> ['aa', ['bb','bbb'], 'cc']
-    join_split_parser('aa (bb) (cc).', delimiters='(', 
+    join_split_parser('aa (bb) (cc).', delimiters='(',
     item_modifer=rstrip_(')) -> ['aa','bb','cc']
     """
     result = join_parser(lines, **kwargs)
-    
-    return NestedSplitter(delimiters, 
+
+    return NestedSplitter(delimiters,
         constructor=item_modifier, same_level=same_level)(result)
 
-def join_split_dict_parser(lines, delimiters=[';', ('=',1), ','], 
+def join_split_dict_parser(lines, delimiters=[';', ('=',1), ','],
         dict_mode=None, strict=True, **kwargs):
     """return a dict from lines, using the splited pairs from
     join_split_parser and pairs_to_dict.
@@ -199,20 +200,20 @@ def join_split_dict_parser(lines, delimiters=[';', ('=',1), ','],
     -> {'aa':'1', 'bb': ['2','3'], 'cc': '4 (if aa=1)'}
     """
     primary_delimiters, value_delimiters = delimiters[:2], delimiters[2:]
-    pairs = join_split_parser(lines, delimiters=primary_delimiters, 
+    pairs = join_split_parser(lines, delimiters=primary_delimiters,
             same_level=True, **kwargs)
 
     try:
-        dict(pairs) #catch error for any not splitted pair. 
-    except ValueError, e: #dictionary update sequence element #1 has length 1;
+        dict(pairs) #catch error for any not splitted pair.
+    except ValueError as e: #dictionary update sequence element #1 has length 1;
         if strict:
             raise ValueError('e\nFailed to get a dict from pairs: %s' % pairs)
         else:
             #return the splitted list without constucting
-            return pairs  
+            return pairs
 
     if value_delimiters:
-        split_value = NestedSplitter(value_delimiters, same_level=False) 
+        split_value = NestedSplitter(value_delimiters, same_level=False)
         #should raise ValueError here if a pair donot have two elems.
         for i,(k, v) in enumerate(pairs):
             v = split_value(v)
@@ -231,7 +232,7 @@ def mapping_parser(line, fields, delimiters=[';', None],
 
     line: should be a str,  to be splitted.
     fields: field name and optional type constructor for mapping.  example:
-        ['EntryName', ('Length', int), 'MolType'] 
+        ['EntryName', ('Length', int), 'MolType']
     delimiters: separators used to split the line.
     flatten: a function used to flatten the list from nested splitting.
     """
@@ -247,7 +248,7 @@ def mapping_parser(line, fields, delimiters=[';', None],
 
     if None in result:
         del result[None]
-    
+
     return result
 
 
@@ -275,14 +276,14 @@ def id_parser(lines):
 def sq_parser(lines):
     """return a mapping dict from SQ lines (only one line).
 
-    The SQ (SeQuence header) line marks the beginning of the sequence data and 
+    The SQ (SeQuence header) line marks the beginning of the sequence data and
     gives a quick summary of its content.  The format of the SQ line is:
 
     SQ   SEQUENCE XXXX AA; XXXXX MW; XXXXXXXXXXXXXXXX CRC64;
 
     The line contains the length of the sequence in amino acids ('AA')
     followed by the molecular weight ('MW') rounded to the nearest mass unit
-    (Dalton) and the sequence 64-bit CRC (Cyclic Redundancy Check) value 
+    (Dalton) and the sequence 64-bit CRC (Cyclic Redundancy Check) value
     ('CRC64').
     """
     lines = labeloff(lines)
@@ -292,7 +293,7 @@ def sq_parser(lines):
 def kw_parser(lines):
     """return a list of keywords from KW lines.
 
-    The format of the KW line is: 
+    The format of the KW line is:
     KW   Keyword[; Keyword...].
     """
     lines = labeloff(lines)
@@ -301,7 +302,7 @@ def kw_parser(lines):
 def ac_parser(lines):
     """return a list of accession numbers from AC lines.
 
-    The AC (ACcession number) line lists the accession number(s) associated 
+    The AC (ACcession number) line lists the accession number(s) associated
     with an entry. The format of the AC line is:
     AC   AC_number_1;[ AC_number_2;]...[ AC_number_N;]
 
@@ -314,7 +315,7 @@ def ac_parser(lines):
 
 def dt_parser(lines):
     """return the origal lines from DT lines.
-    
+
     Note: not complete parsing
 
     The DT (DaTe) lines show the date of creation and last modification of the
@@ -339,13 +340,13 @@ def dt_parser(lines):
         DT   10-MAY-2005 (Rel. 47, Last annotation update)
     """
     lines = labeloff(lines)
-    return lines 
+    return lines
 
 #################################
 # gn_parser
 def gn_parser(lines):
     """return a list of dict from GN lines.
-    
+
     The GN (Gene Name) line indicates the name(s) of the gene(s) that code for
     the stored protein sequence. The GN line contains three types of
     information: Gene names, Ordered locus names, ORF names. format:
@@ -357,7 +358,7 @@ def gn_parser(lines):
     None of the above four tokens are mandatory. But a "Synonyms" token can
     only be present if there is a "Name" token.
 
-    If there is more than one gene, GN line blocks for the different genes are 
+    If there is more than one gene, GN line blocks for the different genes are
     separated by the following line:
     GN   and
     Example:
@@ -365,9 +366,9 @@ def gn_parser(lines):
     GN   and
     GN   Name=Jon99Ciii; Synonyms=SER2, SER5, Ser99Db; ORFNames=CG15519;"""
     lines = labeloff(lines)
-    return map(gn_itemparser, gn_itemfinder(lines))
+    return list(map(gn_itemparser, gn_itemfinder(lines)))
 
-gn_itemparser = join_split_dict_parser 
+gn_itemparser = join_split_dict_parser
 
 gn_itemfinder = DelimitedRecordFinder('and', constructor=None, strict=False,
         keep_delimiter=False)
@@ -386,7 +387,7 @@ def oc_parser(lines):
 
 def os_parser(lines):
     """return a list from OS lines.
-    
+
     OS (Organism Species) line specifies the organism which was the source of
     the stored sequence.  The last OS line is terminated by a period.
 
@@ -401,18 +402,18 @@ def os_parser(lines):
         OS   virus-RSA).
     """
     lines = labeloff(lines)
-    return join_split_parser(lines, 
-        delimiters='(', item_modifier=rstrip_(') ')) 
-        
+    return join_split_parser(lines,
+        delimiters='(', item_modifier=rstrip_(') '))
+
 def ox_parser(lines):
     """return a dict from OX lines.
 
-    The OX (Organism taxonomy cross-reference) line is used to indicate the 
+    The OX (Organism taxonomy cross-reference) line is used to indicate the
     identifier of a specific organism in a taxonomic database. The format:
     OX   Taxonomy_database_Qualifier=Taxonomic code;
 
-    Currently the cross-references are made to the taxonomy database of NCBI, 
-    which is associated with the qualifier 'TaxID' and a one- to six-digit 
+    Currently the cross-references are made to the taxonomy database of NCBI,
+    which is associated with the qualifier 'TaxID' and a one- to six-digit
     taxonomic code."""
     lines = labeloff(lines)
     return join_split_dict_parser(lines)
@@ -443,7 +444,7 @@ def og_parser(lines):
         item = ' '.join(item).rstrip('. ')
         if item.startswith('Plasmid'):
             item = item.replace(' and', '')
-            item = map(strip, item.split(','))
+            item = list(map(strip, item.split(',')))
         result.append(item)
     return result
 
@@ -454,14 +455,14 @@ def dr_parser(lines):
     """return a dict of items from DR lines.
 
     The DR (Database cross-Reference) lines are used as pointers to information
-    related to entries and found in data collections other than Swiss-Prot. 
+    related to entries and found in data collections other than Swiss-Prot.
     The format of one of many DR line is:
 
     DR   DATABASE_IDENTIFIER; PRIMARY_IDENTIFIER; SECONDARY_IDENTIFIER[;
     TERTIARY_IDENTIFIER][; QUATERNARY_IDENTIFIER].
     """
     lines = labeloff(lines)
-    keyvalues = map(dr_itemparser, period_tail_finder(lines))
+    keyvalues = list(map(dr_itemparser, period_tail_finder(lines)))
     result = pairs_to_dict(keyvalues, 'always_multi_value')
     return result
 
@@ -476,7 +477,7 @@ def dr_itemparser(lines):
 def de_parser(lines):
     """return a dict of {OfficalName: str, Synonyms: str, Fragment: bool,
     Contains: [itemdict,],  Includes: [itemdict,]} from DE lines
-    
+
     The DE (DEscription) lines contain general descriptive information about
     the sequence stored. This information is generally sufficient to identify
     the protein precisely.
@@ -489,13 +490,13 @@ def de_parser(lines):
     a section delimited by '[Contains: ...]'. All the individual components are
     listed in that section and are separated by semi-colons (';'). Synonyms are
     allowed at the level of the precursor and for each individual component.
-    
+
     If a protein is known to include multiple functional domains each of which
     is described by a different name, the description starts with the name of
     the overall protein, followed by a section delimited by '[Includes: ]'. All
     the domains are listed in that section and are separated by semi-colons
     (';'). Synonyms are allowed at the level of the protein and for each
-    individual domain. 
+    individual domain.
 
     In rare cases, the functional domains of an enzyme are cleaved, but the
     catalytic activity can only be observed, when the individual chains
@@ -532,41 +533,41 @@ def de_parser(lines):
     if joined.endswith(fragment_label):
         fragment = True
         joined = joined.rsplit('(', 1)[0]
-        
+
     #Process Contains
     contains = []
     if contains_label in joined:
         joined, contains_str = joined.split(contains_label)
         contains_str = contains_str.strip(' ]')
-        contains = map(de_itemparser, contains_str.split('; '))
+        contains = list(map(de_itemparser, contains_str.split('; ')))
     #Process Includes
     includes = []
     if includes_label in joined:
         joined, includes_str = joined.split(includes_label)
         includes_str = includes_str.strip(' ]')
-        includes = map(de_itemparser, includes_str.split('; '))
+        includes = list(map(de_itemparser, includes_str.split('; ')))
 
-    #Process Primary 
+    #Process Primary
     primary = de_itemparser(joined)
 
-    result = dict(zip(keys, (includes, contains, fragment)))
+    result = dict(list(zip(keys, (includes, contains, fragment))))
     result.update(primary)
     return result
 
 def de_itemparser(line):
     """return a dict of {OfficalName: str, Synonyms: [str,]} from a de_item
-    
+
     The description item is a str, always starts with the proposed official
     name of the protein. Synonyms are indicated between brackets. Examples
     below
-    
+
     'Annexin A5 (Annexin V) (Lipocortin V) (Endonexin II)'
     """
     fieldnames = ['OfficalName', 'Synonyms']
     fields = [e.strip(') ') for e in line.split('(')]
     #if no '(', fields[1:] will be []
-    return dict(zip(fieldnames, [fields[0], fields[1:]]))
-    
+    return dict(list(zip(fieldnames, [fields[0], fields[1:]])))
+
 def pr_parser(line):
     """Returns a list of [project id, project id, ...]"""
     labeloff(line)
@@ -581,7 +582,7 @@ def ft_parser(lines):
     sites, enzyme active sites, local secondary structure or other
     characteristics reported in the cited references. Sequence conflicts
     between references are also included in the feature table.
-    
+
     The FT lines have a fixed format. The column numbers allocated to each of
     the data items within each FT line are shown in the following table (column
     numbers not referred to in the table are always occupied by blanks).
@@ -594,9 +595,9 @@ def ft_parser(lines):
         35-75   Description
 
     The key name and the endpoints are always on a single line, but the
-    description may require one or more additional lines. The following 
+    description may require one or more additional lines. The following
     description lines continues from column 35 onwards.  For more information
-    about individual ft keys, see 
+    about individual ft keys, see
     http://us.expasy.org/sprot/userman.html#FT_keys
 
     'FROM' and 'TO' endpoints: Numbering start from 1; When a feature is known
@@ -611,7 +612,7 @@ def ft_parser(lines):
     associated with a unique and stable feature identifier (FTId), which allows
     to construct links directly from position-specific annotation in the
     feature table to specialized protein-related databases.  The FTId is always
-    the last component of a feature in the description field. 
+    the last component of a feature in the description field.
 
     Examples:
         FT   SIGNAL       <1     10       By similarity.
@@ -633,7 +634,7 @@ def ft_parser(lines):
     entries of proteins whose tertiary structure is known experimentally
     contains the secondary structure information extracted from the coordinate
     data sets of the Protein Data Bank (PDB).  Residues not specified in one of
-    these classes are in a 'loop' or 'random-coil' structure. 
+    these classes are in a 'loop' or 'random-coil' structure.
     """
     lines = labeloff(lines)
     fieldnames = 'Start End Description'.split()
@@ -654,15 +655,15 @@ def ft_parser(lines):
             description = ft_description_parsers[keyname](description)
 
         #group current item result (as a dict) into result[keyname]
-        curr = dict(zip(fieldnames, [start, end, description]))
+        curr = dict(list(zip(fieldnames, [start, end, description])))
         result.setdefault(keyname, []).  append(curr)
     return result
 
 def ft_basic_itemparser(item_lines):
     """-> (key, start, end, description) from lines of a feature item.
-    
+
     A feature item (generated by itemfinder) has the same keyname.
-    
+
     WARNING: not complete, location fields need further work?
     """
     #cut_postions: the postions to split the line into fields
@@ -685,7 +686,7 @@ def ft_basic_itemparser(item_lines):
         description = ' '.join((description, following_description))
 
     #convert start and end points to int, is possible
-    from_point, to_point = map(try_int, (from_point, to_point))
+    from_point, to_point = list(map(try_int, (from_point, to_point)))
     return keyname, from_point, to_point, description.strip(' .')
 
 def try_int(obj):
@@ -700,7 +701,7 @@ def try_int(obj):
 
 def ft_id_parser(description):
     """return a dict of {'Description':,'Id':} from raw decription str
-    
+
     Examples.
     FT   PROPEP       25     48
     FT                                /FTId=PRO_0000021449.
@@ -711,22 +712,22 @@ def ft_id_parser(description):
     FT                                /FTId=VSP_004370.
     """
     fieldnames = ['Description', 'Id']
-    id_sep='/FTId='  
+    id_sep='/FTId='
     try:
         desc, id = [i.strip(' .') for i in description.split(id_sep)]
     except:
         desc, id = description, ''
 
     #replace desc in fields with (desc, id) to get the result
-    result = dict(zip(fieldnames, [desc, id]))
-    return result  
+    result = dict(list(zip(fieldnames, [desc, id])))
+    return result
 
 def ft_mutation_parser(description, mutation_comment_delimiter='('):
-    """return a  dict of {'MutateFrom': , 'MutateTo':,'Comment':} from 
-    description str 
+    """return a  dict of {'MutateFrom': , 'MutateTo':,'Comment':} from
+    description str
 
     Warning: if both id and mutation should be parsed, always parse id first.
-    
+
     Note: will add exceptions later
 
     Examples.
@@ -736,24 +737,24 @@ def ft_mutation_parser(description, mutation_comment_delimiter='('):
     FT   CONFLICT    802    802       K -> Q (in Ref. 4, 5 and 10).
     """
     fieldnames = 'MutateFrom MutateTo Comment'.split()
-    
+
     #split desc into mutation and comment
     desc = description.rstrip(' )')
     try:
         mutation, comment = desc.split(mutation_comment_delimiter, 1)
-    except ValueError, e:  #too many values to unpack
+    except ValueError as e:  #too many values to unpack
         mutation, comment = desc, ''
 
     #split mutation into mut_from, mut_to
     #if mut_from/to unknown, the mutation message will be in mut_from
     mutation_delimiter = '->'
     try:
-        mut_from, mut_to=map(strip, mutation.split(mutation_delimiter, 1))
-    except ValueError, e:  #too many values to unpack
+        mut_from, mut_to=list(map(strip, mutation.split(mutation_delimiter, 1)))
+    except ValueError as e:  #too many values to unpack
         mut_from, mut_to = mutation, ''
 
     #replace desc in fields with mut_from, mut_to and comment to get the result
-    result = dict(zip(fieldnames, [mut_from, mut_to, comment]))
+    result = dict(list(zip(fieldnames, [mut_from, mut_to, comment])))
     return result
 
 def ft_mutagen_parser(description):
@@ -769,7 +770,7 @@ def ft_mutagen_parser(description):
 
 def ft_id_mutation_parser(description):
     """return a dict from description str
-    
+
     Examples.
     FT   VARIANT     214    214       V -> I.
     FT                                /FTId=VAR_009122.
@@ -781,7 +782,7 @@ def ft_id_mutation_parser(description):
     desc = desc_id_dict.pop('Description')
     result = dict(desc_id_dict, **ft_mutation_parser(desc))
     return result
-    
+
 ft_description_parsers = {
     'VARIANT': ft_id_mutation_parser,
     'VARSPLIC': ft_id_mutation_parser,
@@ -791,9 +792,9 @@ ft_description_parsers = {
     'PROPEP': ft_id_parser,
     'CONFLICT': ft_mutation_parser,
     'MUTAGEN': ft_mutagen_parser,
-    #'NON_TER': ft_choplast_parser, 
+    #'NON_TER': ft_choplast_parser,
     #'NON_CONS': ft_choplast_parser,
-    
+
 }
 
 
@@ -807,10 +808,10 @@ all_cc_topics = dict.fromkeys([
     'MISCELLANEOUS', 'PATHWAY', 'PHARMACEUTICAL', 'POLYMORPHISM', 'PTM',
     'RNA EDITING', 'SIMILARITY', 'SUBCELLULAR LOCATION', 'SUBUNIT',
     'TISSUE SPECIFICITY', 'TOXIC DOSE'])
-    
+
 def cc_parser(lines, strict=False):
     """return a dict of {topic: a list of values} from CC lines.
-    
+
     some topics have special format and will use specific parsers defined in
     handlers
 
@@ -855,16 +856,16 @@ def cc_parser(lines, strict=False):
     CC   removed.
     CC   --------------------------------------------------------------------------
     """
-    lines = labeloff(lines) 
+    lines = labeloff(lines)
     #cc_itemfinder yield each topic block
     #cc_basic_itemparser split a topic block into (topic_name, content_as_list)
-    topic_contents = map(cc_basic_itemparser, cc_itemfinder(lines))
+    topic_contents = list(map(cc_basic_itemparser, cc_itemfinder(lines)))
     #content of a topic further parsed using a content_parser decided by the
     #topic name.  result is grouped into a dict.
     try:
-        result = pairs_to_dict(topic_contents, 'always_multi_value', 
+        result = pairs_to_dict(topic_contents, 'always_multi_value',
             handlers=cc_content_parsers, default_handler=join_parser)
-    except Exception, e:
+    except Exception as e:
         pprint( lines)
         raise e
 
@@ -876,9 +877,9 @@ def cc_parser(lines, strict=False):
     return result
 
 def cc_basic_itemparser(topic):
-    """return (topic_name, topic_content as a list) from a cc topic block. 
-    
-    Format of a topic as input of this function: [ 
+    """return (topic_name, topic_content as a list) from a cc topic block.
+
+    Format of a topic as input of this function: [
     '-!- TOPIC: First line of a comment block;',
     '    second and subsequent lines of a comment block.']
     """
@@ -887,9 +888,9 @@ def cc_basic_itemparser(topic):
     #get the keyname and content_head from the first line
     topic_head = topic[0].lstrip(' -!')
     try:
-        keyname, content_head = map(strip, topic_head.split(':', 1))
+        keyname, content_head = list(map(strip, topic_head.split(':', 1)))
     except ValueError: # need more than 1 value to unpack
-        raise FieldError('Not a valid topic line: %s', topic[0]) 
+        raise FieldError('Not a valid topic line: %s', topic[0])
 
     if content_head:
         content = [content_head]
@@ -905,10 +906,10 @@ def cc_basic_itemparser(topic):
 def cc_itemfinder(lines):
     """yield each topic/license as a list from CC lines without label and
     leading spaces.
-    
+
     Warning: hardcoded LICENSE handling"""
 
-    ## all the codes except the return line  tries to preprocess the 
+    ## all the codes except the return line  tries to preprocess the
     #license block
 
     #two clusters of '-' are used as borders for license, as observed
@@ -925,7 +926,7 @@ def cc_itemfinder(lines):
 
         #normalize license lines to the format of topic lines
         license_idx = lines.index(license_border)
-        lines[license_idx] = license_headstr 
+        lines[license_idx] = license_headstr
         for i in range(license_idx+1, len(lines)):
             lines[i] = ' ' * content_start + lines[i]
 
@@ -949,7 +950,7 @@ def cc_interaction_parser(content_list):
         params = join_split_dict_parser([params])
         result.append((interactor.strip(), params))
     return result
-        
+
 cc_alternative_products_event_finder = LabeledRecordFinder(
         lambda x: x.startswith('Event='))
 cc_alternative_products_name_finder = LabeledRecordFinder(
@@ -981,13 +982,13 @@ def cc_alternative_products_parser(content_list):
         head, names = head_names[0], head_names[1:]
         event_dict = join_split_dict_parser(head)
         if names:
-            event_dict['Names'] = map(join_split_dict_parser, names)
+            event_dict['Names'] = list(map(join_split_dict_parser, names))
         result.append(event_dict)
-    return result 
+    return result
 
 def cc_biophysicochemical_properties_parser(content):
     """return a dict from content_list of a ~ topic.
-    
+
     Format of a ~ topic block:
     CC   -!- BIOPHYSICOCHEMICAL PROPERTIES:
     CC       Absorption:
@@ -1016,7 +1017,7 @@ def cc_biophysicochemical_properties_parser(content):
     def get_sub_key_content(sub_topic):
         """return (sub_key, sub_content as parsed) from lines of a sub_topic"""
         sub_key = sub_topic[0].rstrip(': ')
-        sub_content = map(strip, sub_topic[1:]) #strip the two leading spaces
+        sub_content = list(map(strip, sub_topic[1:])) #strip the two leading spaces
 
         #further process the content here
         if sub_key in ['Kinetic parameters',  'Absorption']:
@@ -1028,17 +1029,17 @@ def cc_biophysicochemical_properties_parser(content):
             sub_content = join_parser(sub_content, chars_to_strip='; ')
         return sub_key, sub_content
 
-    sub_key_contents = map(get_sub_key_content,
-            hanging_paragraph_finder(content))
+    sub_key_contents = list(map(get_sub_key_content,
+            hanging_paragraph_finder(content)))
     return pairs_to_dict(sub_key_contents, 'no_duplicated_key')
-    
+
 cc_content_parsers = {
     #? not complete: further group alternative splicing?
-    'ALTERNATIVE PRODUCTS': cc_alternative_products_parser, 
+    'ALTERNATIVE PRODUCTS': cc_alternative_products_parser,
     'BIOPHYSICOCHEMICAL PROPERTIES': cc_biophysicochemical_properties_parser,
-    'INTERACTION': cc_interaction_parser, 
-    'DATABASE': join_split_dict_parser, 
-    'MASS SPECTROMETRY':join_split_dict_parser, 
+    'INTERACTION': cc_interaction_parser,
+    'DATABASE': join_split_dict_parser,
+    'MASS SPECTROMETRY':join_split_dict_parser,
 }
 
 
@@ -1046,12 +1047,12 @@ cc_content_parsers = {
 # REFs parser
 def refs_parser(lines):
     """return a dict of {RN: single_ref_dict}
-    
+
     These lines comprise the literature citations. The citations indicate the
     sources from which the data has been abstracted.  if several references are
     given, there will be a reference block for each.
     """
-    rn_ref_pairs = map(single_ref_parser, ref_finder(lines))
+    rn_ref_pairs = list(map(single_ref_parser, ref_finder(lines)))
     return pairs_to_dict(rn_ref_pairs)
 
 is_ref_line = lambda x: x.startswith('RN')
@@ -1072,11 +1073,11 @@ def single_ref_parser(lines, strict=False):
     times, and the RP, RG/RA and RL lines occur one or more times.
     """
     #group by linecode
-    label_lines = map(linecode_maker, lines)
+    label_lines = list(map(linecode_maker, lines))
     raw_dict = pairs_to_dict(label_lines, 'always_multi_value')
 
     if strict:
-        labels = dict.fromkeys(raw_dict.keys())
+        labels = dict.fromkeys(list(raw_dict.keys()))
         if 'RA' in labels or 'RG' in labels:
             labels['RA/RG'] = True
         for rlabel in required_ref_labels:
@@ -1085,9 +1086,9 @@ def single_ref_parser(lines, strict=False):
                     '%s' % rlabel)
 
     #parse each field with relevant parser
-    parsed_dict = pairs_to_dict(raw_dict.items(), handlers=ref_parsers)
+    parsed_dict = pairs_to_dict(list(raw_dict.items()), handlers=ref_parsers)
     rn = parsed_dict.pop('RN')
-    
+
     return rn, parsed_dict
 
 
@@ -1110,7 +1111,7 @@ def rx_parser(lines):
            DOI=10.4567/0361-9230(1997)42:<OaEoSR>2.0.TX;2-B
            http://www.doi.org/handbook_2000/enumeration.html#2.2
     """
-    lines = labeloff(lines) 
+    lines = labeloff(lines)
     return join_split_dict_parser(lines, delimiters=['; ','='])
 
 def rc_parser(lines):
@@ -1123,7 +1124,7 @@ def rc_parser(lines):
     The currently defined tokens and their order in the RC line are:
     STRAIN TISSUE TRANSPOSON PLASMID
     """
-    lines = labeloff(lines) 
+    lines = labeloff(lines)
     return join_split_dict_parser(lines)
 
 def rg_parser(lines):
@@ -1137,7 +1138,7 @@ def rg_parser(lines):
     mandatory per reference block. example:
     RG   The mouse genome sequencing consortium;
     """
-    lines = labeloff(lines) 
+    lines = labeloff(lines)
     return join_split_parser(lines)
 
 def ra_parser(lines):
@@ -1150,7 +1151,7 @@ def ra_parser(lines):
     All of the authors are included, and are listed in the order given in the
     paper. The names are listed surname first followed by a blank, followed by
     initial(s) with periods. The authors' names are separated by commas and
-    terminated by a semicolon. Author names are not split between lines. eg: 
+    terminated by a semicolon. Author names are not split between lines. eg:
     RA   Galinier A., Bleicher F., Negre D., Perriere G., Duclos B.;
 
     All initials of the author names are indicated and hyphens between initials
@@ -1158,17 +1159,17 @@ def ra_parser(lines):
     'Jr' (for Junior), 'Sr' (Senior), 'II', 'III' or 'IV'.  Example:
     RA   Nasoff M.S., Baker H.V. II, Wolf R.E. Jr.;
     """
-    lines = labeloff(lines) 
+    lines = labeloff(lines)
     return join_split_parser(lines, chars_to_strip=';', delimiters=',')
 
 def rp_parser(lines):
     """return joined str stripped of '.'.
 
-    The RP (Reference Position) lines describe the extent of the work relevant 
+    The RP (Reference Position) lines describe the extent of the work relevant
     to the entry carried out by the authors. format:
     RP   COMMENT.
     """
-    lines = labeloff(lines) 
+    lines = labeloff(lines)
     return ' '.join(lines).strip('. ')
 
 def rl_parser(lines):
@@ -1176,8 +1177,8 @@ def rl_parser(lines):
 
     Note: not complete parsing.
 
-    The RL (Reference Location) lines contain the conventional citation 
-    information for the reference. In general, the RL lines alone are 
+    The RL (Reference Location) lines contain the conventional citation
+    information for the reference. In general, the RL lines alone are
     sufficient to find the paper in question.
 
     a) Journal citations
@@ -1216,17 +1217,17 @@ def rl_parser(lines):
     'Database_name' is one of the following:
     EMBL/GenBank/DDBJ, Swiss-Prot, PDB, PIR.
     """
-    lines = labeloff(lines) 
+    lines = labeloff(lines)
     return ' '.join(lines).strip('. ')
 
 def rt_parser(lines):
     """return joined line stripped of .";
-    
+
     The RT (Reference Title) lines give the title of the paper (or other work)
-    cited as exactly as possible given the limitations of the computer 
+    cited as exactly as possible given the limitations of the computer
     character set. The format of the RT line is:
     RT   "Title.";"""
-    lines = labeloff(lines) 
+    lines = labeloff(lines)
     return ' '.join(lines).strip('.";')
 
 
@@ -1234,11 +1235,11 @@ def rn_parser(lines):
     """return a integer from RN lines (only one line).
 
     The RN (Reference Number) line gives a sequential number to each reference
-    citation in an entry. This number is used to indicate the reference in 
+    citation in an entry. This number is used to indicate the reference in
     comments and feature table notes. The format of the RN line is:
     RN   [##]
     """
-    lines = labeloff(lines) 
+    lines = labeloff(lines)
     return int(lines[0].strip(' []'))
 
 ref_parsers = {
@@ -1298,11 +1299,11 @@ def MinimalEbiParser(lines, strict=True, selected_labels=[]):
     character. Information is not extended beyond character position 75 except
     for one exception: CC lines that contain the 'DATABASE' topic"""
     for record in EbiFinder(lines):
-        if strict and not record[0].startswith('ID'): 
+        if strict and not record[0].startswith('ID'):
             raise RecordError('Record must begin with ID line')
         del record[-1] #which must be //, ensured by Finder
 
-        keyvalues = map(linecode_merging_maker, record)
+        keyvalues = list(map(linecode_merging_maker, record))
         raw_dict = pairs_to_dict(keyvalues, 'always_multi_value',
                 all_keys=_parsers)
 
@@ -1311,29 +1312,29 @@ def MinimalEbiParser(lines, strict=True, selected_labels=[]):
                 if rlabel not in raw_dict:
                     raise RecordError('The record lacks required label: '\
                         '%s' % rlabel)
-        
+
         # no sequence found
         if '' not in raw_dict:
             continue
 
         sequence = raw_dict.pop('')  #which is the linecode for sequence
         sequence = ''.join(sequence).translate(all_chars,'\t\n ')
-        
+
         if selected_labels:
-            for key in raw_dict.keys():
+            for key in list(raw_dict.keys()):
                 if key not in selected_labels:
                     del raw_dict[key]
-        
-        header_dict = raw_dict 
+
+        header_dict = raw_dict
         yield sequence, header_dict
 
 def linecode_merging_maker(line):
     """return merged linecode and the line.
-    
+
     All valid reference linecodes merged into REF
-    
+
     Warning: using global ref_parsers"""
-    linecode = linecode_maker(line)[0] 
+    linecode = linecode_maker(line)[0]
     if linecode in ref_parsers:
         linecode = 'REF'
     return linecode, line
@@ -1342,19 +1343,19 @@ def linecode_merging_maker(line):
 # EbiParser
 def parse_header(header_dict, strict=True):
     """Parses a dictionary of header lines"""
-    return pairs_to_dict(header_dict.items(), 'no_duplicated_key',
+    return pairs_to_dict(list(header_dict.items()), 'no_duplicated_key',
             handlers = _parsers)
- 
+
 _parsers = {
     'ID': id_parser,
     'AC': ac_parser,
     'DE': de_parser,
     'DT': dt_parser,
     'GN': gn_parser,
-    'OC': oc_parser, 
-    'OS': os_parser, 
-    'OX': ox_parser, 
-    'OG': og_parser, 
+    'OC': oc_parser,
+    'OS': os_parser,
+    'OX': ox_parser,
+    'OG': og_parser,
     'REF': refs_parser,
     'CC': cc_parser,
     'DR': dr_parser,
@@ -1372,20 +1373,20 @@ _parsers = {
     '//': None,
 }
 
-def EbiParser(lines, seq_constructor=Sequence, 
+def EbiParser(lines, seq_constructor=Sequence,
         header_constructor= parse_header, strict=True, selected_labels=[]):
     """Parser for the EBI data format.
 
     lines: input data (list of lines or file stream)
-    seq_constructor: constructor function to construct sequence, 'Sequence' by 
+    seq_constructor: constructor function to construct sequence, 'Sequence' by
         default.
     header_constructor: function to process the header information. Default
         is 'parse_header'
     strict: whether an exception should be raised in case of a problem
         (strict=True) or whether the bad record should be skipped
         (strict=False).
-    selected_labels: Labels from the original data format that you want 
-        returned. All the original header labels are used, except for 
+    selected_labels: Labels from the original data format that you want
+        returned. All the original header labels are used, except for
         REFERENCES, which is 'REF'.
     """
     for sequence, header_dict in MinimalEbiParser(lines, strict=strict,\
@@ -1394,13 +1395,13 @@ def EbiParser(lines, seq_constructor=Sequence,
             sequence = seq_constructor(sequence)
         try:
             header = header_constructor(header_dict, strict=strict)
-        except (RecordError, FieldError, ValueError), e:
+        except (RecordError, FieldError, ValueError) as e:
             if strict:
                 #!! just raise is better than raise RecordError
                 raise #RecordError, str(e)
             else:
                 continue
-        
+
         yield sequence, header
 
 
@@ -1417,24 +1418,24 @@ Examples:
     try:
         opts, args = getopt(sys.argv[1:], "hd", ["help"])
     except GetoptError:
-        print usage; sys.exit(2)
+        print(usage); sys.exit(2)
     for opt, arg in opts:
         if opt in ("-h", "--help"):
-            print usage; sys.exit()
+            print(usage); sys.exit()
     if args:
         lines = file(args[0])
-        print 'Parsing the file'
+        print('Parsing the file')
         for i, rec in enumerate(EbiParser(lines, strict=True)):
-            print '\r %s: %s' % (i,rec[1]['ID']['EntryName']) ,
-    else: 
+            print('\r %s: %s' % (i,rec[1]['ID']['EntryName']), end=' ')
+    else:
         lines="""\
-ID   Q9U9C5_CAEEL   PRELIMINARY;      PRT;   218 AA. 
+ID   Q9U9C5_CAEEL   PRELIMINARY;      PRT;   218 AA.
 AC   Q9U9C5;hdfksfsdfs;sdfsfsfs;
 DT   01-MAY-2000 (TrEMBLrel. 13, Created)
 DT   01-MAY-2000 (TrEMBLrel. 13, Last sequence update)
 DT   13-SEP-2005 (TrEMBLrel. 31, Last annotation update)
-DE   Basic salivary proline-rich protein 4 allele L (Salivary proline-rich 
-DE   protein Po) (Parotid o protein) [Contains: Peptide P-D (aa); BB (bb) 
+DE   Basic salivary proline-rich protein 4 allele L (Salivary proline-rich
+DE   protein Po) (Parotid o protein) [Contains: Peptide P-D (aa); BB (bb)
 DE   (bbb)] (Fragment).
 GN   Name=nob-1; ORFNames=Y75B8A.2, Y75B8A.2B;
 GN   and
@@ -1513,7 +1514,7 @@ SQ   SEQUENCE   218 AA;  24367 MW;  F24AE5E8A102FAC6 CRC64;
      TTPNAAMHLP WAISHDGKKK RQPYKKDQIS RLEYEYSVNQ YLTNKRRSEL SAQLMLDEKQ
      VKVWFQNRRM KDKKLRQRHS GPFPHGAPVT PCIERLIN
 //
-ID   Q9U9C5_TEST   PRELIMINARY;      PRT;   218 AA. 
+ID   Q9U9C5_TEST   PRELIMINARY;      PRT;   218 AA.
 DT   ddd.
 AC   Q9U9C5;hdfksfsdfs;sdfsfsfs;
 SQ   SEQUENCE   218 AA;  24367 MW;  F24AE5E8A102FAC6 CRC64;
@@ -1534,14 +1535,12 @@ SQ   SEQUENCE   218 AA;  24367 MW;  F24AE5E8A102FAC6 CRC64;
     #    for sequence, head in MinimalEbiParser(f):
     #        i += 1
     #        if i>10000: sys.exit()
-    #        print '%s \r' % i, 
+    #        print '%s \r' % i,
     #        try:
     #            de = ' '.join(head['OG'])
     #        except KeyError, e:
     #            pass
-    #            #print e 
+    #            #print e
     #        else:
     #            if 'Plasmid' in de:
     #                print de, '\n'
-    
-    

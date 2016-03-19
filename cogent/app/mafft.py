@@ -213,7 +213,7 @@ class Mafft(CommandLineApplication):
         if self.Parameters['--treeout'].isOn():
             tree_filename = self._absolute(str(self._input_filename))+'.tree'
         else:
-            raise ValueError, "No tree output file specified."
+            raise ValueError("No tree output file specified.")
         return tree_filename
     
     def _tempfile_as_multiline_string(self, data):
@@ -283,7 +283,7 @@ def align_unaligned_seqs(seqs,moltype,params=None,accurate=False):
     alignment = dict(MinimalFastaParser(res['StdOut'].readlines()))
     #Make new dict mapping original IDs
     new_alignment = {}
-    for k,v in alignment.items():
+    for k,v in list(alignment.items()):
         new_alignment[int_keys[k]]=v
     #Create an Alignment object from alignment dict
     new_alignment = Alignment(new_alignment,MolType=moltype)
@@ -309,7 +309,7 @@ def align_and_build_tree(seqs, moltype, best_tree=False, params={}):
     if either fails).
     """
     #Current version of Mafft does not support tree building.
-    raise NotImplementedError, """Current version of Mafft does not support tree building."""
+    raise NotImplementedError("""Current version of Mafft does not support tree building.""")
     
 def build_tree_from_alignment(aln, moltype, best_tree=False, params={},\
     working_dir='/tmp'):
@@ -336,7 +336,7 @@ def build_tree_from_alignment(aln, moltype, best_tree=False, params={},\
     fails.
     """
     #Current version of Mafft does not support tree building.
-    raise NotImplementedError, """Current version of Mafft does not support tree building."""
+    raise NotImplementedError("""Current version of Mafft does not support tree building.""")
     
 def add_seqs_to_alignment(seqs, aln, moltype, params=None, accurate=False):
     """Returns an Alignment object from seqs and existing Alignment.
@@ -394,7 +394,7 @@ def add_seqs_to_alignment(seqs, aln, moltype, params=None, accurate=False):
     
     #Make new dict mapping original IDs
     new_alignment = {}
-    for k,v in alignment.items():
+    for k,v in list(alignment.items()):
         key = k.replace('_seed_','')
         new_alignment[seq_int_keys[key]]=v
     #Create an Alignment object from alignment dict
@@ -452,7 +452,7 @@ def align_two_alignments(aln1, aln2, moltype, params=None):
     
     #Make new dict mapping original IDs
     new_alignment = {}
-    for k,v in alignment.items():
+    for k,v in list(alignment.items()):
         key = k.replace('_seed_','')
         new_alignment[aln1_int_keys[key]]=v
     #Create an Alignment object from alignment dict

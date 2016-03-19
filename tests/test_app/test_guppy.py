@@ -41,8 +41,8 @@ class Genericguppy(TestCase):
     def tearDown(self): 
         """cleans up all files initially created"""
         # remove the tempdir and contents
-        map(remove,self._paths_to_clean_up)
-        map(rmdir,self._dirs_to_clean_up)
+        list(map(remove,self._paths_to_clean_up))
+        list(map(rmdir,self._dirs_to_clean_up))
 
 class guppyTests(Genericguppy):
     """Tests for the guppy application controller"""

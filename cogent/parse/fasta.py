@@ -6,9 +6,10 @@ from cogent.parse.record import RecordError
 from cogent.core.info import Info, DbRef
 from cogent.core.moltype import BYTES, ASCII
 
-from string import strip
+strip = str.strip
 import cogent
 import re
+import collections
 
 __author__ = "Rob Knight"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -51,15 +52,15 @@ def MinimalFastaParser(infile, strict=True, \
         #first line must be a label line
         if not rec[0][0] in label_characters:
             if strict:
-                raise RecordError, "Found Fasta record without label line: %s"%\
-                    rec
+                raise RecordError("Found Fasta record without label line: %s"%\
+                    rec)
             else:
                 continue
         #record must have at least one sequence
         if len(rec) < 2:
             if strict:
-                raise RecordError, "Found label line without sequences: %s" % \
-                    rec
+                raise RecordError("Found label line without sequences: %s" % \
+                    rec)
             else:
                 continue
             
@@ -128,15 +129,14 @@ def FastaParser(infile,seq_maker=None,info_maker=MinimalInfo,strict=True):
             try:
                 name, info = info_maker(label) #will raise exception if bad
                 yield name, seq_maker(seq, Name=name, Info=info)
-            except Exception, e:
-                raise RecordError, \
-                "Sequence construction failed on record with label %s" % label
+            except Exception as e:
+                raise RecordError("Sequence construction failed on record with label %s" % label)
         else:
             #not strict: just skip any record that raises an exception
             try:
                 name, info = info_maker(label)
                 yield(name, seq_maker(seq, Name=name, Info=info))
-            except Exception, e:
+            except Exception as e:
                 continue
 
 #labeled fields in the NCBI FASTA records
@@ -155,9 +155,9 @@ def NcbiFastaLabelParser(line):
     """
     info = Info()
     try:
-        ignore, gi, db, db_ref, description = map(strip, line.split('|', 4))
+        ignore, gi, db, db_ref, description = list(map(strip, line.split('|', 4)))
     except ValueError:  #probably got wrong value
-        raise RecordError, "Unable to parse label line %s" % line
+        raise RecordError("Unable to parse label line %s" % line)
     info.GI = gi
     info[NcbiLabels[db]] = db_ref
     info.Description = description
@@ -209,10 +209,10 @@ def LabelParser(display_template, field_formatters, split_with=":", DEBUG=False)
         label = [label, label[1:]][label[0] == ">"]
         label = sep.split(label)
         if DEBUG:
-            print label
+            print(label)
         info = Info()
         for index, name, converter in field_formatters:
-            if callable(converter):
+            if isinstance(converter, collections.Callable):
                 try:
                     info[name] = converter(label[index])
                 except IndexError:
@@ -242,7 +242,7 @@ def GroupFastaParser(data, label_to_name, group_key="Group", aligned=False,
     for label, seq in parser:
         seq = moltype.makeSequence(seq, Name=label, Info=label.Info)
         if DEBUG:
-            print "str(label) ",str(label), "repr(label)", repr(label)
+            print("str(label) ",str(label), "repr(label)", repr(label))
         if not group_ids or label.Info[group_key] in group_ids:
             current_collection[label] = seq
             if not group_ids:
@@ -252,7 +252,7 @@ def GroupFastaParser(data, label_to_name, group_key="Group", aligned=False,
             if group_ids[-1] not in done_groups:
                 info = Info(Group=group_ids[-1])
                 if DEBUG:
-                    print "GroupParser collection keys", current_collection.keys()
+                    print("GroupParser collection keys", list(current_collection.keys()))
                 seqs = cogent.LoadSeqs(data=current_collection, moltype=moltype,
                                 aligned=aligned)
                 seqs.Info = info

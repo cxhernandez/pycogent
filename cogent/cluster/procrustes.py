@@ -102,7 +102,7 @@ def procrustes(data1, data2):
     # that dimension
     
     if any(abs(mtx2[:,-1]) > SMALL_NUM):
-        raise StandardError("we have accidentially added a dimension to \
+        raise Exception("we have accidentially added a dimension to \
 the matrix, and the vectors have nonzero components in that dimension")
     
     # strip extra dimension which was added to allow reflections

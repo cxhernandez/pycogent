@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Utility classes for general motif and module API."""
 
-from __future__ import division
+
 from cogent.core.alignment import Alignment
 from cogent.core.location import Span
 
@@ -182,7 +182,7 @@ class Module(Alignment):
         """
         loose_list = []
         strict = self.Strict[0].Sequence
-        for instance in self.values():
+        for instance in list(self.values()):
             if instance.Sequence != strict:
                 loose_list.append(instance)
         return loose_list
@@ -195,7 +195,7 @@ class Module(Alignment):
         strict_dict = {} #Dictionary to hold counts of instance strings.
         #For each ModuleInstance in self.
 
-        for instance in self.values():
+        for instance in list(self.values()):
 
             #If instance already in strict_dict then increment and append.
             if instance.Sequence in strict_dict:
@@ -206,7 +206,7 @@ class Module(Alignment):
                 strict_dict[instance.Sequence]=[1,[instance]]
         
         #List with all counts and instances
-        count_list = strict_dict.values()
+        count_list = list(strict_dict.values())
         count_list.sort()
         count_list.reverse()
         #Set self.Template as the Strict ModuleInstance sequence.
@@ -356,7 +356,7 @@ class MotifFormatter(object):
         for ix, col in enumerate(col_freqs):
             col_sum = sum(col.values())
             keep = False
-            for b, v in col.items():
+            for b, v in list(col.items()):
                 cur_cons = v / col_sum
                 if cur_cons >= cons_thresh:
                     keep = True
@@ -417,7 +417,7 @@ class MotifResults(object):
                 for module in motif.Modules:
                     mod_len = len(module)
                     mod_id = str(module.ID)
-                    for skey, indexes in module.LocationDict.items():
+                    for skey, indexes in list(module.LocationDict.items()):
                         if skey not in module_map:
                             module_map[skey] = []
                         for ix in indexes:
@@ -432,7 +432,7 @@ def html_color_to_rgb(colorstring):
     colorstring = colorstring.strip()
     if colorstring[0] == '#': colorstring = colorstring[1:]
     if len(colorstring) != 6:
-        raise ValueError, "input #%s is not in #RRGGBB format" % colorstring
+        raise ValueError("input #%s is not in #RRGGBB format" % colorstring)
     r, g, b = colorstring[:2], colorstring[2:4], colorstring[4:]
     r, g, b = [int(n, 16) for n in (r, g, b)]
     #Divide each rgb value by 255.0 so to get float from 0.0-1.0 so colors
@@ -448,7 +448,7 @@ def make_remap_dict(results_ids, allowed_ids):
     remap_dict = {}
     warning = None
     if sorted(results_ids) == sorted(allowed_ids):
-        remap_dict = dict(zip(results_ids,results_ids))
+        remap_dict = dict(list(zip(results_ids,results_ids)))
     else:
         warning = 'Sequence IDs do not match allowed IDs. IDs were remapped.'
         for ri in results_ids:
@@ -457,8 +457,7 @@ def make_remap_dict(results_ids, allowed_ids):
                 if ai.startswith(ri):
                     curr_match.append(ai)
             if not curr_match:
-                raise ValueError, \
-                    'Sequence ID "%s" was not found in allowed IDs'%(ri)
+                raise ValueError('Sequence ID "%s" was not found in allowed IDs'%(ri))
             #if current results id was prefix of more than one allowed ID
             elif len(curr_match)>1:
                 #Check if any allowed ID matches map to other results IDs
@@ -469,7 +468,6 @@ def make_remap_dict(results_ids, allowed_ids):
                             curr_match.remove(cm)
                 #Raise error if still more than one match
                 if len(curr_match)>1:
-                    raise ValueError, \
-                        'Sequence ID "%s" had more than one match in allowed IDs: "%s"'%(ri,str(curr_match))
+                    raise ValueError('Sequence ID "%s" had more than one match in allowed IDs: "%s"'%(ri,str(curr_match)))
             remap_dict[ri]=curr_match[0]
     return remap_dict, warning

@@ -71,7 +71,7 @@ def remove_gaps(struct,seq):
         tmp = ''.join([tmp,tmp_struct[i]]) #put struct parts together
     struct = tmp
     if len(struct) != len(seq): #check so that struct and seq match in length
-        raise ValueError, 'Sequence length don\'t match structure length'
+        raise ValueError('Sequence length don\'t match structure length')
     return struct,seq
 
 def NameList(data=None):

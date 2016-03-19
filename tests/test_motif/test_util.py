@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #file cogent_tests/motif/test_util.py
-from __future__ import division
+
 from cogent.util.unit_test import TestCase, main
 from cogent.motif.util import Location, ModuleInstance, Module, Motif,\
     MotifResults, MotifFormatter, html_color_to_rgb
@@ -97,12 +97,12 @@ class ModuleInstanceTests(TestCase):
                         .900001,
                         ]
         self.modules_no_e = []
-        for i in xrange(7):
+        for i in range(7):
             self.modules_no_e.append(ModuleInstance(self.sequences[i],
                                                     self.locations[i],
                                                     self.Pvalues[i]))
         self.modules_p_and_e = []
-        for i in xrange(7):
+        for i in range(7):
             self.modules_p_and_e.append(ModuleInstance(self.sequences[i],
                                                        self.locations[i],
                                                        self.Pvalues[i],
@@ -155,10 +155,10 @@ class ModuleInstanceTests(TestCase):
         """ModuleInstances should sort properly with __cmp__ overwritten."""
         self.modules_no_e.sort()
         self.modules_p_and_e.sort()
-        self.assertEqual(map(str,self.modules_no_e),
-                         map(str,self.modules_no_e_sorted))
-        self.assertEqual(map(str,self.modules_p_and_e),
-                         map(str,self.modules_p_and_e_sorted))
+        self.assertEqual(list(map(str,self.modules_no_e)),
+                         list(map(str,self.modules_no_e_sorted)))
+        self.assertEqual(list(map(str,self.modules_p_and_e)),
+                         list(map(str,self.modules_p_and_e_sorted)))
 
 class ModuleTests(TestCase):
     """Tests for Module class."""
@@ -202,13 +202,13 @@ class ModuleTests(TestCase):
                         .900001,
                         ]
         self.modules_no_e = []
-        for i in xrange(7):
+        for i in range(7):
             self.modules_no_e.append(ModuleInstance(self.sequences[i],
                                                     self.locations[i],
                                                     self.Pvalues[i]))
         
         self.modules_p_and_e = []
-        for i in xrange(7):
+        for i in range(7):
             self.modules_p_and_e.append(ModuleInstance(self.sequences[i],
                                                        self.locations[i],
                                                        self.Pvalues[i],
@@ -261,8 +261,8 @@ class ModuleTests(TestCase):
         self.assertEqual(module.Alphabet, ASCII.Alphabet)
         self.assertEqual(module.Pvalue, None)
         self.assertEqual(module.Evalue, None)
-        self.assertEqual(module.keys(),[('seq0',1)])
-        self.assertEqual(module.values(),[ModuleInstance(self.sequences[0],
+        self.assertEqual(list(module.keys()),[('seq0',1)])
+        self.assertEqual(list(module.values()),[ModuleInstance(self.sequences[0],
                                                 self.locations[0],
                                                 self.Pvalues[0])])
 
@@ -399,7 +399,7 @@ class MotifFormatterTests(TestCase):
                         .900001,
                         ]
         self.modules_no_e = []
-        for i in xrange(7):
+        for i in range(7):
             self.modules_no_e.append(ModuleInstance(self.sequences[i],
                                                     self.locations[i],
                                                     self.Pvalues[i]))
@@ -446,7 +446,7 @@ class MotifFormatterTests(TestCase):
                             ('c',18): ModuleInstance('ggg',Location('c',18,20)),
                             },ID='4'),
                     ]
-        self.motifs_with_ids = map(Motif,self.modules_with_ids)
+        self.motifs_with_ids = list(map(Motif,self.modules_with_ids))
         self.motif_results = MotifResults(Modules=self.modules_with_ids,\
             Motifs=self.motifs_with_ids)
         

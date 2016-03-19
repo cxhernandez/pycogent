@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Tests for the MEME parser
 """
-from __future__ import division
+
 from cogent.util.unit_test import TestCase, main
 import string
 import re

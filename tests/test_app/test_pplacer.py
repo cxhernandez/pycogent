@@ -19,7 +19,7 @@ from cogent.app.util import ApplicationError,get_tmp_filename
 from cogent.parse.fasta import MinimalFastaParser
 from cogent.core.tree import PhyloNode
 from cogent.core.moltype import RNA,DNA
-from StringIO import StringIO
+from io import StringIO
 from cogent.core.alignment import Alignment
 
 class Genericpplacer(TestCase):
@@ -72,8 +72,8 @@ class Genericpplacer(TestCase):
     def tearDown(self): 
         """cleans up all files initially created"""
         # remove the tempdir and contents
-        map(remove,self._paths_to_clean_up)
-        map(rmdir,self._dirs_to_clean_up)
+        list(map(remove,self._paths_to_clean_up))
+        list(map(rmdir,self._dirs_to_clean_up))
 
 class pplacerTests(Genericpplacer):
     """Tests for the pplacer application controller"""

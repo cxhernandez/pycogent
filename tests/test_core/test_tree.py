@@ -95,9 +95,9 @@ class TreeNodeTests(TestCase):
         self.OneChild = TreeNode(Name='a', Children=[self.Child])
         self.Multi = TreeNode(Name = 'a', Children='bcd')
         self.Repeated = TreeNode(Name='x', Children='aaa')
-        self.BigName = map(TreeNode, '0123456789')
+        self.BigName = list(map(TreeNode, '0123456789'))
         self.BigParent = TreeNode(Name = 'x', Children = self.BigName)
-        self.Comparisons = map(TreeNode, 'aab')
+        self.Comparisons = list(map(TreeNode, 'aab'))
         
         nodes = dict([(x, TreeNode(x)) for x in 'abcdefgh'])
         nodes['a'].append(nodes['b'])
@@ -318,7 +318,7 @@ class TreeNodeTests(TestCase):
 
     def test_remove(self):
         """TreeNode remove should remove first match by value, not id"""
-        nodes = map(TreeNode, 'abc'*3)
+        nodes = list(map(TreeNode, 'abc'*3))
         parent = TreeNode(Children=nodes)
         self.assertEqual(len(parent), 9)
         parent.remove('a')
@@ -611,7 +611,7 @@ class TreeNodeTests(TestCase):
     def test_isTip(self):
         """TreeNode isTip should return True if node is a tip"""
         tips = 'degh'
-        for n in self.TreeNode.values():
+        for n in list(self.TreeNode.values()):
             if n.Name in tips:
                 self.assertEqual(n.isTip(), True)
             else:
@@ -620,7 +620,7 @@ class TreeNodeTests(TestCase):
     def test_isRoot(self):
         """TreeNode isRoot should return True if parent is None"""
         r = 'a'
-        for n in self.TreeNode.values():
+        for n in list(self.TreeNode.values()):
             if n.Name in r:
                 self.assertEqual(n.isRoot(), True)
             else:
@@ -703,7 +703,7 @@ class TreeNodeTests(TestCase):
     def test_root(self):
         """TreeNode root() should find root of tree"""
         nodes, root = self.TreeNode, self.TreeRoot
-        for i in nodes.values():
+        for i in list(nodes.values()):
             assert i.root() is root
 
     def test_children(self):
@@ -1763,7 +1763,7 @@ class SmallTreeReshapeTestClass(TestCase):
         """testing (well, exercising at least), unrooted"""
         new_tree = LoadTree(treestring="((a,b),(c,d))")
         new_tree = new_tree.unrooted()
-        self.assert_(len(new_tree.Children) > 2, 'not unrooted right')
+        self.assertTrue(len(new_tree.Children) > 2, 'not unrooted right')
     
     def test_reroot(self):
         tree = LoadTree(treestring="((a,b),(c,d),e)")
@@ -1825,7 +1825,7 @@ class TestTree(TestCase):
         orig_dists = t1.getDistances()
         subtree = t1.getSubTree(set(['a','b','d','e','c']))
         sub_dists = subtree.getDistances()
-        for pair, dist in sub_dists.items():
+        for pair, dist in list(sub_dists.items()):
             self.assertEqual((pair,dist), (pair,orig_dists[pair]))
 
     def test_getsubtree_3(self):
@@ -1844,13 +1844,13 @@ class TestTree(TestCase):
             PhyloNode) # note c,j similar to above
         t2_dists = t2.getDistances()
         # ensure t2 is same as t1, except j->c or c->j
-        for pair, dist in t2_dists.items():
+        for pair, dist in list(t2_dists.items()):
             if (pair == ('c','j')) or (pair == ('j','c')):
                 continue
             self.assertEqual((pair,dist), (pair,orig_dists[pair]))
         sub2 = t2.getSubTree(set(['a','b','d','e','c']))
         sub2_dists = sub2.getDistances()
-        for pair, dist in sub2_dists.items():
+        for pair, dist in list(sub2_dists.items()):
             self.assertEqual((pair,dist), (pair,orig_dists[pair]))        
 
     def test_getsubtree_4(self):
@@ -1910,14 +1910,14 @@ class TestTree(TestCase):
         sub_sameroot_dists2 = sub_sameroot2.getDistances()
 
         # tip to tip dists should be the same
-        for tip_pair in sub_dists.keys():
+        for tip_pair in list(sub_dists.keys()):
             self.assertEqual(sub_dists[tip_pair],true_dists[tip_pair])
-        for tip_pair in t1_dists.keys():
+        for tip_pair in list(t1_dists.keys()):
             self.assertEqual(t1_dists[tip_pair],true_dists[tip_pair])
-        for tip_pair in sub_sameroot_dists.keys():
+        for tip_pair in list(sub_sameroot_dists.keys()):
             self.assertEqual(sub_sameroot_dists[tip_pair],
                 true_dists[tip_pair])
-        for tip_pair in sub_sameroot_dists2.keys():
+        for tip_pair in list(sub_sameroot_dists2.keys()):
             self.assertEqual(sub_sameroot_dists2[tip_pair],
                 true_dists[tip_pair])
 

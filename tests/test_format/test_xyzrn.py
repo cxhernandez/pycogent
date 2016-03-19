@@ -24,9 +24,9 @@ class XyzrnTest(TestCase):
         self.structure = FromFilenameStructureParser('data/1A1X.pdb')
         self.residues = einput(self.structure, 'R')
         self.atoms = einput(self.structure, 'A')
-        self.residue8 = self.residues.values()[8]
-        self.atom17 = self.atoms.values()[17]
-        self.atom23 = self.atoms.values()[23]
+        self.residue8 = list(self.residues.values())[8]
+        self.atom17 = list(self.atoms.values())[17]
+        self.atom23 = list(self.atoms.values())[23]
         
     def test_write_atom(self):
         fd, fn = tempfile.mkstemp()

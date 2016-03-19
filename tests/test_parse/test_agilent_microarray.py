@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Tests for the Microarray output parser
 """
-from __future__ import division
+
 from cogent.util.unit_test import TestCase, main
 from cogent.parse.agilent_microarray import *
 

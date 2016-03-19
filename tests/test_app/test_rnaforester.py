@@ -52,7 +52,7 @@ class RnaforesterTest(TestCase):
 
         r = RNAforester(InputHandler='_input_as_lines')
         res = r(self.input)
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus'])
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus'])
         self.assertEqual(res['ExitStatus'],0)
         assert res['StdOut'] is not None
         res.cleanUp()

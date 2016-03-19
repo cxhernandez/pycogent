@@ -70,7 +70,7 @@ class BWA(CommandLineApplication):
         _valid_arguments dictionary to determine if an argument is valid
         or invalid.
         """
-        for k, v in self.Parameters.iteritems():
+        for k, v in self.Parameters.items():
             if self.Parameters[k].isOn():
                 if k in self._valid_arguments:
                     if not self._valid_arguments[k](v.Value):
@@ -90,16 +90,16 @@ class BWA(CommandLineApplication):
         # WorkingDir should be in quotes -- filenames might contain spaces
         cd_command = ''.join(['cd ',str(self.WorkingDir),';'])
         if self._command is None:
-            raise ApplicationError, '_command has not been set.'
+            raise ApplicationError('_command has not been set.')
         command = self._command
         # also make sure there's a subcommand!
         if self._subcommand is None:
-            raise ApplicationError, '_subcommand has not been set.'
+            raise ApplicationError('_subcommand has not been set.')
         subcommand = self._subcommand
         # sorting makes testing easier, since the options will be written out
         # in alphabetical order. Could of course use option parsing scripts
         # in cogent for this, but this works as well.
-        parameters = sorted([str(x) for x in self.Parameters.values() 
+        parameters = sorted([str(x) for x in list(self.Parameters.values()) 
                             if str(x)])
         synonyms = self._synonyms
         
@@ -138,7 +138,7 @@ class BWA(CommandLineApplication):
             # N.B.: optional positional arguments begin with underscore (_)!
             # (e.g., see _mate_in for bwa bwasw)
             if k[0] != '_' and k not in data:
-                raise ApplicationError, "Missing required input %s" % k
+                raise ApplicationError("Missing required input %s" % k)
 
         # Set values for input and output files
         for k in data:
@@ -150,14 +150,14 @@ class BWA(CommandLineApplication):
 
             # check for absolute paths
             if not isabs(data[k][0]):
-                raise ApplicationError, "Only absolute paths allowed.\n%s" %\
-                repr(data)
+                raise ApplicationError("Only absolute paths allowed.\n%s" %\
+                repr(data))
             self._input[k] = data[k]
         
         # if there is a -f option to specify an output file, force the user to
         # use it (otherwise things to to stdout)
         if '-f' in self.Parameters and not self.Parameters['-f'].isOn():
-            raise ApplicationError, "Please specify an output file with -f"
+            raise ApplicationError("Please specify an output file with -f")
 
         return ''
 
@@ -652,7 +652,7 @@ def assign_reads_to_database(query, database_fasta, out_path, params=None):
     # not for any of the subcommands, so make a new params dict that is the
     # same as the original minus these addendums
     subcommand_params = {}
-    for k, v in params.iteritems():
+    for k, v in params.items():
         if k not in ('algorithm', 'temp_dir', 'aln_params'):
             subcommand_params[k] = v
 
@@ -714,4 +714,4 @@ def assign_dna_reads_to_protein_database(query_fasta_fp, database_fasta_fp,
 
     Not yet implemented, as BWA can only align DNA reads to DNA databases.
     """
-    raise NotImplementedError, "BWA cannot at this point align DNA to protein"
+    raise NotImplementedError("BWA cannot at this point align DNA to protein")

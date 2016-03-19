@@ -48,7 +48,7 @@ def FromFileParser(f, format, dialign_recode=False, **kw):
         parser = PARSERS[format]
         source = f
     for (name, seq) in parser(source, **kw):
-        if isinstance(seq, basestring):
+        if isinstance(seq, str):
             if dialign_recode:
                 seq = seq.translate(_lc_to_wc)
             if not seq.isupper():

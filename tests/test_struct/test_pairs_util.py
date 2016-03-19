@@ -2,7 +2,7 @@
 # test_pairs_util.py
 """Provides tests for gapping/ungapping functions and base pair comparison
 """
-from __future__ import division
+
 from cogent.util.unit_test import TestCase, main
 from cogent.core.sequence import RnaSequence, ModelSequence, Sequence
 from cogent.core.moltype import RNA
@@ -820,7 +820,7 @@ class GardnerMetricsTest(TestCase):
         exp = {'SENSITIVITY':0.4, 'SELECTIVITY':0.5, 'AC':0.45,\
             'CC':0.42906394, 'MCC':0.42906394}
         obs = all_metrics(self.true, self.predicted, seqs=self.seq, min_dist=4)
-        self.assertEqualItems(obs.keys(), exp.keys())
+        self.assertEqualItems(list(obs.keys()), list(exp.keys()))
         for k in exp:
             self.assertFloatEqual(obs[k], exp[k])
 
@@ -843,7 +843,7 @@ class GardnerMetricsTest(TestCase):
         exp = {'SENSITIVITY':0.6666667, 'SELECTIVITY':0.6666667,\
             'AC':0.6666667, 'CC':0.57575758, 'MCC':0.57575758}
         obs = all_metrics(ref, pred, seqs=[seq], min_dist=4)
-        self.assertEqualItems(obs.keys(), exp.keys())
+        self.assertEqualItems(list(obs.keys()), list(exp.keys()))
         for k in exp:
             self.assertFloatEqual(obs[k], exp[k])
 

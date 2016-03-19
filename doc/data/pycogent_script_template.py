@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # File created on 15 Jul 2011
-from __future__ import division
+
 
 __author__ = "AUTHOR_NAME"
 __copyright__ = "COPYRIGHT_INFORMATION"

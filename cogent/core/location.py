@@ -40,7 +40,7 @@ range from 2:4 contains 2, 3 and 4, _not_ just 2 and 3.
 from cogent.util.misc import FunctionWrapper, ClassChecker, ConstrainedList, \
     iterable
 from itertools import chain
-from string import strip
+strip = str.strip
 
 from bisect import bisect_right, bisect_left
 import copy
@@ -374,9 +374,9 @@ class Span(SpanI):
         by 1 if going backwards.
         """
         if self.Reverse:
-            return iter(xrange(self.End-1, self.Start-1, -1))
+            return iter(range(self.End-1, self.Start-1, -1))
         else:
-            return iter(xrange(self.Start, self.End, 1))
+            return iter(range(self.Start, self.End, 1))
     
     def __str__(self):
         """Returns string representation of self."""
@@ -577,7 +577,7 @@ class Map(object):
                 continue
             delta[span.Start] = delta.get(span.Start, 0) + 1
             delta[span.End] = delta.get(span.End, 0) - 1
-        positions = delta.keys()
+        positions = list(delta.keys())
         positions.sort()
         last_y = y = 0
         last_x = start = None
@@ -663,7 +663,7 @@ class Map(object):
             if lo > last_hi:
                 new_spans.append(LostSpan(lo-last_hi))
             elif lo < last_hi:
-                raise ValueError, "Uninvertable. Overlap: %s < %s" % (lo, last_hi)
+                raise ValueError("Uninvertable. Overlap: %s < %s" % (lo, last_hi))
             new_spans.append(Span(start, end, Reverse=start>end))
             last_hi = hi
         if self.parent_length > last_hi:
@@ -681,8 +681,8 @@ class Map(object):
         else:
             order_func = lambda x: x
         
-        coords = map(order_func,
-                    [(s.Start, s.End) for s in self.spans if not s.lost])
+        coords = list(map(order_func,
+                    [(s.Start, s.End) for s in self.spans if not s.lost]))
         
         return coords
     
@@ -875,7 +875,7 @@ def RangeFromString(string, delimiter=','):
     Ignores whitespace; expects values to be comma-delimited and positive.
     """
     result = Range()
-    pairs = map(strip, string.split(delimiter))
+    pairs = list(map(strip, string.split(delimiter)))
     for p in pairs:
         if not p:   #adjacent delimiters?
             continue

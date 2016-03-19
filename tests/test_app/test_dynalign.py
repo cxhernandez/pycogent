@@ -57,7 +57,7 @@ class DynalignTest(TestCase):
 
         d = Dynalign(InputHandler='_input_as_lines')
         res = d([self.input1,self.input2])
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus',\
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus',\
         'seq_1_ct','seq_2_ct','alignment'])
         self.assertEqual(res['ExitStatus'],0)
         res.cleanUp()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Classes for dealing with base, codon, and amino acid usage.
 """
-from __future__ import division
+
 from cogent.maths.stats.util import Freqs, Numbers, UnsafeFreqs
 from cogent.maths.stats.special import fix_rounding_error
 from cogent.util.array import euclidean_distance
@@ -9,9 +9,10 @@ from cogent.util.misc import Delegator, FunctionWrapper, InverseDict
 from cogent.core.genetic_code import GeneticCodes, GeneticCode as GenCodeClass
 from cogent.core.info import Info as InfoClass
 from cogent.core.alphabet import CharAlphabet
-from string import upper
 
 from numpy import array, concatenate, sum, mean, isfinite, sqrt
+
+upper = str.upper
 
 __author__ = "Rob Knight"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -26,7 +27,7 @@ RnaBases = CharAlphabet('UCAG')
 DnaBases = CharAlphabet('TCAG')
 AminoAcids = CharAlphabet('ACDEFGHIKLMNPQRSTVWY*') # * denotes termination
 AB = CharAlphabet('ab') #used for testing
-Chars = CharAlphabet(''.join(map(chr, range(256))), '-')  #used for raw chars
+Chars = CharAlphabet(''.join(map(chr, list(range(256)))), '-')  #used for raw chars
 RnaBasesGap = CharAlphabet('UCAG-', '-')
 DnaBasesGap = CharAlphabet('TCAG-', '-')
 AminoAcidsGap = CharAlphabet('ACDEFGHIKLMNPQRSTVWY*-', '-')
@@ -53,8 +54,8 @@ SGC = GeneticCodes[1]
 
 RnaDinucs = [i+j for i in RnaBases for j in RnaBases]
 
-RnaToDna = dict(zip(RnaBases, DnaBases))
-DnaToRna = dict(zip(DnaBases, RnaBases))
+RnaToDna = dict(list(zip(RnaBases, DnaBases)))
+DnaToRna = dict(list(zip(DnaBases, RnaBases)))
 
 Bases = RnaBases        #by default
 Codons = RnaCodons      #by default
@@ -101,14 +102,14 @@ def key_to_dna(key):
 
 class InfoFreqs(Freqs, Delegator):
     """Like Freqs, but has an Info object storing additional data.
-    
-    Intended for holding base or codon frequencies that come from a 
+
+    Intended for holding base or codon frequencies that come from a
     particular sequence, so that the Info of the sequence can be preserved
     even if the sequence is deleted to free up memory.
     """
     def __init__(self, data=None, Info=None, **kwargs):
         """Intializes BaseUsage with data, either sequence or dict of freqs.
-        
+
         Ignores additional kwargs (e.g. to support copy).
 
         Makes the _handler for delegator accessible with the name Info.
@@ -159,7 +160,7 @@ class BaseUsageI(object):
     def aminoAcids(self, genetic_code=SGC):
         """Predicts amino acid frequencies from the base frequencies."""
         return self.codons().aminoAcids(genetic_code)
-    
+
     def distance(self,other):
         """Calculates the distance between two BaseUsages.
 
@@ -171,7 +172,7 @@ class BaseUsageI(object):
 
     def content(self, string):
         """Gets the sum of bases specified in string.
-        
+
         For example, self.content('GC') gets the GC content.
         """
         return sum([self.get(i, 0) for i in string], 0)
@@ -208,13 +209,13 @@ class BaseUsage(BaseUsageI, InfoFreqs):
     """Stores frequencies of the four bases, mapped to RNA.
 
     This class is convenient but inefficient, since it automatically maps any
-    lookups to the uppercase RNA alphabet internally. Use UnsafeBaseUsage for 
+    lookups to the uppercase RNA alphabet internally. Use UnsafeBaseUsage for
     speed when necessary.
     """
-    
+
     Mask = FunctionWrapper(key_to_rna)
     RequiredKeys = dict.fromkeys(Bases)
-    
+
     def __getitem__(self, key):
         """Normalizes key and treats T=U."""
         key = self.Mask(key)
@@ -236,7 +237,7 @@ class UnsafeBaseUsage(BaseUsageI, UnsafeFreqs):
 
 class CodonUsageI(object):
     """Stores codon usage for a gene or species.
-    
+
     Note that CodonUsage objects get their own reference to _default_code
     during creation, so changing CodonUsage._default_code will not change the
     GeneticCode of any CodonUsage object that has already been created.
@@ -248,7 +249,7 @@ class CodonUsageI(object):
         'UC':'Ser', 'CC':'Pro', 'AC':'Thr', 'GC':'Ala',\
         'UA':'Y/*','CA':'H/Q','AA':'N/K','GA':'D/E',\
         'UG':'C*W', 'CG':'Arg', 'AG':'S/R', 'GG':'Gly'}
-    
+
     BlockNames = \
         {'UU':'Phe/Leu', 'CU':'Leucine', 'AU':'Ile/Met', 'GU':'Valine', \
         'UC':'Serine', 'CC':'Proline', 'AC':'Threonine', 'GC':'Alanine',\
@@ -271,7 +272,7 @@ class CodonUsageI(object):
             data = self._purged_data()
         else:
             data = self
-        for codon, freq in data.items():
+        for codon, freq in list(data.items()):
             for base in codon:
                 if base in result:
                     result[base] += freq
@@ -292,7 +293,7 @@ class CodonUsageI(object):
         gc = self.GeneticCode
         syn = gc.Synonyms
         aa_sums = {}
-        for key, codons in syn.items():
+        for key, codons in list(syn.items()):
             aa_sums[key] = sum([self[c] for c in codons], 0)
         for codon in self:
             try:
@@ -304,7 +305,7 @@ class CodonUsageI(object):
                 if isfinite(res):
                     self[codon] = res
         return self
-        
+
 
     def _purged_data(self):
         """Copy of self's freqs after removing bad/stop codons and singlets."""
@@ -335,11 +336,11 @@ class CodonUsageI(object):
 
     def positionalBases(self, purge_unwanted=False):
         """Calculates positional base usage.
-        
+
         purge_unwanted controls whether or not to purge 1-codon groups, stop
-        codons, and any codons containing degnerate bases before calculating 
-        the base usage (e.g. to get Noboru Sueoka's P3 measurement): default 
-        is False. Deletion of unwanted codons happens on a copy, not the 
+        codons, and any codons containing degnerate bases before calculating
+        the base usage (e.g. to get Noboru Sueoka's P3 measurement): default
+        is False. Deletion of unwanted codons happens on a copy, not the
         original data.
         """
         first = {}
@@ -351,12 +352,12 @@ class CodonUsageI(object):
         else:
             data = self
 
-        for codon, freq in data.items():
+        for codon, freq in list(data.items()):
             try:
                 p1, p2, p3 = codon
             except ValueError:
                 continue #skip any incomplete codons
-            
+
             if p1 in first:
                 first[p1] += freq
             else:
@@ -379,16 +380,16 @@ class CodonUsageI(object):
         result = [i['G'] + i['C'] for i in p]
         average = sum(result, 0)/3
         return [average] + result
-        
+
     def fingerprint(self, which_blocks='quartets', include_mean=True,\
         normalize=True):
         """Returns fingerprint data for fingerprint plots.
-        
+
         which_blocks: whether to include only the usual 4-codon quartets (the
                       default), the split blocks only, or all blocks.
         include_mean: whether to include the mean (True).
         normalize:    whether to normalize so that the quartets sum to 1 (True)
-        """ 
+        """
         if which_blocks == 'split':
             blocks = self.SplitBlocks
         elif which_blocks == 'quartets':
@@ -411,15 +412,15 @@ class CodonUsageI(object):
                 a_ratio = A/(A+U)
             else:
                 a_ratio=0.5
-                
+
             result.append([g_ratio, a_ratio, all])
         result = array(result)
-        
+
         if normalize:   #make the shown bubbles sum to 1
             sum_ = sum(result[:,-1])
             if sum_:
                 result[:,-1] /= sum_
-        
+
         if include_mean: #calculate mean from all codons
             third = self.positionalBases().Third
             U, C, A, G = [third[i] for i in 'UCAG']
@@ -432,7 +433,7 @@ class CodonUsageI(object):
             else:
                 a_ratio=0.5
             result = concatenate((result, array([[g_ratio,a_ratio,1]])))
-        
+
         return result
 
     def pr2bias(self, block):
@@ -447,7 +448,7 @@ class CodonUsageI(object):
         """
         U, C, A, G = [self[block+i] for i in 'UCAG']
         return G/(G+C), A/(A+U), G/(G+A), C/(C+U), G/(G+U), C/(C+A)
-            
+
     def aminoAcids(self, genetic_code=None):
         """Calculates amino acid usage, optionally using a specified code."""
         if genetic_code is None:
@@ -457,42 +458,42 @@ class CodonUsageI(object):
         else:
             curr_code = GeneticCodes[genetic_code]
         aa = {}
-        for codon, freq in self.items():
+        for codon, freq in list(self.items()):
             curr_aa = curr_code[codon]
             if curr_aa in aa:
                 aa[curr_aa] += freq
             else:
                 aa[curr_aa] = freq
         return AminoAcidUsage(aa, self.Info)
-    
+
 class CodonUsage(CodonUsageI, InfoFreqs):
     """Stores frequencies of the 64 codons, mapped to RNA.
 
     This class is convenient but inefficient, since it automatically maps any
-    lookups to the uppercase RNA alphabet internally. Use UnsafeBaseUsage for 
+    lookups to the uppercase RNA alphabet internally. Use UnsafeBaseUsage for
     speed when necessary.
     """
-    
+
     Mask = FunctionWrapper(key_to_rna)
     RequiredKeys = RnaCodons
     BaseUsageClass = BaseUsage
-   
+
     def __init__(self, data=None, Info=None, GeneticCode=None, \
         Mask=None, ValueMask=None, Constraint=None):
         """Initializes new CodonUsage with Info and frequency data.
-        
+
         Note: Mask, ValueMask and Constraint are ignored, but must be present
         to support copy() because of the ConstrainedContainer interface.
         """
         #check if we have a sequence: if so, take it 3 bases at a time
-        #this will (properly) fail on lists of tuples or anything else where 
+        #this will (properly) fail on lists of tuples or anything else where
         #the items don't behave like strings.
         try:
-            codons = [''.join(data[i:i+3]) for i in xrange(0, len(data), 3)]
+            codons = [''.join(data[i:i+3]) for i in range(0, len(data), 3)]
         except:
             codons = data
         super(CodonUsage, self).__init__(codons, Info)
-        
+
         if GeneticCode:
             if isinstance(GeneticCode, GenCodeClass):
                 curr_code = GeneticCode
@@ -501,7 +502,7 @@ class CodonUsage(CodonUsageI, InfoFreqs):
         else:
             curr_code = self._default_code
         self.__dict__['GeneticCode'] = curr_code
- 
+
     def __getitem__(self, key):
         """Normalizes key and treats T=U."""
         key = self.Mask(key)
@@ -527,15 +528,15 @@ class UnsafeCodonUsage(CodonUsageI, UnsafeFreqs):
     def __init__(self, data=None, Info=None, GeneticCode=None, \
         Mask=None, ValueMask=None, Constraint=None):
         """Initializes new CodonUsage with Info and frequency data.
-        
+
         Note: Mask, ValueMask and Constraint are ignored, but must be present
         to support copy() because of the ConstrainedContainer interface.
         """
         #check if we have a sequence: if so, take it 3 bases at a time
-        #this will (properly) fail on lists of tuples or anything else where 
+        #this will (properly) fail on lists of tuples or anything else where
         #the items don't behave like strings.
         try:
-            codons = [''.join(data[i:i+3]) for i in xrange(0, len(data), 3)]
+            codons = [''.join(data[i:i+3]) for i in range(0, len(data), 3)]
         except:
             codons = data or {}
         UnsafeFreqs.__init__(self, codons)
@@ -547,7 +548,7 @@ class UnsafeCodonUsage(CodonUsageI, UnsafeFreqs):
         if Info:
             self.__dict__.update(Info)
         self.Info = Info or {}
-        
+
         if GeneticCode:
             if isinstance(GeneticCode, GenCodeClass):
                 curr_code = GeneticCode
@@ -557,10 +558,10 @@ class UnsafeCodonUsage(CodonUsageI, UnsafeFreqs):
             curr_code = self._default_code
         self.GeneticCode = curr_code
 
-    
+
 class PositionalBaseUsage(Delegator):
     """Stores a BaseUsage for each of the three codon positions."""
-    
+
     def __init__(self, First=None, Second=None, Third=None, Info=None):
         """Returns new PositionalBaseUsage with values for the 3 positions."""
         Delegator.__init__(self, Info)
@@ -585,7 +586,7 @@ class PositionalBaseUsage(Delegator):
         elif index == 2 or index == -1:
             return self.Third
         else:
-            raise IndexError, "PositionalBaseUsage only has 3 positions."
+            raise IndexError("PositionalBaseUsage only has 3 positions.")
 
     def normalize(self):
         """Normalizes each of the component base usages."""
@@ -603,7 +604,7 @@ class PositionalBaseUsage(Delegator):
     def codons(self):
         """Returns codon distribution, calculated from positional freqs."""
         result = {}
-        first_copy, second_copy, third_copy = map(Freqs, self)
+        first_copy, second_copy, third_copy = list(map(Freqs, self))
         first_copy.normalize()
         second_copy.normalize()
         third_copy.normalize()
@@ -618,7 +619,7 @@ class PositionalBaseUsage(Delegator):
     def aminoAcids(self, genetic_code=None):
         """Returns amino acid distribution."""
         return self.codons().aminoAcids(genetic_code)
-        
+
 class AminoAcidUsage(InfoFreqs):
     """Stores counts ofthe 20 canonical amino acids."""
     Mask = FunctionWrapper(upper)
@@ -626,8 +627,8 @@ class AminoAcidUsage(InfoFreqs):
 
     def bases(self, genetic_code=SGC, codon_usage=_equal_codons):
         """Predicts most likely set of base frequencies.
-        
-        Optionally uses a genetic code (default: standard genetic code) and 
+
+        Optionally uses a genetic code (default: standard genetic code) and
         codon usage (default: unbiased codon usage).
         """
         result = self.codons(genetic_code, codon_usage).bases()
@@ -639,14 +640,14 @@ class AminoAcidUsage(InfoFreqs):
         """Predicts most likely set of codon frequencies.
 
         Optionally uses genetic_code (to figure out which codons belong
-        with each amino acid), and codon_usage (to get most likely codons for 
-        each amino acid). Defaults are the standard genetic code and unbiased 
+        with each amino acid), and codon_usage (to get most likely codons for
+        each amino acid). Defaults are the standard genetic code and unbiased
         codon frequencies.
         """
         result = {}
         normalized = Freqs(self)
         normalized.normalize()
-        for aa, aa_freq in normalized.items():
+        for aa, aa_freq in list(normalized.items()):
             curr_codons = [c.upper().replace('T','U') for c in genetic_code[aa]]
             if not curr_codons:
                 continue    #code might be missing some amino acids?
@@ -685,7 +686,7 @@ class DinucUsage(DinucI, InfoFreqs):
     """Stores frequencies of the 16 dinucleotides, mapped to RNA.
 
     This class is convenient but inefficient, since it automatically maps any
-    lookups to the uppercase RNA alphabet internally. Use UnsafeBaseUsage for 
+    lookups to the uppercase RNA alphabet internally. Use UnsafeBaseUsage for
     speed when necessary.
     """
     Mask = FunctionWrapper(key_to_rna)
@@ -694,12 +695,12 @@ class DinucUsage(DinucI, InfoFreqs):
     def __init__(self, data=None, Info=None, Overlapping=True, \
         GeneticCode=None, Mask=None, ValueMask=None, Constraint=None):
         """Initializes new CodonUsage with Info and frequency data.
-        
+
         Note: Mask, ValueMask and Constraint are ignored, but must be present
         to support copy() because of the ConstrainedContainer interface.
         """
         #check if we have a sequence: if so, take it 3 bases at a time
-        #this will (properly) fail on lists of tuples or anything else where 
+        #this will (properly) fail on lists of tuples or anything else where
         #the items don't behave like strings.
         if Mask is not None:
             self.Mask = Mask
@@ -708,16 +709,16 @@ class DinucUsage(DinucI, InfoFreqs):
         try:
             data = self.Mask(data)
             if Overlapping == '3-1':
-                range_ = range(2, len(data)-1, 3)
+                range_ = list(range(2, len(data)-1, 3))
             elif Overlapping:
-                range_ = range(0, len(data)-1)
+                range_ = list(range(0, len(data)-1))
             else:
-                range_ = range(0, len(data)-1, 2)
+                range_ = list(range(0, len(data)-1, 2))
             dinucs = [''.join(data[i:i+2]) for i in range_]
         except:
             dinucs = data
         super(DinucUsage, self).__init__(dinucs, Info)
-        
+
     def __getitem__(self, key):
         """Normalizes key and treats T=U."""
         key = self.Mask(key)

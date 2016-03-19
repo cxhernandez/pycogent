@@ -49,7 +49,7 @@ class FoldalignTest(TestCase):
 
         f = foldalign(InputHandler='_input_as_lines')
         res = f(self.input)
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus'])
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus'])
         self.assertEqual(res['ExitStatus'],0)
         assert res['StdOut'] is not None
 

@@ -2,7 +2,7 @@
 #file evo/parsers/test_sprinzl.py
 """Unit tests for the Sprinzl tRNA database parser.
 """
-from string import strip
+strip = str.strip
 from cogent.parse.sprinzl import OneLineSprinzlParser, GenomicSprinzlParser,\
     _fix_sequence, get_pieces, get_counts, sprinzl_to_vienna
 from cogent.util.unit_test import TestCase, main
@@ -126,8 +126,8 @@ class SprinzlToViennaTests(TestCase):
 
     def setUp(self):
         """setUp function for SprinzlToViennaTests"""
-        self.structures = map(strip,STRUCTURES.split('\n'))
-        self.vienna_structs = map(strip,VIENNA.split('\n'))
+        self.structures = list(map(strip,STRUCTURES.split('\n')))
+        self.vienna_structs = list(map(strip,VIENNA.split('\n')))
         self.short_struct = '...===...===.'
         #structure too long
         self.incorrect1 = ''.join(['..=====*..*==.............==*...=.=...',

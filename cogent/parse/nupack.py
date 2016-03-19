@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-
-from string                import strip,split,atof
 from cogent.util.transform import make_trans
 from cogent.struct.rna2d   import Pairs,ViennaStructure
 from cogent.struct.knots   import opt_single_random
+strip, split, atof = str.strip, str.split, str.atof
 
 __author__ = "Shandy Wikman"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -21,7 +20,7 @@ def nupack_parser(lines=None,pseudo=True):
     """
     result = line_parser(lines,pseudo)
     return result
-    
+
 curly_to_dots_table = make_trans('{}','..')
 bracket_to_dots_table = make_trans('()','..')
 curly_to_bracket_table = make_trans('{}','()')
@@ -58,17 +57,17 @@ def to_pairs(list=None,pseudo=True):
     """
     tmp = list[1]
     pairs = []
- 
+
     if list.__contains__('pseudoknotted!'):
         #since pseudoknotted is denoted by {} it divides into {} and () string
-        #they are then turned into pairs lists seperatly and then the lists are 
+        #they are then turned into pairs lists seperatly and then the lists are
         #joined to form the complete set of pairs
         first = second = tmp
-        
+
         first = ViennaStructure(first.translate(curly_to_dots_table))
         second = second.translate(bracket_to_dots_table)
         second = ViennaStructure(second.translate(curly_to_bracket_table))
-        
+
         pairs = first.toPairs()
         pairs.extend(second.toPairs())
         pairs.sort()
@@ -82,4 +81,3 @@ def to_pairs(list=None,pseudo=True):
         pairs.sort()
 
     return pairs
-

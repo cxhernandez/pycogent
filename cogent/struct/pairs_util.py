@@ -11,8 +11,8 @@ The module also contains several function for measuring the distance
 The metrics from Gardner and Giegerich 2004 are provided.
 """
 
-from __future__ import division
-from string import strip
+
+strip = str.strip
 from numpy import array, sqrt, searchsorted, flatnonzero, take, sum, equal
 from cogent.struct.rna2d import Pairs
 from cogent.parse.fasta import MinimalFastaParser
@@ -397,7 +397,7 @@ def compare_pairs_mapping(one, other, one_to_other):
 # ===========================================================
 # Gardner & Giegerich 2004 metrics
 # ===========================================================
-ACCEPTED = dict.fromkeys(map(tuple,["GC","CG","AU","UA","GU","UG"]))
+ACCEPTED = dict.fromkeys(list(map(tuple,["GC","CG","AU","UA","GU","UG"])))
 
 def check_structures(ref, predicted):
     """Raise ValueError if one of the two structures contains conflicts"""
@@ -508,7 +508,7 @@ def extract_seqs(seqs):
     if isinstance(seqs, str): #assume fasta string
         result = [v for (l,v) in list(MinimalFastaParser(seqs.split('\n')))]
     elif isinstance(seqs, list):
-        seq_strings = map(strip,map(str, seqs))
+        seq_strings = list(map(strip,list(map(str, seqs))))
         if seq_strings[0].startswith('>'): #list of fasta lines
             result = [v for l,v in list(MinimalFastaParser(seq_strings))]
         else:
@@ -708,7 +708,7 @@ def mcc(ref, predicted, seqs, min_dist=4):
     elif not predicted:
         return 0.0
     elif not seqs:
-        raise ValueError, 'No sequence provided!'
+        raise ValueError('No sequence provided!')
 
     sequences = extract_seqs(seqs)
     counts = get_counts(ref, predicted, sequences=sequences, split_fp=True,\
@@ -742,7 +742,7 @@ def all_metrics(ref, predicted, seqs, min_dist=4):
             result[i] = 0.0
         return result
     elif not seqs:
-        raise ValueError, 'No sequence provided!'
+        raise ValueError('No sequence provided!')
 
     sequences = extract_seqs(seqs)
     counts = get_counts(ref, predicted, sequences=sequences, split_fp=True,\

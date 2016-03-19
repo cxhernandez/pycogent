@@ -30,8 +30,8 @@ residue partner. The residue partner is 0 if the base is unpaired.
 
 Numbering is 1-based!
 """
-from __future__ import division
-from string import strip
+
+strip = str.strip
 from cogent.struct.rna2d import Vienna, Pairs
 from cogent.struct.knots import opt_single_random
 from cogent.core.info import Info
@@ -67,7 +67,7 @@ def parse_header(header_lines):
             info['Citation'] = line.split()[-1].strip()
         elif ':' in line:
             try:
-                field, value = map(strip,line.split(':',1))
+                field, value = list(map(strip,line.split(':',1)))
                 info[field] = value
             except ValueError:
                 #no interesting header line
@@ -85,7 +85,7 @@ def construct_sequence(seq_dict):
     between min and max index are present. No checking on validity of
     residue symbols. 
     """
-    all_pos = seq_dict.keys()
+    all_pos = list(seq_dict.keys())
     min_pos, max_pos = min(all_pos), max(all_pos)
     if min_pos != 0:
         raise BpseqParseError(\
@@ -275,6 +275,6 @@ def bpseq_specify_output(lines, num_base=1, unpaired_symbol='0',
 if __name__ == "__main__":
     from sys import argv
     seq, struct = BpseqParser(open(argv[1]))
-    print seq
-    print seq.Info
-    print struct
+    print(seq)
+    print(seq.Info)
+    print(struct)

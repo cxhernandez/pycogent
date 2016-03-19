@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 from distutils.core import setup, Command
 from distutils.extension import Extension
-import sys, os, re, subprocess
+import warnings
+import sys
+import os
+import re
+import subprocess
 
 __author__ = "Peter Maxwell"
 __copyright__ = "Copyright 2007-2011, The Cogent Project"
@@ -16,7 +20,8 @@ __status__ = "Production"
 # Check Python version, no point installing if unsupported version inplace
 if sys.version_info < (2, 6):
     py_version = ".".join([str(n) for n in sys.version_info])
-    raise RuntimeError("Python-2.6 or greater is required, Python-%s used." % py_version)
+    raise RuntimeError(
+        "Python-2.6 or greater is required, Python-%s used." % py_version)
 
 
 # Check Numpy version, no point installing if unsupported version inplace
@@ -43,30 +48,33 @@ if sys.platform == "win32" and len(sys.argv) < 2:
 class NullCommand(Command):
     description = "Generate .c files from .pyx files"
     # List of option tuples: long name, short name (or None), and help string.
-    user_options = [] #[('', '', ""),]
-    def initialize_options (self):
+    user_options = []  # [('', '', ""),]
+
+    def initialize_options(self):
         pass
-    def finalize_options (self):
+
+    def finalize_options(self):
         pass
-    def run (self):
+
+    def run(self):
         pass
-        
+
+
 class BuildDocumentation(NullCommand):
     description = "Generate HTML documentation and .c files"
-    def run (self):
+
+    def run(self):
         # Restructured Text -> HTML
         try:
             import sphinx
         except ImportError:
-            print "Failed to build html due to ImportErrors for sphinx"
-            return
+            raise ImportError("Failed to build html due to ImportErrors for sphinx")
         cwd = os.getcwd()
         os.chdir('doc')
         subprocess.call(["make", "html"])
         os.chdir(cwd)
-        print "Built index.html"
 
-# Cython is now run via the Cythonize function rather than monkeypatched into 
+# Cython is now run via the Cythonize function rather than monkeypatched into
 # distutils, so these legacy commands don't need to do anything extra.
 extra_commands = {
     'pyrexc': NullCommand,
@@ -79,18 +87,18 @@ try:
     if 'DONT_USE_PYREX' in os.environ:
         raise ImportError
     from Cython.Compiler.Version import version
-    version = tuple([int(v) \
-        for v in re.split("[^\d]", version) if v.isdigit()])
+    version = tuple([int(v)
+                     for v in re.split("[^\d]", version) if v.isdigit()])
     if version < (0, 17, 1):
-        print "Your Cython version is too old"
-        raise ImportError
+        raise ImportError("Your Cython version is too old")
+
 except ImportError:
     source_suffix = '.c'
-    cythonize = lambda x:x
-    print "No Cython, will compile from .c files"
+    cythonize = lambda x: x
+    warnings.warn("No Cython, will compile from .c files", UserWarning)
     for cmd in extra_commands:
         if cmd in sys.argv:
-            print "'%s' command not available without Cython" % cmd
+            warnings.warn("'%s' command not available without Cython" % cmd)
             sys.exit(1)
 else:
     from Cython.Build import cythonize
@@ -112,6 +120,12 @@ A toolkit for statistical analysis of biological sequences.
 Version %s.
 """ % __version__
 
+extra = {}
+if sys.version_info >= (3, 0):
+    extra.update(
+        use_2to3=True,
+    )
+
 setup(
     name="cogent",
     version=__version__,
@@ -123,24 +137,24 @@ setup(
     platforms=["any"],
     license=["GPL"],
     keywords=["biology", "genomics", "statistics", "phylogeny", "evolution",
-                "bioinformatics"],
+              "bioinformatics"],
     classifiers=[
-            "Development Status :: 5 - Production/Stable",
-            "Intended Audience :: Science/Research",
-            "License :: OSI Approved :: GNU General Public License (GPL)",
-            "Topic :: Scientific/Engineering :: Bio-Informatics",
-            "Topic :: Software Development :: Libraries :: Python Modules",
-            "Operating System :: OS Independent",
-            ],
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: GNU General Public License (GPL)",
+        "Topic :: Scientific/Engineering :: Bio-Informatics",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Operating System :: OS Independent",
+    ],
     packages=['cogent', 'cogent.align', 'cogent.align.weights', 'cogent.app',
-                'cogent.cluster', 'cogent.core', 'cogent.data', 'cogent.db',
-                'cogent.db.ensembl', 'cogent.draw',
-                'cogent.evolve', 'cogent.format', 'cogent.maths',
-                'cogent.maths.matrix', 'cogent.maths.stats',
-                'cogent.maths.stats.cai', 'cogent.maths.unifrac',
-                'cogent.maths.spatial', 'cogent.motif', 'cogent.parse',
-                'cogent.phylo', 'cogent.recalculation', 'cogent.seqsim',
-                'cogent.struct', 'cogent.util'],
+              'cogent.cluster', 'cogent.core', 'cogent.data', 'cogent.db',
+              'cogent.db.ensembl', 'cogent.draw',
+              'cogent.evolve', 'cogent.format', 'cogent.maths',
+              'cogent.maths.matrix', 'cogent.maths.stats',
+              'cogent.maths.stats.cai', 'cogent.maths.unifrac',
+              'cogent.maths.spatial', 'cogent.motif', 'cogent.parse',
+              'cogent.phylo', 'cogent.recalculation', 'cogent.seqsim',
+              'cogent.struct', 'cogent.util'],
     ext_modules=cythonize([
         CythonExtension("cogent.align._compare"),
         CythonExtension("cogent.align._pairwise_seqs"),
@@ -153,6 +167,7 @@ setup(
         CythonExtension("cogent.maths._period"),
         CythonExtension("cogent.maths.spatial.ckd3"),
     ]),
-    include_dirs = [numpy_include_dir],
-    cmdclass = extra_commands,
+    include_dirs=[numpy_include_dir],
+    cmdclass=extra_commands,
+    **extra
 )

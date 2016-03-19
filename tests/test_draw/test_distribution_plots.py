@@ -12,7 +12,7 @@ __status__ = "Production"
 
 from matplotlib import use
 use('Agg', warn=False)
-from StringIO import StringIO
+from io import StringIO
 import sys
 import matplotlib.colors as colors
 from matplotlib.pyplot import boxplot

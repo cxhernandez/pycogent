@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """MotifFinder that searches for over-represented k-words in an alignment."""
 
-from __future__ import division
+
 from cogent.motif.util import Motif, Module, ModuleFinder, ModuleConsolidator, \
     MotifFinder, Location, ModuleInstance, MotifResults
 from cogent.core.bitvector import PackedBases
@@ -34,7 +34,7 @@ class KWordModuleFinder(ModuleFinder):
     def _make_char_array_aln(self):
         """Turns self.Alignment into a character array.
         """
-        for k,v in self.Alignment.items():
+        for k,v in list(self.Alignment.items()):
             self.Alignment[k]=array(v,'c')
         
             
@@ -47,7 +47,7 @@ class KWordModuleFinder(ModuleFinder):
         #Dictionary keying k-word to Module
         self.ModuleDict = {}
         #For each sequence in the alignment
-        for key,seq in self.Alignment.items():
+        for key,seq in list(self.Alignment.items()):
             #For each position in seq till end - word_length
             for i in range(0,len(seq)-word_length+1):
                 #Get the current k-word
@@ -67,7 +67,7 @@ class KWordModuleFinder(ModuleFinder):
                         MolType=self.MolType)
         #Get list of counts
         module_counts = \
-            [(len(mod.Names),word) for word,mod in self.ModuleDict.items()]
+            [(len(mod.Names),word) for word,mod in list(self.ModuleDict.items())]
         #Sort and put in descending order
         module_counts.sort()
         module_counts.reverse()
@@ -187,12 +187,12 @@ class KWordModuleFilterProtein(ModuleConsolidator):
             min_seqs will be added to self.Modules.
         """
         #First filter by min_modules
-        for k,v in self.KFinder.ModuleDict.items():
+        for k,v in list(self.KFinder.ModuleDict.items()):
             #If number of modules is greater than the minimum
             if len(v) >= min_modules:
                 #Check to see that module is present in at least min_seqs
                 curr_seqs = {}
-                for curr in v.keys():
+                for curr in list(v.keys()):
                     curr_seqs[curr[0]]=True
                 if len(curr_seqs) >= min_seqs:
                     self.Modules.append(self.fixModuleSequence(v))
@@ -202,7 +202,7 @@ class KWordModuleFilterProtein(ModuleConsolidator):
         """
         module_len=len(str(module))
         module.Template=str(module)
-        for k,v in module.items():
+        for k,v in list(module.items()):
             seq_id, module_start = k
             module_end = module_start+module_len
             loc = Location(seq_id,module_start,module_end)
@@ -278,7 +278,7 @@ class KWordMotifFinder(MotifFinder):
             alphabet_len = len(module.MolType.Alphabet)
         
         #Total length of the alignment
-        aln_len=sum(map(len,self.Alignment.values()))
+        aln_len=sum(map(len,list(self.Alignment.values())))
         #Number of sequences in the alignment
         num_seqs = len(self.Alignment)
         #get module_p
@@ -314,7 +314,7 @@ class KWordMotifFinder(MotifFinder):
             alphabet_len = len(module.MolType.Alphabet)
         
         #Total length of the alignment
-        aln_len=sum(map(len,self.Alignment.values()))
+        aln_len=sum(map(len,list(self.Alignment.values())))
         #Number of sequences in the alignment
         num_seqs = len(self.Alignment)
         

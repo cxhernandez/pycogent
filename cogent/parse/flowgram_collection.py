@@ -53,7 +53,7 @@ def flows_from_kv_pairs(flows):
         val can be str or flowgram object
     """
     
-    names, flows =  map(list, zip(*flows))
+    names, flows =  list(map(list, list(zip(*flows))))
     if isinstance(flows[0], str):
         info = [None]*len(flows)
     else:
@@ -63,12 +63,12 @@ def flows_from_kv_pairs(flows):
 
 def flows_from_empty(obj, *args, **kwargs):
     """SequenceCollection from empty data: raise exception."""
-    raise ValueError, "Cannot create empty SequenceCollection."
+    raise ValueError("Cannot create empty SequenceCollection.")
 
 def flows_from_dict(flows):
     """SequenceCollection from dict of {label:flow_as_str} or {label:flow_obj}.
     """
-    names, flows = map(list, zip(*flows.items()))
+    names, flows = list(map(list, list(zip(*list(flows.items())))))
     if isinstance(flows[0], str):
         info = [None]*len(flows)
     else:
@@ -230,7 +230,7 @@ class FlowgramCollection(object):
         
         flows, names, info = conversion_f(data)
         if names and name_conversion_f:
-            names = map(name_conversion_f, names)
+            names = list(map(name_conversion_f, names))
 
         #if no names were passed in as Names, if we obtained them from
         #the seqs we should use them, but otherwise we should use the
@@ -262,20 +262,19 @@ class FlowgramCollection(object):
                     (len(name_order) != len(per_flow_names)):
                     name_order = per_flow_names
             else:
-                raise ValueError, \
-                "Some names were not unique. Duplicates are:\n" + \
-                str(sorted(duplicates.keys()))
+                raise ValueError("Some names were not unique. Duplicates are:\n" + \
+                str(sorted(duplicates.keys())))
         return per_flow_names, flows, name_order, info
 
 
     def _check_header_info(self, info):
         for h in info:
             if h not in self.HeaderInfo:
-                raise ValueError, "invalid key in header_info"
+                raise ValueError("invalid key in header_info")
         
     def _make_named_flows(self, names, flows):
         """Returns NamedFlows: dict of name:flow."""
-        name_flow_tuples = zip(names, flows)
+        name_flow_tuples = list(zip(names, flows))
         for n, f in name_flow_tuples:
             f.Name = n
         return dict(name_flow_tuples)
@@ -301,7 +300,7 @@ class FlowgramCollection(object):
         except (IndexError, TypeError):
             pass
         try:
-            first = iter(data).next()
+            first = next(iter(data))
         except (IndexError, TypeError, StopIteration):
             pass
         if first is None:
@@ -320,7 +319,7 @@ class FlowgramCollection(object):
                 except (TypeError, ValueError):
                     pass
             return "generic"
-        except (IndexError, TypeError), e:
+        except (IndexError, TypeError) as e:
             return 'empty'
 
     def __len__(self):
@@ -552,7 +551,7 @@ class FlowgramCollection(object):
             #copy everything except the specified seqs
             negated_names = []
             row_lookup = dict.fromkeys(flows)
-            for r, row in self.NamedFlows.items():
+            for r, row in list(self.NamedFlows.items()):
                 if r not in row_lookup:
                     result[r] = row
                     negated_names.append(r)
@@ -615,7 +614,7 @@ class FlowgramCollection(object):
         get = self.NamedFlows.__getitem__
         int_keys = dict([(prefix+str(i),k) for i,k in \
                 enumerate(sorted(self.NamedFlows.keys()))])
-        int_map = dict([(k, copy(get(v))) for k,v in int_keys.items()])
+        int_map = dict([(k, copy(get(v))) for k,v in list(int_keys.items())])
         return int_map, int_keys
 
     def toDict(self):
@@ -638,7 +637,7 @@ class FlowgramCollection(object):
 
     def setBases(self):
         """Sets the Bases property for each flowgram using toSeq"""
-        for f in self.values():
+        for f in list(self.values()):
             f.Bases = f.toSeq()
     
 
@@ -665,7 +664,7 @@ def seqs_to_flows(seqs, keyseq = default_keyseq, floworder = default_floworder,
     if probs:
         for p in probs:
             if round(sum(probs[p]),1) != 1.0:
-                raise ValueError, 'probs[%s] does not add to 1.0' % p
+                raise ValueError('probs[%s] does not add to 1.0' % p)
 
     for name,seq in seqs:
         flow_seq = FakeRandom(floworder,True)
@@ -693,7 +692,7 @@ def seqs_to_flows(seqs, keyseq = default_keyseq, floworder = default_floworder,
         len_order = len(floworder)
 
         if numflows is not None and numflows % len_order != 0:
-            raise ValueError, "numflows must be divisable by the length of floworder"
+            raise ValueError("numflows must be divisable by the length of floworder")
         if (len_flow % len_order != 0):
             right_missing = len_order - (len_flow % len_order)
             if numflows != (len_flow + right_missing) and numflows is not None:

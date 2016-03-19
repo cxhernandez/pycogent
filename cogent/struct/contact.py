@@ -5,7 +5,7 @@ from cogent.struct.selection import einput
 from cogent.struct.annotation import xtradata
 from cogent.maths.geometry import coords_to_symmetry, \
                                   coords_to_crystal
-from _contact import cnt_loop
+from ._contact import cnt_loop
 from collections import defaultdict
 from numpy import array, r_, sqrt, int64
 
@@ -59,7 +59,7 @@ def _prepare_contacts(query, model=None, level='A', search_limit=6.0, \
                     'diff_chain':2 }[contact_mode]
 
     # determine unique structure
-    structure = einput(query, 'S').values()[0]
+    structure = list(einput(query, 'S').values())[0]
     sh = structure.header
     # if not specified otherwise the lattice is the first model
     lattice = model or structure[(0,)]
@@ -121,7 +121,7 @@ def _prepare_contacts(query, model=None, level='A', search_limit=6.0, \
     allchains = set()
     allchains.update(lchains)
     allchains.update(qchains)
-    chain2id = dict(zip(allchains, range(len(allchains))))
+    chain2id = dict(list(zip(allchains, list(range(len(allchains))))))
     for lent_id in lents_ids:
         lc.append(chain2id[lent_id[2]])
     for qent_id in qents_ids:
@@ -135,7 +135,7 @@ def _prepare_contacts(query, model=None, level='A', search_limit=6.0, \
                             **kwargs)
 
     result = defaultdict(dict)
-    for contact in xrange(idxc):
+    for contact in range(idxc):
         qent_id = qents_ids[n_src[contact]]
         lent_id = lents_ids[n_asu[contact]]
         result[qent_id][lent_id] = (sqrt(n_dst[contact]), n_tra[contact], n_sym[contact])
@@ -157,9 +157,9 @@ def contacts_xtra(query, xtra_key=None, **cnt_kwargs):
     """
     xtra_key = xtra_key or 'CONTACTS'
     structures = einput(query, 'S')
-    if len(structures.values()) > 1:
+    if len(list(structures.values())) > 1:
         raise ValueError('Entities from multiple structures are not supported.')
     result = _prepare_contacts(query, **cnt_kwargs) # calculate CONTACTS
-    result = dict([(id, {xtra_key:v}) for id, v in result.iteritems()])
+    result = dict([(id, {xtra_key:v}) for id, v in result.items()])
     xtradata(result, structures)
     return result

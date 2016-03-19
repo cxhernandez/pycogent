@@ -50,9 +50,9 @@ an alignment. For information, run python coevolution.py -h from the command
 line.
 
 """
-from __future__ import division
+
 from optparse import make_option
-from cPickle import Pickler, Unpickler
+from pickle import Pickler, Unpickler
 from os.path import splitext, basename, exists
 from sys import exit
 from numpy import zeros, ones, float, put, transpose, array, float64, nonzero,\
@@ -507,7 +507,7 @@ def get_positional_probabilities(pos_freqs,natural_probs,scaled_aln_size=100):
         # pos_freq as a float could be greater than scaled_aln_size. 
         # In this case I cast it to an int. I don't like this alignment 
         # scaling stuff though. 
-        except ValueError, e:
+        except ValueError as e:
             results.append(binomial_exact(int(pos_freq),\
                 scaled_aln_size,natural_prob))
     return array(results)
@@ -703,7 +703,7 @@ def sca_pair(alignment,pos1,pos2,cutoff,\
         ddg_values.append(get_dgg(pos2_dg,subaln_dg,scaled_aln_size))
 
     if return_all:
-        return zip(allowed_perturbations,ddg_values)
+        return list(zip(allowed_perturbations,ddg_values))
     else:
         return max(ddg_values)
 
@@ -869,12 +869,12 @@ def make_weights(freqs, n):
     We compute the weight as the normalized frequency of the replacement state
     divided by 2*n."""
     freqs.normalize()
-    char_prob = freqs.items()
+    char_prob = list(freqs.items())
     weights = []
     for C,P in char_prob:
         alts = Freqs([(c, p) for c, p in char_prob if c!=C])
         alts.normalize()
-        alts = Freqs([(c,w/(2*n)) for c,w in alts.items()])
+        alts = Freqs([(c,w/(2*n)) for c,w in list(alts.items())])
         weights += [(C, alts)]
     return weights
 
@@ -893,7 +893,7 @@ def calc_pair_scale(seqs, obs1, obs2, weights1, weights2):
     weights1 = dict(weights1)
     weights2 = dict(weights2)
     scales = []
-    for a, b in pair_freqs.keys():
+    for a, b in list(pair_freqs.keys()):
         weights = weights1[a]
         
         pr = a+b
@@ -901,7 +901,7 @@ def calc_pair_scale(seqs, obs1, obs2, weights1, weights2):
         obs1 -= a
         
         # make comparable alignments by mods to col 1
-        for c, w in weights.items():
+        for c, w in list(weights.items()):
             new_pr = c+b
             pair_freqs += [new_pr]
             obs1 += c
@@ -918,7 +918,7 @@ def calc_pair_scale(seqs, obs1, obs2, weights1, weights2):
         # make comparable alignments by mods to col 2
         weights = weights2[b]
         obs2 -= b
-        for c, w in weights.items():
+        for c, w in list(weights.items()):
             new_pr = a+c
             pair_freqs += [new_pr]
             obs2 += c
@@ -1061,7 +1061,7 @@ def ancestral_state_pair(aln,tree,pos1,pos2,\
     """
     ancestral_seqs = ancestral_seqs or get_ancestral_seqs(aln,tree)
     ancestral_names_to_seqs = \
-        dict(zip(ancestral_seqs.Names,ancestral_seqs.ArraySeqs))
+        dict(list(zip(ancestral_seqs.Names,ancestral_seqs.ArraySeqs)))
     distances = tree.getDistances()
     tips = tree.getNodeNames(tipsonly=True)
     # map names to nodes (there has to be a built-in way to do this 
@@ -1072,7 +1072,7 @@ def ancestral_state_pair(aln,tree,pos1,pos2,\
     # occuring on a single branch to be given the most weight
     distances.update(dict([((n,n),nodes[n].Length) for n in nodes]))
     result = 0
-    names_to_seqs = dict(zip(aln.Names,aln.ArraySeqs))
+    names_to_seqs = dict(list(zip(aln.Names,aln.ArraySeqs)))
     for i in range(len(tips)):
         org1 = tips[i]
         seq1 = names_to_seqs[org1]
@@ -1146,7 +1146,7 @@ def create_gctmpca_input(aln,tree):
     seq_names = []
     seq_to_species1 = []
     seqs1.append(' '.join(map(str,[aln.getNumSeqs(),len(aln)])))
-    constant_name_length = max(map(len,aln.Names))
+    constant_name_length = max(list(map(len,aln.Names)))
     for n in aln.Names:
         name = ''.join([n] + ['.']*(constant_name_length - len(n)))
         new_tree.getNodeMatchingName(n).Name = name
@@ -1170,8 +1170,7 @@ def parse_gctmpca_result(f,num_positions):
         try:
             m[pos1,pos2] = m[pos2,pos1] = score
         except IndexError:
-            raise ValueError, \
-             "%d, %d out of range -- invalid num_positions?" % (pos1, pos2)
+            raise ValueError("%d, %d out of range -- invalid num_positions?" % (pos1, pos2))
     return m
 
 def gctmpca_pair(aln,tree,pos1,pos2,epsilon=None,priors=None,sub_matrix=None,\
@@ -1180,7 +1179,7 @@ def gctmpca_pair(aln,tree,pos1,pos2,epsilon=None,priors=None,sub_matrix=None,\
 
     if aln.MolType == PROTEIN: mol_type = 'protein'
     elif aln.MolType == RNA: mol_type = 'rna'
-    else: raise ValueError, 'Unsupported mol type, must be PROTEIN or RNA.'
+    else: raise ValueError('Unsupported mol type, must be PROTEIN or RNA.')
 
     gctmpca = Gctmpca(HALT_EXEC=debug)
     data = {'mol_type':mol_type,'seqs1':seqs1,'tree1':tree1,\
@@ -1206,7 +1205,7 @@ def gctmpca_alignment(aln,tree,epsilon=None,priors=None,\
 
     if aln.MolType == PROTEIN: mol_type = 'protein'
     elif aln.MolType == RNA: mol_type = 'rna'
-    else: raise ValueError, 'Unsupported mol type, must be PROTEIN or RNA.'
+    else: raise ValueError('Unsupported mol type, must be PROTEIN or RNA.')
     
     gctmpca = Gctmpca(HALT_EXEC=debug)
     data = {'mol_type':mol_type,'seqs1':seqs1,'tree1':tree1,\
@@ -1253,11 +1252,11 @@ def sca_input_validation(alignment,**kwargs):
         required_parameters.append('background_freqs')
     for rp in required_parameters:
         if rp not in kwargs:
-            raise ValueError, 'Required parameter was not provided: ' + rp
+            raise ValueError('Required parameter was not provided: ' + rp)
 
     # check that the value provided for cutoff is valid (ie. between 0 and 1)
     if not 0.0 <= kwargs['cutoff'] <= 1.0:
-        raise ValueError, 'Cutoff must be between zero and one.'
+        raise ValueError('Cutoff must be between zero and one.')
 
     # check that the set of chars in alphabet and background_freqs are 
     # identical
@@ -1280,8 +1279,7 @@ def validate_alphabet(alphabet,freqs):
     alphabet_chars = set(alphabet)
     freq_chars = set(freqs.keys())
     if alphabet_chars != freq_chars:
-        raise ValueError, \
-         "Alphabet and background freqs must contain identical sets of chars."
+        raise ValueError("Alphabet and background freqs must contain identical sets of chars.")
 
 def ancestral_states_input_validation(alignment,**kwargs):
     """Ancestral States (AS) specific validations steps """
@@ -1289,7 +1287,7 @@ def ancestral_states_input_validation(alignment,**kwargs):
     required_parameters = ['tree']
     for rp in required_parameters:
         if rp not in kwargs:
-            raise ValueError, 'Required parameter was not provided: ' + rp
+            raise ValueError('Required parameter was not provided: ' + rp)
 
     # validate the tree
     validate_tree(alignment,kwargs['tree'])
@@ -1309,22 +1307,19 @@ def validate_ancestral_seqs(alignment,tree,ancestral_seqs):
             ancestors in the tree and the ancestral sequence names. 
     """
     if len(alignment) != len(ancestral_seqs):
-        raise ValueError,\
-         "Alignment and ancestral seqs are different lengths."
+        raise ValueError("Alignment and ancestral seqs are different lengths.")
     # is there a better way to get all the ancestor names? why doesn't
     # tree.ancestors() do this?
     edges = set(tree.getNodeNames()) - set(tree.getTipNames())
     seqs = set(ancestral_seqs.getSeqNames())
     if edges != seqs:
-        raise ValueError, \
-         "Must be ancestral seqs for all edges and root in tree, and no more."
+        raise ValueError("Must be ancestral seqs for all edges and root in tree, and no more.")
 
 def validate_tree(alignment,tree):
     """AS validation: ValueError if tip and seq names aren't same 
     """
     if set(tree.getTipNames()) != set(alignment.getSeqNames()):
-        raise ValueError, \
-         "Tree tips and seqs must have perfectly overlapping names."
+        raise ValueError("Tree tips and seqs must have perfectly overlapping names.")
 
 ## End method-specific error checking functions
 
@@ -1332,18 +1327,17 @@ def validate_tree(alignment,tree):
 def validate_position(alignment,position):
     """ValueError if position is outside the range of the alignment """
     if not 0 <= position < len(alignment):
-        raise ValueError, \
-         "Position is outside the range of the alignment: " + str(position)
+        raise ValueError("Position is outside the range of the alignment: " + str(position))
          
 def validate_alignment(alignment):
     """ValueError on ambiguous alignment characters"""
     bad_seqs = []
     for name, ambiguous_pos in \
-     alignment.getPerSequenceAmbiguousPositions().items():
+     list(alignment.getPerSequenceAmbiguousPositions().items()):
         if ambiguous_pos: bad_seqs.append(name)
     if bad_seqs:
-        raise ValueError, 'Ambiguous characters in sequences: %s' \
-         % '; '.join(map(str,bad_seqs))
+        raise ValueError('Ambiguous characters in sequences: %s' \
+         % '; '.join(map(str,bad_seqs)))
 
 def coevolve_alignments_validation(method,alignment1,alignment2,\
  min_num_seqs,max_num_seqs,**kwargs):
@@ -1353,8 +1347,8 @@ def coevolve_alignments_validation(method,alignment1,alignment2,\
      [mi_alignment,nmi_alignment,resampled_mi_alignment])
     if (alignment1.MolType != alignment2.MolType) and \
      method not in valid_methods_for_different_moltypes:
-      raise AssertionError, "Different MolTypes only supported for %s" %\
-       ' '.join(map(str,valid_methods_for_different_moltypes.keys()))  
+      raise AssertionError("Different MolTypes only supported for %s" %\
+       ' '.join(map(str,list(valid_methods_for_different_moltypes.keys()))))  
     
     alignment1_names = \
         set([n.split('+')[0].strip() for n in alignment1.Names])
@@ -1374,14 +1368,13 @@ def coevolve_alignments_validation(method,alignment1,alignment2,\
             
     # Determine if the alignments have enough sequences to proceed.
     if alignment1.getNumSeqs() < min_num_seqs: 
-        raise ValueError, "Too few sequences in merged alignment: %d < %d" \
-         % (alignment1.getNumSeqs(), min_num_seqs)
+        raise ValueError("Too few sequences in merged alignment: %d < %d" \
+         % (alignment1.getNumSeqs(), min_num_seqs))
     
     # Confirm that min_num_seqs <= max_num_seqs
     if max_num_seqs and min_num_seqs > max_num_seqs:
-        raise ValueError, \
-         "min_num_seqs (%d) cannot be greater than max_num_seqs (%d)." \
-         % (min_num_seqs, max_num_seqs)
+        raise ValueError("min_num_seqs (%d) cannot be greater than max_num_seqs (%d)." \
+         % (min_num_seqs, max_num_seqs))
   
 ## End general validation functions
 
@@ -1438,18 +1431,18 @@ def merge_alignments(alignment1,alignment2):
      dict([(n.split('+')[0].strip(),n) for n in alignment2.Names])
     
     try:
-        for merged_name,orig_name in aln1_name_map.items():
+        for merged_name,orig_name in list(aln1_name_map.items()):
             result[merged_name] = alignment1.getGappedSeq(orig_name) +\
              alignment2.getGappedSeq(aln2_name_map[merged_name])
     except ValueError: # Differing MolTypes
-        for merged_name,orig_name in aln1_name_map.items():
+        for merged_name,orig_name in list(aln1_name_map.items()):
             result[merged_name] =\
              Sequence(alignment1.getGappedSeq(orig_name)) +\
              Sequence(alignment2.getGappedSeq(aln2_name_map[merged_name]))
-    except KeyError,e:
-        raise KeyError, 'A sequence identifier is in alignment2 ' +\
+    except KeyError as e:
+        raise KeyError('A sequence identifier is in alignment2 ' +\
          'but not alignment1 -- did you filter out sequences identifiers' +\
-         ' not common to both alignments?'
+         ' not common to both alignments?')
     return LoadSeqs(data=result,aligned=DenseAlignment)
     
 def n_random_seqs(alignment,n):
@@ -1550,7 +1543,7 @@ def coevolve_alignments(method,alignment1,alignment2,\
         try:
             merged_alignment = sequence_filter(merged_alignment,max_num_seqs)
         except TypeError:
-            raise ValueError, "Too many sequences for covariation analysis."
+            raise ValueError("Too many sequences for covariation analysis.")
     
     # If the user provided a filepath for the merged alignment, write it to
     # disk. This is sometimes useful for post-processing steps.
@@ -1824,7 +1817,7 @@ def is_parsimony_informative(column_freqs,minimum_count=2,\
                 
     if len(column_freqs) < minimum_differences: return False
     count_gte_minimum = 0
-    for count in column_freqs.values():
+    for count in list(column_freqs.values()):
         # if not strict, only minimum_differences of the counts
         # must be greater than or equal to minimum_count, so
         # count those occurrences (this is different than the 
@@ -1936,7 +1929,7 @@ def pickle_coevolution_result(coevolve_result,out_filepath='output.pkl'):
     except IOError:
         err = "Can't access filepath. Do you have write access? " + \
             out_filepath
-        raise IOError,err
+        raise IOError(err)
     p.dump(coevolve_result)
 
 def unpickle_coevolution_result(in_filepath):
@@ -1950,7 +1943,7 @@ def unpickle_coevolution_result(in_filepath):
         err = \
          "Can't access filepath. Does it exist? Do you have read access? "+\
          in_filepath
-        raise IOError,err
+        raise IOError(err)
     return u.load()
     
 def coevolution_matrix_to_csv(coevolve_matrix,out_filepath='output.csv'):
@@ -1965,7 +1958,7 @@ def coevolution_matrix_to_csv(coevolve_matrix,out_filepath='output.csv'):
     except IOError:
         err = "Can't access filepath. Do you have write access? " + \
             out_filepath
-        raise IOError,err
+        raise IOError(err)
     f.write('\n'.join([','.join([str(v) for v in row]) \
      for row in coevolve_matrix]))
     f.close()
@@ -1982,11 +1975,11 @@ def csv_to_coevolution_matrix(in_filepath):
         err = \
          "Can't access filepath. Does it exist? Do you have read access? "+\
          in_filepath
-        raise IOError,err
+        raise IOError(err)
     result = []
     for line in f:
         values = line.strip().split(',')
-        result.append(map(float,values))
+        result.append(list(map(float,values)))
     return array(result)
 
 
@@ -2163,17 +2156,17 @@ def build_coevolution_matrix_filepath(input_filepath,\
             point_index = cutoff_str.rindex('.')
             method = '_'.join([method,cutoff_str[point_index+1:point_index+4]])
         except ValueError:
-            raise ValueError, 'Cutoff must be provided when method == \'sca\''
+            raise ValueError('Cutoff must be provided when method == \'sca\'')
     elif method == 'gctmpca':
         try:
             epsilon_str = str(parameter)
             point_index = epsilon_str.rindex('.')
             method = '_'.join([method,epsilon_str[point_index+1:point_index+4]])
         except ValueError:
-            raise ValueError, 'Epsilon must be provided when method == \'gctmpca\''
+            raise ValueError('Epsilon must be provided when method == \'gctmpca\'')
             
 
-    suffixes = filter(None,[alphabet,method])
+    suffixes = [_f for _f in [alphabet,method] if _f]
     
     # strip path
     try:
@@ -2191,7 +2184,7 @@ def build_coevolution_matrix_filepath(input_filepath,\
     else:
         result = ''.join([output_dir,'/',result])
     # append output suffixes
-    result = '.'.join(filter(None,[result]+suffixes))
+    result = '.'.join([_f for _f in [result]+suffixes if _f])
 
     return result
 
@@ -2222,8 +2215,7 @@ def parse_coevolution_matrix_filepath(filepath):
         method_id = fields[2]
         extension = fields[3]
     except IndexError:
-        raise ValueError,\
-         'output filepath not in parsable format: %s. See doc string for format definition.' % filepath
+        raise ValueError('output filepath not in parsable format: %s. See doc string for format definition.' % filepath)
     
     return (alignment_id,alphabet_id,method_id)
 
@@ -2254,7 +2246,7 @@ script_info['optional_options'] = [\
  make_option('-m','--method_id',action='store',
         type='choice',dest='method_id',help='coevolve method to apply '+\
         '[default: %default]',default='nmi',
-        choices=coevolve_alignment_functions.keys()),
+        choices=list(coevolve_alignment_functions.keys())),
  make_option('-c','--sca_cutoff',action='store',
         type='float',dest='sca_cutoff',help='cutoff to apply when method'+\
         ' is SCA (-m sca) [default: %default]',default=0.8),
@@ -2268,7 +2260,7 @@ script_info['optional_options'] = [\
  make_option('-a','--alphabet_id',action='store',
          dest='alphabet_id',type='choice',
          help='name of alphabet to reduce to [default: %default (i.e., full)]',
-         default='orig',choices=alphabets.keys())
+         default='orig',choices=list(alphabets.keys()))
 ]
 script_info['version'] = __version__
 
@@ -2379,35 +2371,33 @@ def main():
     # (since that can take a while). If the user specified -f to 
     # force file overwriting, skip this step.
     if not force and exists(output_filepath):
-        print 'Output file already exists:', output_filepath
-        print 'Remove, rename, or specify -f to force overwrite.'
+        print('Output file already exists:', output_filepath)
+        print('Remove, rename, or specify -f to force overwrite.')
         exit(-1)
 
     # If the user specified -v, print some information to stdout. Otherwise
     # only error messages are displayed (via stderr).
     if verbose:
-        print 'Input alignment: %s' % alignment_filepath
+        print('Input alignment: %s' % alignment_filepath)
         try:
-            print 'Input tree: %s' % tree_filepath
+            print('Input tree: %s' % tree_filepath)
         except IndexError:
             pass
-        print 'Output matrix filepath: %s' % output_filepath
+        print('Output matrix filepath: %s' % output_filepath)
         if alphabet_id != 'orig': 
-            print 'Alphabet reduction: %s' % alphabet_id
+            print('Alphabet reduction: %s' % alphabet_id)
         else: 
-            print "No alphabet reduction (alphabet_id = 'orig')."
+            print("No alphabet reduction (alphabet_id = 'orig').")
         if method_id == 'sca': 
-            print 'Coevolution method: sca, cutoff=%f' % sca_cutoff
+            print('Coevolution method: sca, cutoff=%f' % sca_cutoff)
         elif method_id == 'gctmpca': 
-            print 'Coevolution method: gctmpca, epsilon=%f' % epsilon
+            print('Coevolution method: gctmpca, epsilon=%f' % epsilon)
         else: 
-            print 'Coevolution method: %s' % method_id
+            print('Coevolution method: %s' % method_id)
         if exclude_handler == ignore_excludes:
-            print \
-             'Exclude (i.e., gap) character handling: gaps treated as other characters.'
+            print('Exclude (i.e., gap) character handling: gaps treated as other characters.')
         else:
-            print \
-             'Exclude (i.e., gap) character handling: columns with gaps = null value'
+            print('Exclude (i.e., gap) character handling: columns with gaps = null value')
 
     # Perform the coevolutionary analysis. This can take a while.
     if coevolve_alignment_function == sca_alignment:

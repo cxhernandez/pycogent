@@ -32,7 +32,7 @@ def get_coordinates(lines):
         if l.startswith('] def'):
             break
         elif l.startswith('['):
-            coords.append(map(float,l.strip('\n[]').split()))
+            coords.append(list(map(float,l.strip('\n[]').split())))
     return coords
 
 def get_pairs(lines):

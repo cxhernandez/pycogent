@@ -72,12 +72,12 @@ class SearchPath(object):
         self._alphabets = alphabets_by_position
         try:
             if self.DEFAULT_KEY not in self._alphabets:
-                raise ValueError, "alphabets_by_position param must " + \
-                                    "contain a " + self.DEFAULT_KEY + "key"
+                raise ValueError("alphabets_by_position param must " + \
+                                    "contain a " + self.DEFAULT_KEY + "key")
             #end if
         except TypeError:
-            raise ValueError, "alphabets_by_position param must function" + \
-                                " as a dictionary"
+            raise ValueError("alphabets_by_position param must function" + \
+                                " as a dictionary")
         #end except
         
         #create the private dict of fixed, unacceptable values
@@ -336,7 +336,7 @@ class SearchPath(object):
         #only try to get the nmer if there are at least n items on stack
         if n <= len(self._path_stack):
             #for n to 0 -- start with the furthest-back entry
-            for temp_length in xrange(n, 0, -1):
+            for temp_length in range(n, 0, -1):
                 #Note that we add one bc temp length is base 1, while
                 #top index isn't.  Ex: a stack with length 5 has top
                 #index 4.  If you want the last 4, you want to start

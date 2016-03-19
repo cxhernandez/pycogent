@@ -45,7 +45,7 @@ class Mfold(CommandLineApplication):
         mfold dosen't take full paths so a tmp-file is created in the working 
         dir for mfold to read.
         """
-        nr = choice(range(150))
+        nr = choice(list(range(150)))
         input_file = open(filename).readlines()
         filename = self._input_filename = 'mfold_in%d.txt' % nr
         data_file = open(filename,'w')
@@ -60,7 +60,7 @@ class Mfold(CommandLineApplication):
         Uses a fixed tmp filename since weird truncation of the generated 
         filename sometimes occured.
         """
-        nr = choice(range(150))
+        nr = choice(list(range(150)))
         filename = self._input_filename = 'mfold_in%d.txt' % nr
         data_file = open(filename,'w')
         data_to_file = '\n'.join([str(d).strip('\n') for d in data])

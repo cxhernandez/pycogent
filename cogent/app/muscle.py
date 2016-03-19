@@ -287,7 +287,7 @@ class Muscle(CommandLineApplication):
             try:
                 filename1, filename2 = data
             except:
-                raise ValueError, "Expected two filenames"
+                raise ValueError("Expected two filenames")
 
             self.Parameters['-in'].off()
             self.Parameters['-in1'].on(filename1)
@@ -299,7 +299,7 @@ class Muscle(CommandLineApplication):
         if self.Parameters['-out'].isOn():
             aln_filename = self._absolute(str(self.Parameters['-out'].Value))
         else:
-            raise ValueError, "No output file specified."
+            raise ValueError("No output file specified.")
         return aln_filename
     
     def _tree1_out_filename(self):
@@ -307,7 +307,7 @@ class Muscle(CommandLineApplication):
         if self.Parameters['-tree1'].isOn():
             aln_filename = self._absolute(str(self.Parameters['-tree1'].Value))
         else:
-            raise ValueError, "No tree output file specified."
+            raise ValueError("No tree output file specified.")
         return aln_filename
     
     def _tree2_out_filename(self):
@@ -315,7 +315,7 @@ class Muscle(CommandLineApplication):
         if self.Parameters['-tree2'].isOn():
             tree_filename = self._absolute(str(self.Parameters['-tree2'].Value))
         else:
-            raise ValueError, "No tree output file specified."
+            raise ValueError("No tree output file specified.")
         return tree_filename
     
     def _get_result_paths(self,data):
@@ -421,7 +421,7 @@ def cluster_seqs(seqs,
     """
     num_seqs = len(seqs)
     if num_seqs < 2:
-        raise ValueError, "Muscle requres 2 or more sequences to cluster."
+        raise ValueError("Muscle requres 2 or more sequences to cluster.")
 
     
     num_chars = sum(map(len, seqs))
@@ -432,7 +432,7 @@ def cluster_seqs(seqs,
         #params["-distance1"] = "kmer6_6"
         #params["-distance1"] = "kmer20_3"
         #params["-distance1"] = "kbit20_3"
-        print "lots of chars, using fast align", num_chars
+        print("lots of chars, using fast align", num_chars)
 
     
     params["-maxhours"] = max_hours
@@ -562,7 +562,7 @@ def align_unaligned_seqs(seqs, moltype, params=None):
     alignment = dict(MinimalFastaParser(res['MuscleOut'].readlines()))
     #Make new dict mapping original IDs
     new_alignment = {}
-    for k,v in alignment.items():
+    for k,v in list(alignment.items()):
         new_alignment[int_keys[k]]=v
     #Create an Alignment object from alignment dict
     new_alignment = Alignment(new_alignment,MolType=moltype)
@@ -691,7 +691,7 @@ def add_seqs_to_alignment(seqs, aln, params=None):
     alignment = dict(MinimalFastaParser(res['MuscleOut'].readlines()))
     #Make new dict mapping original IDs
     new_alignment = {}
-    for k,v in alignment.items():
+    for k,v in list(alignment.items()):
         if k in seqs_int_keys:
             new_alignment[seqs_int_keys[k]] = v
         else:
@@ -759,7 +759,7 @@ def align_two_alignments(aln1, aln2, params=None):
 
     #Make new dict mapping original IDs
     new_alignment = {}
-    for k,v in alignment.items():
+    for k,v in list(alignment.items()):
         if k in aln1_int_keys:
             new_alignment[aln1_int_keys[k]] = v
         else:

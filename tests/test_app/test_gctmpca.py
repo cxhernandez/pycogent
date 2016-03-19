@@ -6,7 +6,7 @@
  Algorithm (GCTMPCA) application controller.
 
 """
-from __future__ import division
+
 from os import environ
 from cogent.util.unit_test import TestCase, main
 from cogent.app.util import ApplicationError
@@ -121,8 +121,8 @@ class GctmpcaTests(TestCase):
             "0.049530\t0.088612\t0.033618\t0.036886\t0.085357\t0.080482\t" +\
             "0.014753\t0.039772\t0.050680\t0.069577\t0.058542\t0.010494\t" +\
             "0.029916\t0.064718\n"
-        gctmpca_priors = dict(zip(gctmpca_aa_order,\
-            map(float,gctmpca_priors_string.strip().split('\t'))))
+        gctmpca_priors = dict(list(zip(gctmpca_aa_order,\
+            list(map(float,gctmpca_priors_string.strip().split('\t'))))))
         cogent_priors = default_gctmpca_aa_priors
         self.assertFloatEqual(cogent_priors,gctmpca_priors)
 
@@ -706,7 +706,7 @@ sub_matrix = """-1.4150\t0.2372\t0.9777\t0.2001
 """
 sample_sub_matrix = {}
 for row_c,row in zip(gctmpca_base_order,sub_matrix.split('\n')):
-    sample_sub_matrix[row_c] = dict(zip(gctmpca_base_order,row.split()))
+    sample_sub_matrix[row_c] = dict(list(zip(gctmpca_base_order,row.split())))
 
 trivial_seqs = """3 4
 A1..  AACF

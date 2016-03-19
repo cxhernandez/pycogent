@@ -56,7 +56,7 @@ class Fasta2colTest(TestCase):
 
         c = fasta2col(InputHandler='_input_as_lines')
         res = c(self.input)
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus'])
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus'])
         self.assertEqual(res['ExitStatus'],0)
 
         res.cleanUp()
@@ -97,7 +97,7 @@ class FindphylTest(TestCase):
 
         fp = findphyl(InputHandler='_input_as_lines')
         res = fp(self.input)
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus'])
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus'])
         self.assertEqual(res['ExitStatus'],0)
 
         res.cleanUp()
@@ -139,7 +139,7 @@ class MltreeTest(TestCase):
 
         m = mltree(InputHandler='_input_as_lines')
         res = m(self.input)
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus'])
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus'])
         self.assertEqual(res['ExitStatus'],0)
 
         res.cleanUp()
@@ -181,7 +181,7 @@ class ScfgTest(TestCase):
 
         s = scfg(InputHandler='_input_as_lines')
         res = s(self.input)
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus'])
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus'])
         self.assertEqual(res['ExitStatus'],0)
 
         res.cleanUp()

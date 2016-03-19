@@ -1,7 +1,7 @@
 """The most commonly used constructors are available from this toplevel module.
 The rest are in the subpackages: phylo, evolve, maths, draw, parse and format."""
 
-import sys, os, re, cPickle
+import sys, os, re, pickle
 import numpy
 
 __author__ = ""
@@ -161,7 +161,7 @@ def LoadTable(filename=None, sep=',', reader=None, header=None, rows=None,
     if filename is not None and not (reader or static_column_types):
         if filename[filename.rfind(".")+1:] == 'pickle':
             f = file(filename, 'U')
-            loaded_table = cPickle.load(f)
+            loaded_table = pickle.load(f)
             f.close()
             return _Table(**loaded_table)
 
@@ -229,6 +229,6 @@ def LoadTree(filename=None, treestring=None, tip_names=None, format=None, \
         tips = [tree_builder([], tip_name, {}) for tip_name in tip_names]
         tree = tree_builder(tips, 'root', {})
     else:
-        raise TreeError, 'filename or treestring not specified'
+        raise TreeError('filename or treestring not specified')
     return tree
 

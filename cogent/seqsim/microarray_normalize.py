@@ -31,6 +31,7 @@ from cogent.maths.stats.distribution import ndtri
 from numpy import ceil, arange, argsort, sort, array, log2, zeros, ravel, \
                   transpose, take, mean, std
 from numpy.linalg import svd
+from functools import reduce
 
 __author__ = "Rob Knight"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -93,7 +94,7 @@ def geometric_mean(vals):
     vals: array of values to compute geometric mean of
     """
     if len(vals) < 2:
-        raise ValueError, "Not enought values for geometric mean."
+        raise ValueError("Not enought values for geometric mean.")
     gmean = 1.0 
     root = 1.0 / len(vals)
 
@@ -114,7 +115,7 @@ def svd_cols(a):
     elif w.shape == a.shape:
         return w
     else:
-        raise TypeError, "Neither u nor w same shape as a."
+        raise TypeError("Neither u nor w same shape as a.")
 
 def rank_rows_by_variance(a):
     """Returns array containing indices 0..num_rows, ranked by variance."""
@@ -142,7 +143,7 @@ def omit_rows(a, f):
     
     All omit_rows functions will return both these values.
     """
-    mask = array(map(f, a))
+    mask = array(list(map(f, a)))
     coords = nonzero(mask)
     return take(a, coords), coords
 
@@ -164,11 +165,11 @@ def group_rows(a, groups):
 
 def max_per_group(a, groups):
     """Returns array with max item for each col for each group."""
-    return array(map(max, group_rows(a, groups)))
+    return array(list(map(max, group_rows(a, groups))))
 
 def mean_per_group(a, groups):
     """Returns array with mean for each col for each group."""
-    return array(map(mean, group_rows(a, groups)))
+    return array(list(map(mean, group_rows(a, groups))))
 
 def housekeeping_gene_normalize(a, housekeeping_gene_indexes):
     """
@@ -185,7 +186,7 @@ def housekeeping_gene_normalize(a, housekeeping_gene_indexes):
     hk_std_dev = std(norm_values)
  
     if not hk_std_dev:
-        raise NormalizationError, "Cannot normalize, std dev is zero." 
+        raise NormalizationError("Cannot normalize, std dev is zero.") 
     
     return (a - hk_mean) / hk_std_dev
 

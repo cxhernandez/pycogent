@@ -270,7 +270,7 @@ class BasePairs(list):
                     ia[chain_up] is ia[chain_down]:
                     ia[chain_up].append(i)
                     ia[chain_up].extend(ia[chain_down])
-                    for k,v in ia.items():
+                    for k,v in list(ia.items()):
                         if k != chain_down and v is ia[chain_down]:
                             ia[k] = ia[chain_up]
                     ia[chain_down] = ia[chain_up]
@@ -278,7 +278,7 @@ class BasePairs(list):
                     continue
             
             uniques = []
-            for k,v in ia.items():
+            for k,v in list(ia.items()):
                 if v not in uniques:
                     uniques.append(v)
             for bps in uniques:
@@ -689,7 +689,7 @@ def parse_pair_counts(lines):
             %('\n'.join(lines)))
     res = PairCounts()
     for x in range(0,len(lines),2):
-        res.update(zip(lines[x].split(),map(int,lines[x+1].split())))
+        res.update(list(zip(lines[x].split(),list(map(int,lines[x+1].split())))))
     return res
 
 def verify_bp_counts(bps, np, pair_counts):
@@ -791,10 +791,10 @@ def RnaviewParser(lines, strict=True):
     
     # parse the line groups
     result = {}
-    for section in parsers.keys():
+    for section in list(parsers.keys()):
         try:
             result[section] = parsers[section](grouped_lines[section])
-        except RnaViewParseError, e:
+        except RnaViewParseError as e:
             if strict:
                 raise RnaViewParseError(str(e))
             else:
@@ -805,7 +805,7 @@ def RnaviewParser(lines, strict=True):
         num_bps_exp = result['NP']['NUM_PAIRS']
         try:
             verify_bp_counts(result['BP'], num_bps_exp, result['PC'])
-        except RnaViewParseError, e:
+        except RnaViewParseError as e:
             if strict:
                 raise RnaViewParseError(str(e))
             else:

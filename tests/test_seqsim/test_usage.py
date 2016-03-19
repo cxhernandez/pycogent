@@ -63,10 +63,10 @@ class UsageTests(TestCase):
     def test_init(self):
         """Usage init should succeed only in subclasses"""
         self.assertRaises(TypeError, Usage, [1,2,3,4])
-        self.assertEqual(self.abUsage().items(), [('a',0),('b',0)])
-        self.assertEqual(self.abUsage([5,6]).items(), [('a',5.0),('b',6.0)])
+        self.assertEqual(list(self.abUsage().items()), [('a',0),('b',0)])
+        self.assertEqual(list(self.abUsage([5,6]).items()), [('a',5.0),('b',6.0)])
         #should also construct from seq, if not same length as freqs
-        self.assertEqual(self.abUsage([0,0,1,1,1,0,1,1]).items(), \
+        self.assertEqual(list(self.abUsage([0,0,1,1,1,0,1,1]).items()), \
             [('a',3),('b',5)])
 
     def test_getitem(self):
@@ -205,17 +205,17 @@ class UsageTests(TestCase):
     def test_values(self):
         """Usage values should return list of values in alphabet order"""
         u = self.abUsage([3,4])
-        self.assertEqual(u.values(), [3,4])
+        self.assertEqual(list(u.values()), [3,4])
 
     def test_keys(self):
         """Usage keys should return list of symbols in alphabet order"""
         u = self.abUsage([3,4])
-        self.assertEqual(u.keys(), ['a','b'])
+        self.assertEqual(list(u.keys()), ['a','b'])
 
     def test_items(self):
         """Usage items should return list of key-value pairs"""
         u = self.abUsage([3,4])
-        self.assertEqual(u.items(), [('a',3),('b',4)])
+        self.assertEqual(list(u.items()), [('a',3),('b',4)])
 
     def test_entropy(self):
         """Usage items should calculate their Shannon entropy"""
@@ -452,7 +452,7 @@ class CountsTests(TestCase):
         """Counts fromTriple should return correct counts."""
         cft = Counts.fromTriple
         rs = RnaSequence
-        A, C, G, U = map(rs, 'ACGU')
+        A, C, G, U = list(map(rs, 'ACGU'))
         #counts if different from both the other groups
         s = cft(A, C, C, RnaPairs)
         assert isinstance(s, Counts)
@@ -460,12 +460,12 @@ class CountsTests(TestCase):
         self.assertEqual(s['A','C'], 0)
         self.assertEqual(s['C','C'], 0)
         #try it with longer sequences
-        AAA, CCC = map(rs, ['AAA', 'CCC'])
+        AAA, CCC = list(map(rs, ['AAA', 'CCC']))
         s = cft(AAA, CCC, CCC, RnaPairs)
         self.assertEqual(s['C','A'], 3)
         self.assertEqual(s['A','C'], 0)
         #doesn't count if all three differ
-        ACG, CGA, GAC = map(rs, ['ACG','CGA','GAC'])
+        ACG, CGA, GAC = list(map(rs, ['ACG','CGA','GAC']))
         s = cft(ACG, CGA, GAC, RnaPairs)
         self.assertEqual(s['C','A'], 0)
         self.assertEqual(s['A','C'], 0)
@@ -667,7 +667,7 @@ class ProbsTests(TestCase):
         for i in range(NUM_TESTS):
             diag = [0, 0.2, 0.6, 1.0]
             p = Probs.random(RnaPairs, diag)._data
-            for i, d, row in zip(range(4), diag, p):
+            for i, d, row in zip(list(range(4)), diag, p):
                 self.assertFloatEqual(sum(row), 1.0)
                 self.assertEqual(row[i], diag[i])
 
@@ -831,7 +831,7 @@ class RatesTests(TestCase):
         diag = [1, -1, 2, -2]
         for i in range(NUM_TESTS):
             q = Rates.random(RnaPairs, diag)._data
-            for i, d, row in zip(range(4), diag, q):
+            for i, d, row in zip(list(range(4)), diag, q):
                 self.assertFloatEqual(sum(row, axis=0), 0.0)
                 self.assertEqual(row[i], diag[i])
 

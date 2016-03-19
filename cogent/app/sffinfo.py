@@ -65,7 +65,7 @@ class ManyValuedParameter(ValuedParameter):
             ['%s%s%s' % (quote, v, quote) for v in self.Value])
 
         parts = [self.Prefix, self.Name, self.Delimiter, value_str]
-        return ''.join(map(str, filter(None, parts)))
+        return ''.join(map(str, [_f for _f in parts if _f]))
 
 
 class Sffinfo(CommandLineApplication):
@@ -112,16 +112,15 @@ class Sffinfo(CommandLineApplication):
         # WorkingDir should be in quotes -- filenames might contain spaces
         cd_command = ''.join(['cd ',str(self.WorkingDir),';'])
         if self._command is None:
-            raise ApplicationError, '_command has not been set.'
+            raise ApplicationError('_command has not been set.')
         command = self._command
         parameters = dict([
-            (name, param) for (name, param) in self.Parameters.items()
+            (name, param) for (name, param) in list(self.Parameters.items())
             if name not in self._trailing_parameters])
         
         command_parts.append(cd_command)
         command_parts.append(command)
-        command_parts.append(self._command_delimiter.join(filter(\
-            None,(map(str,parameters.values())))))
+        command_parts.append(self._command_delimiter.join([_f for _f in (list(map(str,list(parameters.values())))) if _f]))
       
         return self._command_delimiter.join(command_parts).strip()
 

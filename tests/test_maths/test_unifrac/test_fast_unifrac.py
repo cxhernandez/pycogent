@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """Unit tests for fast unifrac."""
-from __future__ import division
+
 
 from numpy import array, logical_not, argsort
 from cogent.util.unit_test import TestCase, main
@@ -393,7 +393,7 @@ f B 1
                 return
             except AssertionError:
                 continue
-        raise AssertionError, "Produced same permutation in 5 tries: broken?"
+        raise AssertionError("Produced same permutation in 5 tries: broken?")
 
     def test_weight_equally(self):
         """weight_equally should return unit weight per tree"""
@@ -426,7 +426,7 @@ f B 1
         m2 = array([[1,2,3],[4,5,6],[7,8,9]])
         m3 = array([[2,2,2],[3,3,3],[4,4,4]])
         matrices = [m1,m2, m3]
-        env_names = map(list, ['AB', 'ABC', 'ABC'])
+        env_names = list(map(list, ['AB', 'ABC', 'ABC']))
         weights = [1, 2, 3]
         all_names =list('ABC')
         result = consolidate_skipping_missing_matrices(matrices, env_names, weights,
@@ -439,7 +439,7 @@ f B 1
         m2 = array([[1,2,3],[4,5,6],[7,8,9]])
         m3 = array([[2,2,2],[3,3,3],[4,4,4]])
         matrices = [m1,m2, m3]
-        env_names = map(list, ['AB', 'ABC', 'ABC'])
+        env_names = list(map(list, ['AB', 'ABC', 'ABC']))
         weights = [1, 2, 3]
         weights = array(weights, float)
         weights/=weights.sum()
@@ -455,7 +455,7 @@ f B 1
         m2 = array([[1,2,3],[4,5,6],[7,8,9]])
         m3 = array([[2,2,2],[3,3,3],[4,4,4]])
         matrices = [m1,m2, m3]
-        env_names = map(list, ['AB', 'ABC', 'ABC'])
+        env_names = list(map(list, ['AB', 'ABC', 'ABC']))
         weights = [1, 2, 3]
         weights = array(weights, float)
         weights/=weights.sum()
@@ -471,7 +471,7 @@ f B 1
         m2 = array([[1,2,3],[4,5,6],[7,8,9]])
         m3 = array([[2,2,2],[3,3,3],[4,4,4]])
         matrices = [m1,m2, m3]
-        env_names = map(list, ['AB', 'ABC', 'ABC'])
+        env_names = list(map(list, ['AB', 'ABC', 'ABC']))
         weights = [1., 2, 3]
         weights = array(weights)
         weights/=weights.sum()

@@ -7,7 +7,7 @@ from cogent.struct.selection import einput
 from cogent.struct.annotation import xtradata
 from cogent.maths.geometry import sphere_points, coords_to_symmetry, \
                                   coords_to_crystal
-from _asa import asa_loop
+from ._asa import asa_loop
 from numpy import array, r_
 
 
@@ -69,7 +69,7 @@ def _prepare_entities(entities):
     lattice_chains.maskChildren([], 'eq', 'values', method=True)
     # if no residues or chains are left - no atoms to work with, 
     # abort with warning.
-    if not lattice_chains.values():
+    if not list(lattice_chains.values()):
         # the following makes sure that masking changes by the above
         # tests are reverted.
         lattice_structures = einput(entities, 'S')
@@ -121,11 +121,11 @@ def _prepare_asa(entities, symmetry_mode=None, crystal_mode=None, points=960, \
         idx_to_id = dict(enumerate(atoms.getData('getFull_id', \
                                                 forgiving=False, method=True)))
         asas = _run_asa(atoms, coords, spoints, **kwargs)
-        for idx in xrange(asas.shape[0]):
+        for idx in range(asas.shape[0]):
             result[idx_to_id[idx]] = asas[idx]
     # crystal-contact area mode    
     elif symmetry_mode in ('table', 'uc'):
-        structure = einput(entities, 'S').values()[0]
+        structure = list(einput(entities, 'S').values())[0]
         sh = structure.header
         coords = array(atoms.getData('coords', forgiving=False))
         idx_to_id = dict(enumerate(atoms.getData('getFull_id', \
@@ -145,17 +145,17 @@ def _prepare_asa(entities, symmetry_mode=None, crystal_mode=None, points=960, \
         else:
             coords = array([coords]) # fake 4D
         asas = _run_asa(atoms, coords, spoints, **kwargs)
-        for idx in xrange(asas.shape[0]):
+        for idx in range(asas.shape[0]):
             result[idx_to_id[idx]] = asas[idx]
 
      # biological area mode
     elif symmetry_mode == 'bio':
-        structure = einput(entities, 'S').values()[0]
+        structure = list(einput(entities, 'S').values())[0]
         chains = einput(entities, 'C')
         sh = structure.header
         start = 0
         for chain_ids, mx_num in sh['bio_cmx']:
-            sel = chains.selectChildren(chain_ids, 'contains', 'id').values()
+            sel = list(chains.selectChildren(chain_ids, 'contains', 'id').values())
             atoms = einput(sel, 'A')
             coords = array(atoms.getData('coords', forgiving=False))
             idx_to_id = dict(enumerate(atoms.getData('getFull_id', \
@@ -169,7 +169,7 @@ def _prepare_asa(entities, symmetry_mode=None, crystal_mode=None, points=960, \
             coords = array([coords])
             start = stop
             asas = _run_asa(atoms, coords, spoints, **kwargs)
-            for idx in xrange(asas.shape[0]):
+            for idx in range(asas.shape[0]):
                 result[idx_to_id[idx]] = asas[idx]
     return result
 
@@ -191,20 +191,20 @@ def asa_xtra(entities, mode='internal', xtra_key=None, **asa_kwargs):
     """
     xtra_key = xtra_key or 'ASA'
     structures = einput(entities, 'S')
-    if len(structures.values()) > 1:
+    if len(list(structures.values())) > 1:
         raise ValueError('Entities from multiple structures are not supported.')
     if mode == 'internal':
         _prepare_entities(entities) # mask waters
         result = _prepare_asa(entities, **asa_kwargs) # calculate ASA
         _postpare_entities(entities) # unmask waters
-        result = dict([(id, {xtra_key:v}) for id, v in result.iteritems()])
+        result = dict([(id, {xtra_key:v}) for id, v in result.items()])
         xtradata(result, structures)
     elif mode == 'stride':
         models = einput(entities, 'M')
         stride_app = Stride()
         result = stride_app(entities)['StdOut'].readlines()
         result = stride_parser(result)
-        xtradata(result, structures.values()[0][(0,)])
+        xtradata(result, list(structures.values())[0][(0,)])
     else:
         raise ValueError('Not a valid mode: "%s"' % mode)
     return result

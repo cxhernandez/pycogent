@@ -158,7 +158,7 @@ def dotur_from_alignment(aln,moltype,distance_function,params=None):
     
     #must be strings to use phylipMatrix
     for i,line in enumerate(d_matrix_list):
-        d_matrix_list[i]=map(str,line)
+        d_matrix_list[i]=list(map(str,line))
     
     #Get phylip formatted string.
     phylip_matrix_string = phylipMatrix(rows=d_matrix_list,names=order)

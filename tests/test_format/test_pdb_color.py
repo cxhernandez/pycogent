@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from __future__ import division
+
 from cogent.util.unit_test import TestCase, main
 from cogent.util.misc import app_path
 from cogent.format.pdb_color import get_aligned_muscle, make_color_list, \
@@ -87,14 +87,14 @@ class PdbColorTests(TestCase):
     def test_ungapped_to_pdb_nucleotide(self):
         """Tests for ungapped_to_pdb function using nucleotide pdb chains.
         """
-        for k,v in self.test_pdb_chains_1.items():
+        for k,v in list(self.test_pdb_chains_1.items()):
             self.assertEqual(ungapped_to_pdb_numbers(v),\
                             self.ungapped_to_pdb_1[k])                        
     
     def test_ungapped_to_pdb_protein(self):
         """Tests for ungapped_to_pdb function using protein pdb chains.
         """
-        for k,v in self.test_pdb_chains_2.items():
+        for k,v in list(self.test_pdb_chains_2.items()):
             self.assertEqual(ungapped_to_pdb_numbers(v),\
                             self.ungapped_to_pdb_2[k])
     

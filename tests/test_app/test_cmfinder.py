@@ -54,7 +54,7 @@ class CmfinderTest(TestCase):
         c =CMfinder(InputHandler='_input_as_lines')
         res = c(self.input,remove_tmp=False)
 
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus',
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus',
         'cm_1','cm_2','cm_3','motif_1','motif_2','motif_3','latest',
         '_input_filename'])
 
@@ -116,7 +116,7 @@ class CombMotifTest(TestCase):
         cbm =CombMotif()
         res = cbm('input.fasta')
 
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus',
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus',
         'comb1','latest'])
         self.assertEqual(res['ExitStatus'],0)
         assert res['comb1'] is not None

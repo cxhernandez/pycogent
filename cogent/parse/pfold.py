@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-from string import split,strip
 from cogent.struct.rna2d  import Pairs,ViennaStructure
 from cogent.parse.column import column_parser
+
+split, strip = str.split, str.strip
 
 __author__ = "Shandy Wikman"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -22,7 +23,7 @@ def pfold_parser(lines):
     return result
 
 def tree_struct_sep(lines):
-    """Separates tree structure from rest of the data. 
+    """Separates tree structure from rest of the data.
 
     This is done to get an excepted format for the column_parser
     """

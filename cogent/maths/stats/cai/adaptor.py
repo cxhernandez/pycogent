@@ -9,8 +9,9 @@ from cogent.core.genetic_code import GeneticCode
 from numpy import array, arange, searchsorted, sort, sqrt, zeros, \
     concatenate, transpose
 from sys import argv
-from string import split
 from cogent.maths.stats.cai.util import cais
+
+split = str.split
 
 __author__ = "Stephanie Wilson"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -24,13 +25,13 @@ __status__ = "Production"
 def data_from_file(lines):
     """reads lines returns array
      """
-    return array([map(float, i) for i in map(split, lines)])
+    return array([list(map(float, i)) for i in map(split, lines)])
 
 empty_codons = dict.fromkeys([i+j+k for i in 'TCAG' for j in 'TCAG' for k in 'TCAG'], 0.0)
 
 def read_cutg(lines):
     """Returns list of CUTG objects from file-like object lines.
-    
+
     Warning: reads whole file into memory as objects.
     """
     return list(CutgParser(lines))
@@ -57,7 +58,7 @@ def consolidate(usages):
 def make_output(training_freqs, usages, funcs=cais):
     """Makes results as table."""
     result = []
-    header = funcs.keys()
+    header = list(funcs.keys())
     header.sort()
     result.append(['gene', 'P3'] + header)
 
@@ -72,7 +73,7 @@ def make_output(training_freqs, usages, funcs=cais):
             curr_line.append(funcs[h](training_freqs, u))
         result.append(curr_line)
     return result
-        
+
 def read_nt(infile):
     """Returns list of usage objects from Fasta-format infile"""
     result = []
@@ -85,7 +86,7 @@ def read_nt(infile):
 def print_output(table):
     """Prints table as tab-delimited text."""
     for line in table:
-        print '\t'.join(map(str, line))
+        print('\t'.join(map(str, line)))
 
 
 def seq_to_codon_dict(seq):
@@ -120,7 +121,7 @@ def kegg_fasta_to_codon_list(lines):
         curr_codon_usage.__dict__.update(curr_info)
         result.append(curr_codon_usage)
     return result
-        
+
 def group_codon_usages_by_ids(codon_usages, ids, field='GeneId'):
     """Sorts codon usages into 2 lists: non-matching and matching ids."""
     result = [[],[]]
@@ -157,10 +158,10 @@ def adapt_fingerprint(codon_usages, which_blocks='quartets', \
         tot_codon_usage += c
     return tot_codon_usage.fingerprint(which_blocks=which_blocks, \
         include_mean=include_mean, normalize=normalize)
-    
+
 def make_bin(lowerbound, upperbound, binwidth):
     """Returns range suitable for use in searchsorted(), incl. upper bound.
-    
+
     takes: lowerbound, upperbound and bin width of
     number to be sorted
     outputs: a bin that will correspond to array indexes
@@ -202,7 +203,7 @@ def adapt_pr2_bias(codon_usages, block='GC', bin_lowbound=0.0, bin_upbound=1.0,\
         except (ZeroDivisionError, FloatingPointError):
             pass
     return array(result)
-        
+
 def adapt_p12(codon_usages, purge_unwanted=True):
     """From list of codon usages, returns [P3, (P1+P2)/2] for each usage.
 
@@ -240,7 +241,7 @@ def bin_codon_usage_by_patterns(codon_usages, patterns, extract_gene_f=cu_gene):
                 break
         result[matched].append(u)
     return result
-    
+
 def adapt_p3_histogram(codon_usages, purge_unwanted=True):
     """Returns P3 from each set of codon usage for feeding to hist()."""
     return [array([c.positionalGC(purge_unwanted=True)[3] for c in curr])\
@@ -253,12 +254,12 @@ def adapt_cai_histogram(codon_usages, cai_model='2g', patterns=['rpl','rps'],\
     Result is suitable for feeding to hist().
 
     codon_usages:   list of codon usages to examine.
-    cai_model:      1a, 1g, 2a, 2g, 3a, 3g depending on model and 
+    cai_model:      1a, 1g, 2a, 2g, 3a, 3g depending on model and
                     arithmetic mean. See CAI.py for documentation.
     patterns:       list of patterns used to pick the training set. Default is
                     ['rpl', 'rps'] for ribosomal proteins.
-    
-    Returns list of results for each set. Each result for a set is an array of 
+
+    Returns list of results for each set. Each result for a set is an array of
     CAI for each gene.
     """
     normal, training = bin_codon_usage_by_patterns(codon_usages, patterns)
@@ -273,7 +274,7 @@ def adapt_cai_histogram(codon_usages, cai_model='2g', patterns=['rpl','rps'],\
             curr_result.append(cai_f(ref,c))
         result.append(array(curr_result))
     return result
-    
+
 def adapt_cai_p3(codon_usages,cai_model='2g', patterns=['rpl','rps'], \
     purge_unwanted=True, both_series=False):
     """Returns array of [P3,CAI] for each gene, based on training set."""

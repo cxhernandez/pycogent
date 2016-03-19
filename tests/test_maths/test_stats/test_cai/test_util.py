@@ -7,6 +7,7 @@ from cogent.maths.stats.cai.util import cu, as_rna, synonyms_to_rna, \
     get_synonyms, sum_codon_freqs, norm_to_max, arithmetic_mean, \
     geometric_mean, codon_adaptiveness_all, codon_adaptiveness_blocks, \
     valid_codons, set_min, cai_1, cai_2, cai_3
+from functools import reduce
 
 __author__ = "Rob Knight"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -239,7 +240,7 @@ class cai_tests(TestCase):
         gene_freqs = {'AGA':3,'AGG':1,'CCC':2,'CCA':1,'UUU':1, 'UUC':2}
         obs = cai_3(ref_freqs_2, gene_freqs, average=arithmetic_mean)
         family_vals = [[1,1,1,.5],[1,1,.2],[1,.5,.5]]
-        family_averages = map(amean, family_vals)
+        family_averages = list(map(amean, family_vals))
         expect = amean(family_averages)
         self.assertEqual(obs, expect)
         #tests with geometric mean
@@ -262,7 +263,7 @@ class cai_tests(TestCase):
         gene_freqs = {'AGA':3,'AGG':1,'CCC':2,'CCA':1,'UUU':1, 'UUC':2}
         obs = cai_3(ref_freqs_2, gene_freqs, average=geometric_mean)
         family_vals = [[1,1,1,.5],[1,1,.2],[1,.5,.5]]
-        family_averages = map(gmean, family_vals)
+        family_averages = list(map(gmean, family_vals))
         expect = gmean(family_averages)
         self.assertEqual(obs, expect)
         #tests with Eyre-Walker's variant -- should be same as geometric mean
@@ -285,7 +286,7 @@ class cai_tests(TestCase):
         gene_freqs = {'AGA':3,'AGG':1,'CCC':2,'CCA':1,'UUU':1, 'UUC':2}
         obs = cai_3(ref_freqs_2, gene_freqs, average='eyre_walker')
         family_vals = [[1,1,1,.5],[1,1,.2],[1,.5,.5]]
-        family_averages = map(gmean, family_vals)
+        family_averages = list(map(gmean, family_vals))
         expect = gmean(family_averages)
         self.assertEqual(obs, expect)
         #test results for Gang Wu's example (unfortunately, no worked example for
@@ -297,7 +298,7 @@ class cai_tests(TestCase):
         obs = cai_3(ref_freqs, gene_freqs, average=geometric_mean)
         family_vals =  [6*[1]+3*[56591./78743],\
             3*[42704./168885] + 2*[35873./168885]+8*[1]]
-        family_averages = map(gmean, family_vals)
+        family_averages = list(map(gmean, family_vals))
         expect = gmean(family_averages)
         self.assertFloatEqual(obs, expect)
 

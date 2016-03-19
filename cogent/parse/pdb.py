@@ -97,10 +97,10 @@ def get_symmetry(header):
         fmx, mxs, mx, cmx = [], [], [], []
         for line in header:
             if line.startswith('SCALE') and mode == 'uc':
-                data = map(float, line[6:].split()[:-1])
+                data = list(map(float, line[6:].split()[:-1]))
                 fmx.append(data)
             elif line.startswith(remark):
-                m_line = map(float, line[20:].split())
+                m_line = list(map(float, line[20:].split()))
                 if mx_num != m_line[0] or new_chain:
                     mx.append([ 0., 0., 0., 1.])
                     mxs.append(mx)

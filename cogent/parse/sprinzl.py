@@ -2,9 +2,10 @@
 """Parsers for the Sprinzl tRNA databases.
 """
 from cogent.util.misc import InverseDict
-from string import strip, maketrans
 from cogent.core.sequence import RnaSequence
 from cogent.core.info import Info as InfoClass
+
+strip, maketrans = str.strip, str.maketrans
 
 __author__ = "Rob Knight"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -23,13 +24,13 @@ def Rna(x, Info=None):
     return RnaSequence(x.upper().replace('T','U'), Info=InfoClass(Info))
 
 SprinzlFields =['Accession', 'AA', 'Anticodon', 'Species', 'Strain']
-            
+
 def OneLineSprinzlParser(infile):
     """Returns successive records from the tRNA database. First line labels.
-   
+
     This was the first attempt at the parser, and requires quite a lot of
     preprocessing. Use SprinzlParser for something more general.
-   
+
     Works on a file obtained by the following method:
     1. Do the default search.
     2. Show all the columns and autofit them.
@@ -48,9 +49,9 @@ def OneLineSprinzlParser(infile):
             labels = InverseDict(enumerate(label_fields))
             first = False
         else:
-            info = dict(zip(SprinzlFields, map(strip, fields[0:5])))
+            info = dict(list(zip(SprinzlFields, list(map(strip, fields[0:5])))))
             info['Labels'] = labels
-            yield Rna(map(strip, fields[5:]), Info=info)
+            yield Rna(list(map(strip, fields[5:])), Info=info)
 
 GenomicFields = ['', 'Accession', 'AA', '', 'Anticodon', '', 'Species', \
     '', '', '', '', '', '', '', '', '', 'Strain', '', '', '', 'Taxonomy']
@@ -59,10 +60,10 @@ def _fix_structure(fields, seq):
     """Returns a string with correct # chars from db struct line.
 
     fields should be the result of line.split('\t')
-    
+
     Implementation notes:
         Pairing line uses strange format: = is pair, * is GU pair, and
-        nothing is unpaired. Cells are not padded out to the start or end of 
+        nothing is unpaired. Cells are not padded out to the start or end of
         the sequence length, presumably to infuriate the unwary.
 
         I don't _think_ it's possible to convert these into ViennaStructures
@@ -86,7 +87,7 @@ def _fix_structure(fields, seq):
 
 def _fix_sequence(seq):
     """Returns string where terminal gaps are replaced with terminal CCA.
-    
+
         Some of the sequence in the Genomic tRNA Database have gaps where the
         acceptor stem (terminal CCA) should be.  This function checks the
         number of terminal gaps and replaces with appropriate part of terminal
@@ -130,11 +131,11 @@ def GenomicSprinzlParser(infile,fix_sequence=False):
             offset = 0
         else:       #expect 3 record lines at a time
             if offset == 0:     #label line
-                info = dict(zip(GenomicFields, map(strip, fields)))
+                info = dict(list(zip(GenomicFields, list(map(strip, fields)))))
                 #add in the labels
                 info['Labels'] = labels
                 #convert the taxonomy from a string to a list
-                info['Taxonomy'] = map(strip, info['Taxonomy'].split(';'))
+                info['Taxonomy'] = list(map(strip, info['Taxonomy'].split(';')))
                 #convert the anticodon into RNA
                 info['Anticodon'] = Rna(info['Anticodon'])
                 #get rid of the empty fields
@@ -156,12 +157,12 @@ def GenomicSprinzlParser(infile,fix_sequence=False):
 
 def get_pieces(struct, splits):
     """Breaks up the structure at fixed positions, returns the pieces.
-    
+
     struct: structure string in sprinzl format
     splits: list or tuple of positions to split on
 
     This is a helper function for the sprinzl_to_vienna function.
-    
+
     struct = '...===...===.'
     splits = [0,3,7,-1,13]
     pieces -> ['...','===.','..===','.']
@@ -173,7 +174,7 @@ def get_pieces(struct, splits):
 
 def get_counts(struct_piece):
     """Returns a list of the lengths or the paired regions in the structure.
-    
+
     struct_pieces: string, piece of structure in sprinzl format
 
     This is a helper function for the sprinzl_to_vienna function
@@ -181,17 +182,17 @@ def get_counts(struct_piece):
     struct_piece = '.===.=..'
     returns [3,1]
     """
-    return map(len, filter(None, [i.strip('.') for i in \
-        struct_piece.split('.')]))
-        
+    return list(map(len, [_f for _f in [i.strip('.') for i in \
+        struct_piece.split('.')] if _f]))
+
 def sprinzl_to_vienna(sprinzl_struct):
     """Constructs vienna structure from sprinzl sec. structure format
-    
+
     sprinzl_struct: structure string in sprinzl format
-    
+
     Many things are hardcoded in here, so if the format or the alignment
     changes, these values have to be adjusted!!!
-    The correctness of the splits has been tested on the GenomicDB 
+    The correctness of the splits has been tested on the GenomicDB
     database from Jan 2006, containing 8163 sequences.
     """
     assert len(sprinzl_struct) == 99
@@ -199,27 +200,27 @@ def sprinzl_to_vienna(sprinzl_struct):
     wc='='
     splits = [0,8,19,29,38,55,79,-11,len(sprinzl_struct)]
     direction = ['(','(',')','(',')','(',')',')']
-    
+
     #get structural pieces
     s = sprinzl_struct.replace(gu,wc)
     pieces = get_pieces(s, splits)
     assert len(pieces) == len(splits)-1
-    
+
     #get counts of structured regions in each piece, check validity
-    counts = map(get_counts,pieces)
+    counts = list(map(get_counts,pieces))
     pairs = [(0,-1),(1,2),(3,4),(5,6)]
     for i,j in pairs:
         assert sum(counts[i]) == sum(counts[j])
-    #check counts matches directions 
+    #check counts matches directions
     assert len(counts) == len(direction)
-    
+
     #construct string string of brackets
     brackets = []
     for lengths, br in zip(counts,direction):
         for l in lengths:
             brackets.append(l*br)
     brackets = ''.join(brackets)
-   
+
     #build vienna structure
     vienna = []
     x=0

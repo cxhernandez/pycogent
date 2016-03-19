@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Tests for the RNAfold dot plot parser
 """
-from __future__ import division
+
 from cogent.util.unit_test import TestCase, main
 from cogent.parse.rna_fold import *
 

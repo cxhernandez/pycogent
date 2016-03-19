@@ -269,7 +269,7 @@ class PairsTests(TestCase):
         self.assertRaises(ValueError,c.toVienna,7)
         
         #pairs containging None are being skipped
-        self.assertEquals(d.toVienna(7),'.(....)')
+        self.assertEqual(d.toVienna(7),'.(....)')
         
         #raises error when trying to insert at non-existing indices
         self.assertRaises(IndexError,a.toVienna,3)
@@ -660,7 +660,7 @@ class ViennaNodeTests(TestCase):
         self.EddyStr = '..((((.(((...)))...((.((....))..)).)).))'
         
         #add in the tree versions by deleting trailing 'Str'
-        for s in self.__dict__.keys():
+        for s in list(self.__dict__.keys()):
             if s.endswith('Str'):
                 self.__dict__[s[:-3]] = \
                     ViennaStructure(self.__dict__[s]).toTree()

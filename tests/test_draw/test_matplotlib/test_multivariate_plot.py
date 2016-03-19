@@ -34,7 +34,7 @@ class TestCasePlot(TestCase):
     
     def p(self, obj):
         if self.Debug:
-            print obj
+            print(obj)
 
 class TestI(TestCasePlot):
     def setUp(self):
@@ -46,13 +46,13 @@ class TestI(TestCasePlot):
 class FunctionsTests(TestI):
     def test_map_colors(self):
         #default
-        self.assertEqual(map_colors(range(3)),
+        self.assertEqual(map_colors(list(range(3))),
                 ['#000080', '#7dff7a', '#800000'])
         #alternative cmap
-        self.assertEqual(map_colors(range(3), cmap='hot'),
+        self.assertEqual(map_colors(list(range(3)), cmap='hot'),
                 ['#0b0000', '#ff5c00', '#ffffff'])
         #return tuples
-        self.assertFloatEqual(map_colors(range(3), mode='tuples'),
+        self.assertFloatEqual(map_colors(list(range(3)), mode='tuples'),
                 [(0.0, 0.0, 0.5), (0.490196, 1.0, 0.477546), (0.5, 0.0, 0.0)])
 
     def test_text_points(self):
@@ -108,35 +108,35 @@ class plot_ordination_tests(TestCasePlot):
                 ]
 
     def test_basic(self):
-        res = dict(zip(self.keys[:2], self.values))
+        res = dict(list(zip(self.keys[:2], self.values)))
         plot_ordination(res)
         self.fig()
 
     def test_species(self):
-        res = dict(zip(self.keys[:3], self.values))
+        res = dict(list(zip(self.keys[:3], self.values)))
         plot_ordination(res)
         self.fig()
 
     def test_centroids(self):
-        res = dict(zip(self.keys[:4], self.values))
+        res = dict(list(zip(self.keys[:4], self.values)))
         plot_ordination(res)
         self.fig()
 
     def test_biplot(self):
-        res = dict(zip(self.keys, self.values))
+        res = dict(list(zip(self.keys, self.values)))
         plot_ordination(res,
                 species_kw={'label': 'sp'}, biplot_kw={'label':['b1', 'b2']},
                 samples_kw={'label': 'sa'})
         self.fig()
 
     def test_choices(self):
-        res = dict(zip(self.keys, self.values))
+        res = dict(list(zip(self.keys, self.values)))
         plot_ordination(res, choices=[2,3])
         self.fig()
 
     def test_axis_names(self):
         #self.Debug = True
-        res = dict(zip(self.keys[:2], self.values))
+        res = dict(list(zip(self.keys[:2], self.values)))
         plot_ordination(res, axis_names=['CCA1', 'CA1', 'CA2'],
                 constrained_names='CCA')
         self.fig()

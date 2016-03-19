@@ -2,7 +2,7 @@
 """Provides some classes for treating files as sequences of records.
 
 Typically more useful as subclasses. Covers the three main types of records:
-    
+
     DelimitedRecordFinder:  Records demarcated by an end line, e.g. '\\'
     LabeledRecordFinder:    Records demarcated by a start line, e.g. '>label'
     LineGrouper:            Records consisting of a certain number of lines.
@@ -14,7 +14,7 @@ DelimitedRecordFinder except that it accept a is_tail function instead of a
 str.  Note that its default constuctor is rstrip instead of strip.
 """
 from cogent.parse.record import RecordError, FieldError
-from string import strip, rstrip
+strip, rstrip = str.strip, str.rstrip
 
 __author__ = "Rob Knight"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -38,18 +38,18 @@ def DelimitedRecordFinder(delimiter, constructor=strip, ignore=is_empty,
     """Returns function that returns successive delimited records from file.
 
     Includes delimiter in return value. Returns list of relevant lines.
-    
+
     Default constructor is string.strip, but can supply another constructor
     to transform lines and/or coerce into correct type. If constructor is None,
     passes along the lines without alteration.
 
     Skips any lines for which ignore(line) evaluates True (default is to skip
     whitespace).
-    
-    keep_delimiter: keep delimiter line at the end of last block if True 
+
+    keep_delimiter: keep delimiter line at the end of last block if True
     (default), otherwise discard delimiter line.
 
-    strict: when lines found after the last delimiter -- raise error if True 
+    strict: when lines found after the last delimiter -- raise error if True
     (default), otherwise yield the lines silently
     """
     def parser(lines):
@@ -72,8 +72,8 @@ def DelimitedRecordFinder(delimiter, constructor=strip, ignore=is_empty,
                 curr.append(line)
         if curr:
             if strict:
-                raise RecordError, "Found additional data after records: %s"%\
-                        (curr)
+                raise RecordError("Found additional data after records: %s"%\
+                        (curr))
             else:
                 yield curr
     return parser
@@ -93,7 +93,7 @@ def TailedRecordFinder(is_tail_line, constructor=rstrip, ignore=is_empty,
     Skips over any lines for which ignore(line) evaluates True (default is
     to skip empty lines).  note that the line maybe modified by constructor.
 
-    strict: if True(default), raise error if the last line is not a tail. 
+    strict: if True(default), raise error if the last line is not a tail.
     otherwise, yield the last lines.
     """
     def parser(lines):
@@ -124,14 +124,14 @@ def LabeledRecordFinder(is_label_line, constructor=strip, ignore=is_empty):
     """Returns function that returns successive labeled records from file.
 
     Includes label line in return value. Returns list of relevant lines.
-    
+
     Default constructor is string.strip, but can supply another constructor
     to transform lines and/or coerce into correct type. If constructor is None,
     passes along the lines without alteration.
 
     Skips over any lines for which ignore(line) evaluates True (default is
     to skip empty lines).
-    
+
     NOTE: Does _not_ raise an exception if the last line is a label line: for
     some formats, this is acceptable. It is the responsibility of whatever is
     parsing the sets of lines returned into records to complain if a record
@@ -165,14 +165,14 @@ FastaFinder = LabeledRecordFinder(is_fasta_label)
 
 def LineGrouper(num, constructor=strip, ignore=is_empty):
     """Returns num lines at a time, stripping and ignoring blanks.
-    
+
     Default constructor is string.strip, but can supply another constructor
     to transform lines and/or coerce into correct type. If constructor is None,
     passes along the lines without alteration.
 
     Skips over any lines for which ignore(line) evaluates True: default is to
     skip whitespace lines.
-    
+
     """
     def parser(lines):
         curr = []
@@ -188,7 +188,5 @@ def LineGrouper(num, constructor=strip, ignore=is_empty):
                 yield curr
                 curr = []
         if curr:
-            raise RecordError, "Non-blank lines not even multiple of %s" % num
+            raise RecordError("Non-blank lines not even multiple of %s" % num)
     return parser
-
-

@@ -2,7 +2,7 @@
 #file cogent.parse.dotur.py
 """Parses various Dotur output formats."""
 
-from record_finder import is_empty
+from .record_finder import is_empty
 
 __author__ = "Jeremy Widmann"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"

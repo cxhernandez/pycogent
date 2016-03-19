@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-
-from string                import strip,split,atof
-from cogent.struct.rna2d   import ViennaStructure,Pairs
+from cogent.struct.rna2d   import ViennaStructure, Pairs
+strip, split, atof = str.strip, str.split, str.atof
 
 __author__ = "Shandy Wikman"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -24,7 +23,7 @@ def MinimalRnaalifoldParser(lines):
             energy = float(energy.split('=')[0].strip(' \n)'))
             res.append([seq,struct,energy])
     return res
-        
+
 
 def rnaalifold_parser(lines=None):
     """Parser for rnaalifold stdout output
@@ -34,7 +33,7 @@ def rnaalifold_parser(lines=None):
     """
     result = line_parser(lines)
     return result
-    
+
 def line_parser(lines=None):
     """Parses RNAalifold output line for line """
     s = False
@@ -52,7 +51,7 @@ def line_parser(lines=None):
             energy = atof(line.split(' (',1)[1].split(None,1)[0].strip())
             pairs = to_pairs(struct)
             pairs.sort()
-            
+
             result.append([seq,pairs,energy])
     return result
 

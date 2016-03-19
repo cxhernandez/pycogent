@@ -16,11 +16,11 @@ class ExpectedImportError(ImportError):
     pass
         
 def fail(msg):
-    print >>sys.stderr, msg
+    print(msg, file=sys.stderr)
     raise ExpectedImportError
 
 def importVersionedModule(name, globals, min_version, alt_desc):
-    if os.environ.has_key('COGENT_PURE_PYTHON'):
+    if 'COGENT_PURE_PYTHON' in os.environ:
         fail('Not using compiled module "%s".  Will use %s.' % 
                 (name, alt_desc))
     try:

@@ -3,10 +3,11 @@ from cogent.parse.record import FieldWrapper
 from cogent.parse.record_finder import DelimitedRecordFinder, \
     LabeledRecordFinder
 from cogent.core.genetic_code import GeneticCodes
-from string import maketrans, strip, rstrip
 from cogent.core.moltype import PROTEIN, DNA, ASCII
 from cogent.core.annotation import Feature
 from cogent.core.info import Info
+
+maketrans, strip, rstrip = str.maketrans, str.strip, str.rstrip
 
 __author__ = "Rob Knight"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -37,16 +38,16 @@ class PartialRecordError(Exception):
 
 def parse_locus(line):
     """Parses a locus line, including conversion of Length to an int.
-    
-    WARNING: Gives incorrect results on legacy records that omit the topology. 
+
+    WARNING: Gives incorrect results on legacy records that omit the topology.
     All records spot-checked on 8/30/05 had been updated to include the topology
     even when prior versions omitted it.
     """
     result = _locus_parser(line)
     try:
         result['length'] = int(result['length'])
-    except KeyError, e:
-        raise PartialRecordError, e
+    except KeyError as e:
+        raise PartialRecordError(e)
 
     if None in result:
         del result[None]
@@ -91,7 +92,7 @@ def parse_sequence(lines, constructor=''.join):
 
 def block_consolidator(lines):
     """Takes block with label and multiline data, and returns (label, [data]).
-    
+
     [data] will be list of lines of data, including first line w/o label.
     """
     data = []
@@ -113,7 +114,7 @@ def block_consolidator(lines):
 
 def parse_organism(lines):
     """Takes ORGANISM block. Returns organism, [taxonomy].
-    
+
     NOTE: Adds species to end of taxonomy if identifiable.
     """
     label, data = block_consolidator(lines)
@@ -124,7 +125,7 @@ def parse_organism(lines):
     #normalize whitespace, including deleting newlines
     taxonomy = ' '.join(taxonomy.split())
     #separate by semicolons
-    taxa = map(strip, taxonomy.split(';'))  #get rid of leading/trailing spaces
+    taxa = list(map(strip, taxonomy.split(';')))  #get rid of leading/trailing spaces
     #delete trailing period if present
     last = taxa[-1]
     if last.endswith('.'):
@@ -142,11 +143,11 @@ _leave_as_lines = {}
 
 def parse_feature(lines):
     """Parses a feature. Doesn't handle subfeatures.
-    
+
     Returns dict containing:
     'type': source, gene, CDS, etc.
     'location': unparsed location string
-    ...then, key-value pairs for each annotation, 
+    ...then, key-value pairs for each annotation,
         e.g. '/gene="MNBH"' -> {'gene':['MNBH']} (i.e. quotes stripped)
     All relations are assumed 'to many', and order will be preserved.
     """
@@ -229,22 +230,22 @@ def parse_simple_location_segment(segment):
         first, second = segment.split('..')
         if not first[0].isdigit():
             first_ambiguity = first[0]
-            first = long(first[1:])
+            first = int(first[1:])
         else:
-            first = long(first)
+            first = int(first)
         if not second[0].isdigit():
             second_ambiguity = second[0]
-            second = long(second[1:])
+            second = int(second[1:])
         else:
-            second = long(second)
-        
+            second = int(second)
+
         return Location([Location(first, Ambiguity=first_ambiguity), \
             Location(second, Ambiguity=second_ambiguity)])
     else:
         if not segment[0].isdigit():
             first_ambiguity = segment[0]
             segment = segment[1:]
-        return Location(long(segment), Ambiguity=first_ambiguity)
+        return Location(int(segment), Ambiguity=first_ambiguity)
 
 def parse_location_line(tokens, parser=parse_simple_location_segment):
     """Parses location line tokens into location list."""
@@ -271,11 +272,11 @@ def parse_location_line(tokens, parser=parse_simple_location_segment):
         else:
             curr.append(parser(t))
     return LocationList(stack)
-            
+
 class Location(object):
     """GenBank location object. Integer, or low, high, or 2-base bound.
-   
-    data must either be a long, an object that can be coerced to a long, or a 
+
+    data must either be a long, an object that can be coerced to a long, or a
         sequence of two BasePosition objects. It can _not_ be two numbers.
     Ambiguity should be None (the default), '>', or '<'.
     IsBetween should be False (the default), or True.
@@ -283,19 +284,19 @@ class Location(object):
     Accession should be an accession, or None (default).
     Db should be a database identifier, or None (default).
     Strand should be 1 (forward, default) or -1 (reverse).
-    
+
     WARNING: This Location will allow you to do things that can't happen in
     GenBank, such as having a start and stop that aren't from the same
     accession. No validation is performed to prevent this. All reasonable
     cases should work.
-    
+
     WARNING: Coordinates are based on 1, not 0, as in GenBank format.
     """
     def __init__(self, data, Ambiguity=None, IsBetween=False, IsBounds=False, \
             Accession=None, Db=None, Strand=1):
         """Returns new LocalLocation object."""
         try:
-            data = long(data)
+            data = int(data)
         except TypeError:
             pass    #assume was two Location objects.
         self._data = data
@@ -305,10 +306,10 @@ class Location(object):
         self.Accession = Accession
         self.Db = Db
         self.Strand = Strand
-    
+
     def __str__(self):
         """Returns self in string format.
-        
+
         WARNING: More permissive than GenBank's Backus-Naur form allows. If
         you abuse this object, you'll get results that aren't valid GenBank
         locations.
@@ -321,7 +322,7 @@ class Location(object):
                 curr = '%s^%s' % (first, first+1)
         else:   #not self.IsBetween
             try:
-                data = long(self._data)
+                data = int(self._data)
                 #if the above line succeeds, we've got a single item
                 if self.Ambiguity:
                     curr = self.Ambiguity + str(data)
@@ -344,7 +345,7 @@ class Location(object):
         if self.Strand == -1:
             curr = 'complement(%s)' % curr
         return curr
-    
+
     def isAmbiguous(self):
         """Returns True if ambiguous (single-base ambiguity or two locations.)
         """
@@ -355,24 +356,24 @@ class Location(object):
             return True
         except:
             return False
-    
+
     def first(self):
         """Returns first base self could be."""
         try:
-            return long(self._data)
+            return int(self._data)
         except TypeError:
             return self._data[0].first()
-    
+
     def last(self):
         """Returns last base self could be."""
         try:
-            return long(self._data)
+            return int(self._data)
         except TypeError:
             return self._data[-1].last()
 
 class LocationList(list):
     """List of Location objects.
-    
+
     WARNING: Coordinates are based on 1, not 0, to match GenBank format.
     """
     BIGNUM = 1e300
@@ -384,7 +385,7 @@ class LocationList(list):
             if curr > first:
                 curr = first
         return curr
-    
+
     def last(self):
         """Returns last base of self."""
         curr = 0
@@ -393,7 +394,7 @@ class LocationList(list):
             if last > curr:
                 curr = last
         return curr
-    
+
     def strand(self):
         """Returns strand of components: 1=forward, -1=reverse, 0=both
         """
@@ -403,8 +404,8 @@ class LocationList(list):
         if len(curr) >= 2:  #found stuff on both strands
             return 0
         else:
-            return curr.keys()[0]
-    
+            return list(curr.keys())[0]
+
     def __str__(self):
         """Returns (normalized) string representation of self."""
         if len(self) == 0:
@@ -413,7 +414,7 @@ class LocationList(list):
             return str(self[0])
         else:
             return 'join(' + ','.join(map(str, self)) + ')'
-    
+
     def extract(self, sequence, trans_table=dna_trans):
         """Extracts pieces of self from sequence."""
         result = []
@@ -429,7 +430,7 @@ class LocationList(list):
                 curr = curr.translate(trans_table)[::-1]
             result.append(curr)
         return ''.join(result)
-    
+
 
 def parse_feature_table(lines):
     """Simple parser for feature table. Assumes starts with FEATURES line."""
@@ -455,7 +456,7 @@ def parse_source(lines):
     """Simple parser for source fields."""
     result = {}
     all_lines = list(lines)
-    source_field = reference_field_finder(all_lines).next()
+    source_field = next(reference_field_finder(all_lines))
     label, data = block_consolidator(source_field)
     result[label.lower()] = ' '.join(map(strip, data))
     source_length = len(source_field)
@@ -513,10 +514,10 @@ def MinimalGenbankParser(lines, handlers=handlers,\
 
 def parse_location_segment(location_segment):
     """Parses a location segment into its component pieces.
-    
+
     Known possibilities:
     http://www.ebi.ac.uk/embl/Documentation/FT_definitions/feature_table.html
-    
+
     467             single base
     a..b            range from a to b, including a and b
     <a              strictly before a
@@ -545,10 +546,10 @@ def parse_location_atom(location_atom):
     """Parses a location atom, supposed to be a single-base position."""
     a = location_atom
     if a.startswith('<') or a.startswith('>'):   #fuzzy
-        position = long(a[1:])
+        position = int(a[1:])
         return Location(position, Ambiguity = a[0])
     #otherwise, should just be an integer
-    return Location(long(a))
+    return Location(int(a))
 
 wanted_types = dict.fromkeys(['CDS'])
 
@@ -560,16 +561,16 @@ def extract_nt_prot_seqs(rec, wanted=wanted_types):
             continue
         translation = f['translation'][0]
         raw_seq = f['location'].extract(rec_seq)
-        print raw_seq
-        seq = raw_seq[long(f['codon_start'][0])-1:]
-        print 'dt:', translation
-        print 'ct:', GeneticCodes[f.get('transl_table', '1')[0]].translate(seq)
-        print 's :', seq
+        print(raw_seq)
+        seq = raw_seq[int(f['codon_start'][0])-1:]
+        print('dt:', translation)
+        print('ct:', GeneticCodes[f.get('transl_table', '1')[0]].translate(seq))
+        print('s :', seq)
 
 def RichGenbankParser(handle, info_excludes=None, moltype=None,
     skip_contigs=False, add_annotation=None):
     """Returns annotated sequences from GenBank formatted file.
-    
+
     Arguments:
         - info_excludes: a series of fields to be excluded from the Info object
         - moltype: a MolType instance, such as PROTEIN, DNA. Default is ASCII.
@@ -583,16 +584,16 @@ def RichGenbankParser(handle, info_excludes=None, moltype=None,
     for rec in MinimalGenbankParser(handle):
         info = Info()
         # populate the Info object, excluding the sequence
-        for label, value in rec.items():
+        for label, value in list(rec.items()):
             if label in info_excludes:
                 continue
             info[label] = value
-        
+
         if rec['mol_type'] == 'protein':  # which it doesn't for genbank
             moltype = PROTEIN
         elif rec['mol_type'] == 'DNA':
             moltype = DNA
-        
+
         try:
             seq = moltype.makeSequence(rec['sequence'].upper(), Info=info,
                                         Name=rec['locus'])
@@ -605,7 +606,7 @@ def RichGenbankParser(handle, info_excludes=None, moltype=None,
                 else:
                     yield rec['locus'], None
             continue
-        
+
         for feature in rec['features']:
             spans = []
             reversed = None
@@ -627,28 +628,28 @@ def RichGenbankParser(handle, info_excludes=None, moltype=None,
                 # or that's longer than the sequence
                 hi = [hi, len(seq)][hi > len(seq)]
                 spans.append((lo, hi))
-            
+
             if add_annotation:
                 add_annotation(seq, feature, spans)
             else:
                 for id_field in ['gene', 'note', 'product', 'clone']:
                     if id_field in feature:
                         name = feature[id_field]
-                        if not isinstance(name, basestring):
+                        if not isinstance(name, str):
                             name = ' '.join(name)
                         break
                 else:
                     name = None
                 seq.addAnnotation(Feature, feature['type'], name, spans)
-        
+
         yield (rec['locus'], seq)
-        
+
 def parse(*args):
     return RichGenbankParser(*args).next()[1]
 
 if __name__ == '__main__':  #demo if called from commandline
     from sys import argv
     rec = parse(open(argv[1], 'U'))
-    print len(rec), rec.getName()
+    print(len(rec), rec.getName())
     for annot in rec.annotations:
-        print annot
+        print(annot)

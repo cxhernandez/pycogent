@@ -77,7 +77,7 @@ def get_color_map_string(color_map):
                 eg {"red": [1.0, 0.0, 0.0]
     """
     color_list = []
-    for name, color in color_map.items():
+    for name, color in list(color_map.items()):
         r,g,b = color
         color_list.append('/%s { %s %s %s } def'%(name,r,g,b))
     return '\n'.join(color_list)
@@ -142,7 +142,7 @@ def color_on_structure(sequence,struct,color_map,indices=None,colors=None,\
         colors = []
     
     if len(indices) != len(colors):
-        raise ValueError, 'indices and colors must be equal sized lists'
+        raise ValueError('indices and colors must be equal sized lists')
     #Get indices string
     indices_string = get_indices_string(str(sequence))
     
@@ -357,7 +357,7 @@ def draw_structure(sequence,struct,indices=None,colors=None,\
         square_indices = []
     
     if len(indices) != len(colors):
-        raise ValueError, 'indices and colors must be equal sized lists'
+        raise ValueError('indices and colors must be equal sized lists')
     
     if radial:
         params = {'-t':'0'}

@@ -208,14 +208,14 @@ class Flash(CommandLineApplication):
             output_dir_path = self._absolute(str(self.Parameters['-d'].Value) 
                                              +'/') 
         else:
-            raise ValueError, "No output diretory specified."
+            raise ValueError("No output diretory specified.")
         return output_dir_path
     
     def _output_label(self):
         if self.Parameters['-o'].isOn():
             base_outfile_name = str(self.Parameters['-o'].Value)
         else:
-            raise ValueError, "No base outfile label specified."
+            raise ValueError("No base outfile label specified.")
         return base_outfile_name
 
     def _get_result_paths(self, data):
@@ -347,7 +347,7 @@ def join_paired_end_reads_flash(
     # check / make absolute infile paths
     for p in infile_paths:
         if not os.path.exists(p):
-            raise IOError, 'Infile not found at: %s' % p
+            raise IOError('Infile not found at: %s' % p)
 
     
     # required params
@@ -383,9 +383,9 @@ def join_paired_end_reads_flash(
     path_dict['Histogram'] = result['Histogram'].name
 
     # sanity check that files actually exist in path lcoations
-    for path in path_dict.values():
+    for path in list(path_dict.values()):
         if not os.path.exists(path):
-            raise IOError, 'Output file not found at: %s' % path
+            raise IOError('Output file not found at: %s' % path)
 
     return path_dict
 

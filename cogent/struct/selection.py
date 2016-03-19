@@ -29,7 +29,7 @@ def select(entities, level, *args, **kwargs):
     holder = einput(entities, level)
     selection = holder.selectChildren(*args, **kwargs)
     try:
-        holder = einput(selection.values(), level, name)
+        holder = einput(list(selection.values()), level, name)
     except ValueError:
         raise ValueError('No entities have been selected')
     return holder
@@ -68,7 +68,7 @@ def einput(entities, level, name=None):
         elif higher_level == 'H':
             holder = StructureHolder(name, all)
     else:
-        raise ValueError, "einput got no input entites."
+        raise ValueError("einput got no input entites.")
     holder.setSort_tuple()
     return holder
 

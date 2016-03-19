@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Tests for the Gibbs parser
 """
-from __future__ import division
+
 from cogent.util.unit_test import TestCase, main
 import string
 import re
@@ -224,8 +224,8 @@ Log Fragmentation portion of MAP for motif b = -7.77486
                            ('3318841', 165): 'SLQLTAEKRVATPVDWKDG',\
                            }
         #module.AlignedSeqs.items() == exp_module_dict.items()
-        for k1,k2 in zip(module.AlignedSeqs.keys(),\
-                               exp_module_dict.keys()):
+        for k1,k2 in zip(list(module.AlignedSeqs.keys()),\
+                               list(exp_module_dict.keys())):
             self.assertEqual(k1,k2)
             v1 = str(module.AlignedSeqs[k1])
             v2 = exp_module_dict[k2]

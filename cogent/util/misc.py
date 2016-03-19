@@ -6,18 +6,18 @@ import types
 import sys
 from time import clock
 from datetime import datetime
-from string import maketrans, strip
 from random import randrange, choice, randint
-from sys import maxint
+from sys import maxsize
 from os import popen, remove, makedirs, getenv
 from os.path import join, abspath, exists, isdir
 from numpy import logical_not, sum
-from cPickle import dumps, loads
+from pickle import dumps, loads
 from gzip import GzipFile
 import hashlib
 # import parse_command_line_parameters for backward compatibility
 from cogent.util.option_parsing import parse_command_line_parameters
-
+maketrans = str.maketrans
+strip = str.strip
 __author__ = "Rob Knight"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
 __credits__ = ["Rob Knight", "Peter Maxwell", "Amanda Birmingham",
@@ -53,7 +53,7 @@ def if_(test, true_result, false_result):
     Note that both true_result and false_result are evaluated, which is not the
     case for the normal if/then/else, so don't use if one branch might fail.
 
-    Additionally, true_result and false_result must be expressions, not 
+    Additionally, true_result and false_result must be expressions, not
     statements (so print and raise will not work, for example).
     """
     if test:
@@ -104,7 +104,7 @@ class DepthExceededError(Exception):
 def deep_list(x):
     """Convert tuple recursively to list."""
     if isinstance(x, tuple):
-        return map(deep_list, x)
+        return list(map(deep_list, x))
     return x
 
 def deep_tuple(x):
@@ -113,15 +113,16 @@ def deep_tuple(x):
         return tuple(map(deep_tuple, x))
     return x
 
-def between((min_, max_), number):
+def between(xxx_todo_changeme, number):
     """Same as: min_ <= number <= max_."""
+    (min_, max_) = xxx_todo_changeme
     return min_ <= number <= max_
 
 def combinate(items, n):
     """Returns combinations of items."""
     if n == 0: yield []
     else:
-        for i in xrange(len(items) - n + 1):
+        for i in range(len(items) - n + 1):
             for cc in combinate(items[i + 1:], n - 1):
                 yield [items[i]] + cc
 
@@ -151,7 +152,7 @@ def gzip_load(filename):
 
 def recursive_flatten_old(items, max_depth=None, curr_depth=0):
     """Removes all nesting from items, recursively.
-    
+
     Note: Default max_depth is None, which removes all nesting (including
     unpacking strings). Setting max_depth unpacks a maximum of max_depth levels
     of nesting, but will not raise exception if the structure is not really
@@ -173,7 +174,7 @@ def recursive_flatten_old(items, max_depth=None, curr_depth=0):
 
 def curry(f, *a, **kw):
     """curry(f,x)(y) = f(x,y) or =lambda y: f(x,y)
-    
+
     modified from python cookbook"""
     def curried(*more_a, **more_kw):
         return f(*(a + more_a), **dict(kw, **more_kw))
@@ -183,13 +184,13 @@ def curry(f, *a, **kw):
     if a:
         curry_params.extend([e for e in a])
     if kw:
-        curry_params.extend(['%s=%s' % (k, v) for k, v in kw.items()])
+        curry_params.extend(['%s=%s' % (k, v) for k, v in list(kw.items())])
     #str it to prevent error in join()
-    curry_params = map(str, curry_params)
+    curry_params = list(map(str, curry_params))
 
     try:
-        f_name = f.func_name
-    except:  #e.g.  itertools.groupby failed .func_name 
+        f_name = f.__name__
+    except:  #e.g.  itertools.groupby failed .func_name
         f_name = '?'
 
     curried.__doc__ = ' curry(%s,%s)\n'\
@@ -203,19 +204,19 @@ def is_iterable(obj):
     """return True if obj is iterable"""
     try:
         iter(obj)
-    except TypeError, e:
+    except TypeError as e:
         return False
     else:
         return True
 
 def is_char(obj):
     """return True if obj is a char (str with lenth<=1)"""
-    return isinstance(obj, basestring) and len(obj) <= 1
+    return isinstance(obj, str) and len(obj) <= 1
 
 is_char_or_noniterable = lambda x: is_char(x) or\
         not is_iterable(x)
 
-is_str_or_noniterable = lambda x: isinstance(x, basestring) or\
+is_str_or_noniterable = lambda x: isinstance(x, str) or\
         not is_iterable(x)
 
 
@@ -256,7 +257,7 @@ def unflatten(data, row_width, keep_extras=False):
     """Converts items in data into a list of row_width-length lists.
 
     row_width must be an integer. Will raise error if zero.
-    
+
     data can be any sequence type, but results will always be lists at the
     first level (including the common case of a list containing one sequence).
 
@@ -269,11 +270,11 @@ def unflatten(data, row_width, keep_extras=False):
     original lists would be columns, not rows).
     """
     if row_width < 1:
-        raise ValueError, "unflatten: row_width must be at least 1."
+        raise ValueError("unflatten: row_width must be at least 1.")
     result = []
     num_items = len(data)
     slices = num_items / row_width
-    for s in xrange(slices):
+    for s in range(slices):
         result.append(data[s * row_width:(s + 1) * row_width])
     if keep_extras:
         last_slice = data[slices * row_width:]
@@ -299,7 +300,7 @@ def unzip(items):
     any sequence.
     """
     if items:
-        return map(list, zip(*items))
+        return list(map(list, list(zip(*items))))
     else:
         return []
 
@@ -317,7 +318,7 @@ def select(order, items):
 
     Return type is a list of whatever type the elements in items are.
     """
-    return map(items.__getitem__, order)
+    return list(map(items.__getitem__, order))
 
 def sort_order(items, cmpfunc=None):
     """Returns an array containing the sorted order of elements in items.
@@ -336,7 +337,7 @@ def sort_order(items, cmpfunc=None):
 
 def find_all(text, pat):
     """Returns list of all overlapping occurrences of a pattern in a text.
-    
+
     Each item in the (sorted) list is the index of one of the matches.
     """
     result = []
@@ -381,7 +382,7 @@ def unreserve(item):
 
 def add_lowercase(d):
     """Adds lowercase version of keys in d to itself. Converts vals as well.
-    
+
     Should work on sequences of strings as well as strings.
 
     Now also works on strings and sets.
@@ -393,7 +394,7 @@ def add_lowercase(d):
         return d.__class__(items + [i.lower() for i in items])
 
     #otherwise, assume dict-like behavior
-    for key, val in d.items():
+    for key, val in list(d.items()):
         try:
             new_key = key.lower()
         except:   #try to make tuple out of arbitrary sequence
@@ -417,15 +418,14 @@ def add_lowercase(d):
 
 def extract_delimited(line, left, right, start_index=0):
     """Returns the part of line from first left to first right delimiter.
-    
+
     Optionally begins searching at start_index.
 
     Note: finds the next complete field (i.e. if we start in an incomplete
     field, skip it and move to the next).
     """
     if left == right:
-        raise TypeError, \
-        "extract_delimited is for fields w/ different left and right delimiters"
+        raise TypeError("extract_delimited is for fields w/ different left and right delimiters")
     try:
         field_start = line.index(left, start_index)
     except ValueError:  #no such field
@@ -434,9 +434,8 @@ def extract_delimited(line, left, right, start_index=0):
         try:
             field_end = line.index(right, field_start)
         except ValueError:  #left but no right delimiter: raise error
-            raise ValueError, \
-            "Found '%s' but not '%s' in line %s, starting at %s." \
-            % (left, right, line, start_index)
+            raise ValueError("Found '%s' but not '%s' in line %s, starting at %s." \
+            % (left, right, line, start_index))
     #if we got here, we found the start and end of the field
     return line[field_start + 1:field_end]
 
@@ -462,7 +461,7 @@ def InverseDict(d):
         temp = d
     else:
         temp = dict(d)
-    return dict([(val, key) for key, val in temp.iteritems()])
+    return dict([(val, key) for key, val in temp.items()])
 
 def InverseDictMulti(d):
     """Returns inverse of d, setting keys to values and values to list of keys.
@@ -481,7 +480,7 @@ def InverseDictMulti(d):
     else:
         temp = dict(d)
     result = {}
-    for key, val in temp.iteritems():
+    for key, val in temp.items():
         if val not in result:
             result[val] = []
         result[val].append(key)
@@ -553,8 +552,7 @@ class ClassChecker(object):
         type_type = type(str)
         for c in Classes:
             if type(c) != type_type:
-                raise TypeError, \
-                "ClassChecker found non-type object '%s' in parameter list." % c
+                raise TypeError("ClassChecker found non-type object '%s' in parameter list." % c)
         self.Classes = list(Classes)
 
     def __contains__(self, item):
@@ -570,24 +568,24 @@ class ClassChecker(object):
 
 class Delegator(object):
     """Mixin class that forwards unknown attributes to a specified object.
-    
+
     Handles properties correctly (this was somewhat subtle).
 
     WARNING: If you are delegating to an object that pretends to have every
     attribute (e.g. a MappedRecord), you _must_ bypass normal attribute access
     in __init__ of your subclasses to ensure that the properties are set in
     the object itself, not in the object to which it delegates. Alternatively,
-    you can initialize with None so that unhandled attributes are set in self, 
-    and then replace self._handler with your object right at the end of 
+    you can initialize with None so that unhandled attributes are set in self,
+    and then replace self._handler with your object right at the end of
     __init__. The first option is probably safer and more general.
 
     Warning: will not work on classes that use __slots__ instead of __dict__.
     """
     def __init__(self, obj):
         """Returns a new Delegator that uses methods of obj.
-        
+
         NOTE: It's important that this bypasses the normal attribute setting
-        mechanism, or there's an infinite loop between __init__ and 
+        mechanism, or there's an infinite loop between __init__ and
         __setattr__. However, subclasses should be able to use the normal
         mechanism with impunity.
         """
@@ -595,7 +593,7 @@ class Delegator(object):
 
     def __getattr__(self, attr):
         """Forwards unhandled attributes to self._handler.
-        
+
         Sets _handler to None on first use if not already set.
         """
         handler = self.__dict__.setdefault('_handler', None)
@@ -603,7 +601,7 @@ class Delegator(object):
 
     def __setattr__(self, attr, value):
         """Forwards requests to change unhandled attributes to self._handler.
-        
+
         This logic is rather complicated because of GenericRecord objects, which
         masquerade as having every attribute, which can be used as handlers for
         Delegators, which forward all requests to their handlers.
@@ -619,7 +617,7 @@ class Delegator(object):
         #it's self).
         if attr == '_handler':
             if value is self:
-                raise ValueError, "Can't set object to be its own handler."
+                raise ValueError("Can't set object to be its own handler.")
             self.__dict__['_handler'] = value
             return
         #check if the attribute is in this object's dict
@@ -653,10 +651,10 @@ class ConstrainedContainer(object):
     Container should have a Constraint property that __contains__ the items
     that will be allowed in the container. Can also have a Mask property that
     contains a function that will be applied to each item (a) on checking the
-    item for validity, and (b) on inserting the item in the container. 
+    item for validity, and (b) on inserting the item in the container.
 
-    WARNING: Because the Mask is evaluated both when the item is checked and 
-    when it is inserted, any side-effects it has are applied _twice_. This 
+    WARNING: Because the Mask is evaluated both when the item is checked and
+    when it is inserted, any side-effects it has are applied _twice_. This
     means that any Mask that mutates the object or changes global variables
     is unlikely to do what you want!
     """
@@ -672,8 +670,8 @@ class ConstrainedContainer(object):
 
     def __init__(self, Constraint=None, Mask=None):
         """Returns new ConstrainedContainer, incorporating constraint.
-        
-        WARNING: Does not perform validation. It is the subclass's 
+
+        WARNING: Does not perform validation. It is the subclass's
         responsibility to perform validation during __init__ or __new__!
         """
         if Constraint is not None:
@@ -769,8 +767,7 @@ class ConstrainedContainer(object):
         if self.matchesConstraint(constraint):
             self._constraint = constraint
         else:
-            raise ConstraintError, \
-            "Sequence '%s' incompatible with constraint '%s'" % (self, constraint)
+            raise ConstraintError("Sequence '%s' incompatible with constraint '%s'" % (self, constraint))
 
     Constraint = property(_get_constraint, _set_constraint)
 
@@ -786,7 +783,7 @@ class ConstrainedString(str, ConstrainedContainer):
             data = ''.join(map(mask, data))
         else:
             try:
-                data = str(map(mask, data))
+                data = str(list(map(mask, data)))
             except (TypeError, ValueError):
                 data = str(mask(data))
         new_string = str.__new__(cls, data)
@@ -798,8 +795,7 @@ class ConstrainedString(str, ConstrainedContainer):
                 except TypeError:
                     is_valid = False
                 if not is_valid:
-                    raise ConstraintError, \
-                    "Character '%s' not in constraint '%s'" % (c, curr_constraint)
+                    raise ConstraintError("Character '%s' not in constraint '%s'" % (c, curr_constraint))
         return new_string
 
     def __init__(self, data, Constraint=None, Mask=None):
@@ -809,8 +805,7 @@ class ConstrainedString(str, ConstrainedContainer):
     def __add__(self, other):
         """Returns copy of self added to copy of other if constraint correct."""
         if not self.otherIsValid(other):
-            raise ConstraintError, \
-            "Sequence '%s' doesn't meet constraint" % other
+            raise ConstraintError("Sequence '%s' doesn't meet constraint" % other)
         result = self.__class__(str(self) + ''.join(map(self.Mask, other)), \
             Constraint=self.Constraint)
         mask = self._mask_for_new()
@@ -879,7 +874,7 @@ class ConstrainedList(ConstrainedContainer, list):
 
     def __add__(self, other):
         """Returns copy of self added to copy of other if constraint correct."""
-        result = self.__class__(list(self) + map(self.Mask, other) , \
+        result = self.__class__(list(self) + list(map(self.Mask, other)) , \
             Constraint=self.Constraint)
         mask = self._mask_for_new()
         if mask:
@@ -888,13 +883,12 @@ class ConstrainedList(ConstrainedContainer, list):
 
     def __iadd__(self, other):
         """Adds other to self if constraint correct."""
-        other = map(self.Mask, other)
+        other = list(map(self.Mask, other))
         if self.otherIsValid(other):
             return list.__iadd__(self, other)
         else:
-            raise ConstraintError, \
-            "Sequence '%s' has items not in constraint '%s'" \
-                % (other, self.Constraint)
+            raise ConstraintError("Sequence '%s' has items not in constraint '%s'" \
+                % (other, self.Constraint))
 
     def __mul__(self, multiplier):
         """Returns copy of self multiplied by multiplier."""
@@ -918,37 +912,36 @@ class ConstrainedList(ConstrainedContainer, list):
         """Sets self[index] to item if item in constraint. Handles slices"""
         if isinstance(index, slice):
             if not self.otherIsValid(item):
-                raise ConstraintError, \
-                "Sequence '%s' contains items not in constraint '%s'." % \
-                (item, self.Constraint)
-            item = map(self.Mask, item)
+                raise ConstraintError("Sequence '%s' contains items not in constraint '%s'." % \
+                (item, self.Constraint))
+            item = list(map(self.Mask, item))
         else:
             if not self.itemIsValid(item):
-                raise ConstraintError, "Item '%s' not in constraint '%s'" % \
-                    (item, self.Constraint)
+                raise ConstraintError("Item '%s' not in constraint '%s'" % \
+                    (item, self.Constraint))
             item = self.Mask(item)
         list.__setitem__(self, index, item)
 
     def append(self, item):
         """Appends item to self."""
         if not self.itemIsValid(item):
-            raise ConstraintError, "Item '%s' not in constraint '%s'" % \
-                (item, self.Constraint)
+            raise ConstraintError("Item '%s' not in constraint '%s'" % \
+                (item, self.Constraint))
         list.append(self, self.Mask(item))
 
     def extend(self, sequence):
         """Appends sequence to self."""
         if self.otherIsValid(sequence):
-            list.extend(self, map(self.Mask, sequence))
+            list.extend(self, list(map(self.Mask, sequence)))
         else:
-            raise ConstraintError, "Some items in '%s' not in constraint '%s'"\
-                % (sequence, self.Constraint)
+            raise ConstraintError("Some items in '%s' not in constraint '%s'"\
+                % (sequence, self.Constraint))
 
     def insert(self, position, item):
         """Inserts item at position in self."""
         if not self.itemIsValid(item):
-            raise ConstraintError, "Item '%s' not in constraint '%s'" % \
-                (item, self.Constraint)
+            raise ConstraintError("Item '%s' not in constraint '%s'" % \
+                (item, self.Constraint))
         list.insert(self, position, self.Mask(item))
 
     def __getslice__(self, *args, **kwargs):
@@ -963,11 +956,10 @@ class ConstrainedList(ConstrainedContainer, list):
     def __setslice__(self, start, end, sequence):
         """Make sure invalid data can't get into slice."""
         if self.otherIsValid(sequence):
-            list.__setslice__(self, start, end, map(self.Mask, sequence))
+            list.__setslice__(self, start, end, list(map(self.Mask, sequence)))
         else:
-            raise ConstraintError, \
-                "Sequence '%s' has items not in constraint '%s'"\
-                % (sequence, self.Constraint)
+            raise ConstraintError("Sequence '%s' has items not in constraint '%s'"\
+                % (sequence, self.Constraint))
 
 class MappedList(ConstrainedList):
     """As for ConstrainedList, but maps items on contains and getitem."""
@@ -981,7 +973,7 @@ class MappedList(ConstrainedList):
 
 class ConstrainedDict(ConstrainedContainer, dict):
     """Dict containing only keys that are valid on a specified constraint.
-    
+
     Default behavior when fed a sequence is to store counts of the items in
     that sequence, which is not the standard dict interface (should raise a
     ValueError instead) but which is surprisingly useful in practice.
@@ -1017,8 +1009,8 @@ class ConstrainedDict(ConstrainedContainer, dict):
     def __setitem__(self, key, value):
         """Sets self[key] to value if value in constraint."""
         if not self.itemIsValid(key):
-            raise ConstraintError, "Item '%s' not in constraint '%s'" % \
-                (key, self.Constraint)
+            raise ConstraintError("Item '%s' not in constraint '%s'" % \
+                (key, self.Constraint))
         key, value = self.Mask(key), self.ValueMask(value)
         dict.__setitem__(self, key, value)
 
@@ -1043,7 +1035,7 @@ class ConstrainedDict(ConstrainedContainer, dict):
 
     def update(self, other):
         """Updates self with items in other.
-        
+
         Implementation note: currently uses __setitem__, so no need to apply
         masks in this method.
         """
@@ -1072,7 +1064,7 @@ class MappedDict(ConstrainedDict):
 
     def has_key(self, item):
         """Ensure that has_key applies the mask."""
-        return super(MappedDict, self).has_key(self.Mask(item))
+        return self.Mask(item) in super(MappedDict, self)
 
 def getNewId(rand_f=randrange):
     """Creates a random 12-digit integer to be used as an id."""
@@ -1083,12 +1075,12 @@ def getNewId(rand_f=randrange):
 
 def generateCombinations(alphabet, combination_length):
     """Returns an array of strings: all combinations of a given length.
-    
+
     alphabet: a sequence (string or list) type object containing the
         characters that can be used to make the combinations.
     combination_length: a long-castable value (integer) specifying the
         length of desired combinations.
-    
+
     comb is used as an abbreviation of combinations throughout.
     """
 
@@ -1096,11 +1088,11 @@ def generateCombinations(alphabet, combination_length):
     num_combs = 0
     try:
         alphabet_len = len(alphabet)
-        combination_length = long(combination_length)
-    except TypeError, ValueError: #conversion failed
-        raise RuntimeError, "Bad parameter: alphabet must be of sequence " + \
+        combination_length = int(combination_length)
+    except TypeError as ValueError: #conversion failed
+        raise RuntimeError("Bad parameter: alphabet must be of sequence " + \
                             "type and combination_length must be castable " + \
-                            "to long."
+                            "to long.")
     #end parameter conversion try/catch
 
     #the number of combs is alphabet length raised to the combination length
@@ -1108,7 +1100,7 @@ def generateCombinations(alphabet, combination_length):
         num_combs = pow(alphabet_len, combination_length)
     #end if
 
-    for curr_comb_num in xrange(num_combs):
+    for curr_comb_num in range(num_combs):
         curr_digit = 0
         curr_comb = [0] * combination_length
 
@@ -1129,17 +1121,17 @@ def generateCombinations(alphabet, combination_length):
 
 def toString(obj):
     """Public function to write a string of object's properties & their vals.
-    
+
     This function looks only at the local properties/methods/etc of the
     object it is sent, and only examines public and first-level private
     (starts with _ but not __) entries.  It ignores anything that is a
-    method, function, or class.  Any attribute whose value looks like a 
-    printout of a memory address (starts with < and ends with >) has its 
+    method, function, or class.  Any attribute whose value looks like a
+    printout of a memory address (starts with < and ends with >) has its
     value replaced with the word "object".
     """
 
     ignored_types = [types.BuiltinFunctionType, types.BuiltinMethodType, \
-                    types.ClassType, types.FunctionType, types.MethodType, \
+                    type, types.FunctionType, types.MethodType, \
                     types.UnboundMethodType]
     result = []
     for slot in obj.__dict__:
@@ -1178,7 +1170,7 @@ def makeNonnegInt(n):
     try:
         n = abs(int(n))
     except:
-        raise NonnegIntError, n + " must be castable to a nonnegative int"
+        raise NonnegIntError(n + " must be castable to a nonnegative int")
     #end try/except
 
     return n
@@ -1186,17 +1178,16 @@ def makeNonnegInt(n):
 
 def reverse_complement(seq, use_DNA=True):
     """Public function to reverse complement DNA or RNA sequence string
-    
+
     seq: a string
-    use_DNA: a boolean indicating (if true) that A should translate to T.  
+    use_DNA: a boolean indicating (if true) that A should translate to T.
         If false, RNA is assumed (A translates to U).  Default is True.
-    
+
     Returns a reverse complemented string.
     """
     bad_chars = set(seq) - set("ACGTUacgtu")
     if len(bad_chars) > 0:
-        raise ValueError,\
-         ("Only ACGTU characters may be passed to reverse_complement. Other "
+        raise ValueError("Only ACGTU characters may be passed to reverse_complement. Other "
           "characters were identified: %s. Use cogent.DNA.rc if you need to "
           "reverse complement ambiguous bases." % ''.join(bad_chars))
     #decide which translation to use for complementation
@@ -1213,8 +1204,8 @@ def reverse_complement(seq, use_DNA=True):
 
     #join the reverse-complemented list and return
     return "".join(comp_list)
-# The reverse_complement function was previously called revComp, but that 
-# naming doesn't adhere to the PyCogent coding guidelines. Renamed, but 
+# The reverse_complement function was previously called revComp, but that
+# naming doesn't adhere to the PyCogent coding guidelines. Renamed, but
 # keeping the old name around to not break existing code.
 revComp = reverse_complement
 #end revComp
@@ -1256,15 +1247,15 @@ def get_items_except(seq, indices, seq_constructor=None):
 
 def NestedSplitter(delimiters=[None], same_level=False,
         constructor=strip, filter_=False):
-    """return a splitter which return a list (maybe nested) from a str using 
+    """return a splitter which return a list (maybe nested) from a str using
     delimiters nestedly
 
-    same_level -- if true, all the leaf items will be split whether there is 
+    same_level -- if true, all the leaf items will be split whether there is
     delimiters in it or not
 
     constructor: modify each splited fields.
     filter_: filter the splits if not False(default)
-    
+
     Note: the line input in parser is expected to be a str, but without check
     """
     def parser(line, index=0):
@@ -1285,9 +1276,9 @@ def NestedSplitter(delimiters=[None], same_level=False,
 
         #modify splits if required
         if constructor:
-            result = map(constructor, result)
+            result = list(map(constructor, result))
         if filter_ != False: #allow filter(None,..) to rip off the empty items
-            result = filter(filter_, result)
+            result = list(filter(filter_, result))
 
         #repeat recursively for next delimiter
         if index != len(delimiters) - 1: #not last delimiter
@@ -1296,7 +1287,7 @@ def NestedSplitter(delimiters=[None], same_level=False,
         #undo split if curr not in line and same_level==False
         #ignore the first delimiter
         if not same_level and index > 0 \
-            and len(result) == 1 and isinstance(result[0], basestring):
+            and len(result) == 1 and isinstance(result[0], str):
             result = result[0]
 
         return result
@@ -1306,10 +1297,10 @@ def NestedSplitter(delimiters=[None], same_level=False,
 
 def app_path(app,env_variable='PATH'):
     """Returns path to an app, or False if app does not exist in env_variable
-    
+
      This functions in the same way as which in that it returns
      the first path that contains the app.
-    
+
     """
     # strip off " characters, in case we got a FilePath object
     app = app.strip('"')
@@ -1333,16 +1324,16 @@ def create_dir(dir_name, fail_on_exist=False, handle_errors_externally=False):
     dir_name: name of directory to create
 
     fail_on_exist: if true raise an error if dir already exists
-    
+
     handle_errors_externally: if True do not raise Errors, but return
                    failure codes. This allows to handle errors locally and
                    e.g. hint the user at a --force_overwrite options.
-                   
+
     returns values (if no Error raised):
-    
+
          0:  dir could be safely made
          1:  directory already existed
-         2:  a file with the same name exists          
+         2:  a file with the same name exists
          3:  any other unspecified OSError
 
 
@@ -1371,7 +1362,7 @@ def create_dir(dir_name, fail_on_exist=False, handle_errors_externally=False):
             makedirs(dir_name)
         except OSError:
             return ror(error_code_lookup['OTHER_OS_ERROR'])
-    
+
     return error_code_lookup['NO_ERROR']
 
 def handle_error_codes(dir_name, supress_errors=False,
@@ -1383,16 +1374,16 @@ def handle_error_codes(dir_name, supress_errors=False,
     error_code: the code for the error
     """
     error_code_lookup = get_create_dir_error_codes()
-    
+
     if error_code == None:
         error_code = error_code_lookup['NO_ERROR']
-    
+
     error_strings = \
         {error_code_lookup['DIR_EXISTS'] :
           "Directory already exists: %s" % dir_name,
-         error_code_lookup['FILE_EXISTS'] : 
+         error_code_lookup['FILE_EXISTS'] :
           "File with same name exists: %s" % dir_name,
-         error_code_lookup['OTHER_OS_ERROR']: 
+         error_code_lookup['OTHER_OS_ERROR']:
           "Could not create output directory: %s. " % dir_name +
           "Check the permissions."}
 
@@ -1401,7 +1392,7 @@ def handle_error_codes(dir_name, supress_errors=False,
     if supress_errors:
         return error_code
     else:
-        raise OSError, error_strings[error_code]
+        raise OSError(error_strings[error_code])
 
 def remove_files(list_of_filepaths, error_on_missing=True):
     """Remove list of filepaths, optionally raising an error if any are missing
@@ -1414,7 +1405,7 @@ def remove_files(list_of_filepaths, error_on_missing=True):
             missing.append(fp)
 
     if error_on_missing and missing:
-        raise OSError, "Some filepaths were not accessible: %s" % '\t'.join(missing)
+        raise OSError("Some filepaths were not accessible: %s" % '\t'.join(missing))
 
 def get_random_directory_name(suppress_mkdir=False,\
     timestamp_pattern='%Y%m%d%H%M%S',\
@@ -1423,14 +1414,14 @@ def get_random_directory_name(suppress_mkdir=False,\
     prefix='',
     suffix='',
     return_absolute_path=True):
-    """Build a random directory name and create the directory 
-    
+    """Build a random directory name and create the directory
+
         suppress_mkdir: only build the directory name, don't
          create the directory (default: False)
         timestamp_pattern: string passed to strftime() to generate
          the timestamp (pass '' to suppress the timestamp)
         rand_length: length of random string of characters
-        output_dir: the directory which should contain the 
+        output_dir: the directory which should contain the
          random directory
         prefix: prefix for directory name
         suffix: suffix for directory name
@@ -1440,10 +1431,10 @@ def get_random_directory_name(suppress_mkdir=False,\
     # Define a set of characters to be used in the random directory name
     chars = "abcdefghigklmnopqrstuvwxyz"
     picks = chars + chars.upper() + "0123456790"
-    
+
     # Get a time stamp
     timestamp = datetime.now().strftime(timestamp_pattern)
-        
+
     # Construct the directory name
     dirname = '%s%s%s%s' % (prefix,timestamp,\
                         ''.join([choice(picks) for i in range(rand_length)]),\
@@ -1456,9 +1447,8 @@ def get_random_directory_name(suppress_mkdir=False,\
         try:
             makedirs(abs_dirpath)
         except OSError:
-            raise OSError,\
-             "Cannot make directory %s. Do you have write access?" % dirpath
-             
+            raise OSError("Cannot make directory %s. Do you have write access?" % dirpath)
+
     # Return the path to the directory
     if return_absolute_path:
         return abs_dirpath
@@ -1468,15 +1458,15 @@ def get_independent_coords(spans, random_tie_breaker=False):
     """returns non-overlapping spans. spans must have structure
         [(start, end, ..), (..)]. spans can be decorated with arbitrary data
         after the end entry.
-    
+
     Arguments:
         - random_tie_breaker: break overlaps by randomly choosing the first
           or second span. Defaults to the first span.
     """
-    
+
     if len(spans) <= 1:
         return spans
-    
+
     last = spans[0]
     result = [last]
     for i in range(1, len(spans)):
@@ -1487,10 +1477,10 @@ def get_independent_coords(spans, random_tie_breaker=False):
             else:
                 result[-1] = last
             continue
-        
+
         result.append(curr)
         last = curr
-    
+
     return result
 
 def get_merged_overlapping_coords(start_end):
@@ -1508,41 +1498,41 @@ def get_merged_overlapping_coords(start_end):
             result[-1][-1] = prev_end
         else:
             pass # we lie completely within previous span
-    
+
     return result
 
 def get_run_start_indices(values, digits=None, converter_func=None):
     """returns starting index, value for all distinct values"""
     assert not (digits and converter_func), \
         'Cannot set both digits and converter_func'
-    
+
     if digits is not None:
         converter_func = lambda x: round(x, digits)
     elif converter_func is None:
         converter_func = lambda x: x
-    
+
     last_val = None
     for index, val in enumerate(values):
         val = converter_func(val)
         if val != last_val:
             yield [index, val]
-        
+
         last_val = val
-    
+
     return
 
 def get_merged_by_value_coords(spans_value, digits=None):
     """returns adjacent spans merged if they have the same value. Assumes
     [(start, end, val), ..] structure and that spans_value is sorted in
     ascending order.
-    
+
     Arguments:
         - digits: if None, any data can be handled and exact values are
           compared. Otherwise values are rounded to that many digits.
     """
     assert len(spans_value[0]) == 3, 'spans_value must have 3 records per row'
-    
-    starts, ends, vals = zip(*spans_value)
+
+    starts, ends, vals = list(zip(*spans_value))
     indices_distinct_vals = get_run_start_indices(vals, digits=digits)
     data = []
     i = 0
@@ -1554,10 +1544,10 @@ def get_merged_by_value_coords(spans_value, digits=None):
             data[-1][1] = ends[prev_index]
         except IndexError:
             pass
-        
+
         data.append([start, end, val])
-    
+
     if index < len(ends):
         data[-1][1] = ends[-1]
-    
+
     return data

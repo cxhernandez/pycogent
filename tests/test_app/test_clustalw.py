@@ -35,17 +35,17 @@ class GeneralSetUp(TestCase):
             'GCGGCUAUUAGAUCGUA']
         self.aln1_fasta = ALIGN1_FASTA
         self.labels1 = ['>1','>2','>3']
-        self.lines1 = flatten(zip(self.labels1,self.seqs1))
+        self.lines1 = flatten(list(zip(self.labels1,self.seqs1)))
         self.stdout1 = STDOUT1
         self.aln1 = ALIGN1
         self.dnd1 = DND1
         
-        self.multiline1 = '\n'.join(flatten(zip(self.labels1, self.seqs1)))
+        self.multiline1 = '\n'.join(flatten(list(zip(self.labels1, self.seqs1))))
        
         self.seqs2=['UAGGCUCUGAUAUAAUAGCUCUC','UAUCGCUUCGACGAUUCUCUGAUAGAGA',
             'UGACUACGCAU']
         self.labels2=['>a','>b','>c']
-        self.lines2 = flatten(zip(self.labels2,self.seqs2))
+        self.lines2 = flatten(list(zip(self.labels2,self.seqs2)))
         self.aln2 = ALIGN2
         self.dnd2 = DND2
         

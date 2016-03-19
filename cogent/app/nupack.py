@@ -21,8 +21,7 @@ __email__ = "ens01svn@cs.umu.se"
 __status__ = "Development"  
 
 if 'NUPACK_DATA' not in environ:
-    raise RuntimeError, \
-        'NUPACK app controller requires the NUPACK_DATA environment variable'
+    raise RuntimeError('NUPACK app controller requires the NUPACK_DATA environment variable')
 nupack_data_dir = environ['NUPACK_DATA']
 nupack_data_dna = 'dataS_G.dna'
 nupack_data_rna = 'dataS_G.rna'
@@ -112,11 +111,10 @@ class Nupack(CommandLineApplication):
 
         # Build up the command, consisting of a BaseCommand followed by
         # input and output (file) specifications
-        command = self._command_delimiter.join(filter(None,\
-            [self.BaseCommand,str(input_arg),'>',str(outfile),'2>',\
-                str(errfile)]))
+        command = self._command_delimiter.join([_f for _f in [self.BaseCommand,str(input_arg),'>',str(outfile),'2>',\
+                str(errfile)] if _f])
         if self.HaltExec:
-            raise AssertionError, "Halted exec with command:\n" + command
+            raise AssertionError("Halted exec with command:\n" + command)
 
         # copy over data files
         nupack_data_dna_src = '/'.join([nupack_data_dir, nupack_data_dna])
@@ -140,9 +138,8 @@ class Nupack(CommandLineApplication):
         # Determine if error should be raised due to exit status of 
         # appliciation
         if not self._accept_exit_status(exit_status):
-            raise ApplicationError, \
-             'Unacceptable application exit status: %s, command: %s'\
-                % (str(exit_status),command)
+            raise ApplicationError('Unacceptable application exit status: %s, command: %s'\
+                % (str(exit_status),command))
 
         # open the stdout and stderr if not being suppressed
         out = None

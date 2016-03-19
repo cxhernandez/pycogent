@@ -10,9 +10,9 @@ __maintainer__ = "Jens Reeder"
 __email__ = "jreeder@colorado.edu"
 __status__ = "Development"
 
-from string import strip
+strip = str.strip
 from random import sample
-from itertools import izip
+
 
 from cogent.parse.flowgram import Flowgram
 from cogent.parse.record_finder import LabeledRecordFinder, is_fasta_label,\
@@ -78,7 +78,7 @@ def get_summaries(handle, number_list = None, name_list=None, all_sums = False):
                 continue
             yield s
     else:
-        raise ValueError, "number_list, name_list or all_sums must be specified"
+        raise ValueError("number_list, name_list or all_sums must be specified")
 
 
 def get_all_summaries(lines):
@@ -120,7 +120,7 @@ def lazy_parse_sff_handle(handle):
     sff_info = LabeledRecordFinder(is_fasta_label,constructor=strip)
     sff_gen = sff_info(handle)
 
-    header_lines = sff_gen.next()
+    header_lines = next(sff_gen)
     header = get_header_info(header_lines)
 
     return (_sff_parser(sff_gen, header), header)
@@ -156,10 +156,10 @@ def get_random_flows_from_sff(filename, num=100, size=None):
         size = num
     
     (flowgrams, header) =  lazy_parse_sff_handle(open(filename))
-    idxs = sample(xrange(size), num)
+    idxs = sample(range(size), num)
     idxs.sort()
     i = 0   
-    for (j,f) in izip(xrange(size), flowgrams):
+    for (j,f) in zip(range(size), flowgrams):
         if (idxs[i] == j):
             i += 1
             yield f

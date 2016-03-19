@@ -10,7 +10,7 @@ a single string is passed into the constructor it should be
 put into a list (i.e. ['your_string']) or it will result in errors
 when calculating kword frequencies. 
 """
-from __future__ import division
+
 from operator import mul
 from random import choice, shuffle, randrange
 from cogent.maths.stats.util import UnsafeFreqs as Freqs
@@ -20,6 +20,7 @@ from copy import copy,deepcopy
 from numpy import ones, zeros, ravel, array, rank, put, argsort, searchsorted,\
                   take
 from numpy.random import random
+from functools import reduce
 
 __author__ = "Rob Knight"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -78,9 +79,9 @@ class MarkovGenerator(object):
                 #otherwise, make a frequency distribution of symbols
                 end = len(line) - k
                 if overlapping:
-                    rang=xrange(end)
+                    rang=range(end)
                 else:
-                    rang=xrange(0,end,(k+1))
+                    rang=range(0,end,(k+1))
                 for i in rang:
                     word, next = line[i:i+k], line[i+k]
                     curr = all_freqs.get(word, None)
@@ -96,7 +97,7 @@ class MarkovGenerator(object):
                 self.deleteBadSuffixes()
             self.RawCounts=deepcopy(all_freqs)
             #preserve non-normalized freqs
-            for dist in self.Frequencies.values():
+            for dist in list(self.Frequencies.values()):
                 dist.normalize()
 
     def wordToUniqueKey\
@@ -137,7 +138,7 @@ class MarkovGenerator(object):
                 self.CountArray[self.wordToUniqueKey(key)]=counts[''][key]
                 #print "placement successful!" #debugging
         else:
-            for kword in counts.keys():
+            for kword in list(counts.keys()):
                 for key in counts[kword]:
                     index=self.wordToUniqueKey(kword+key)
                     #debugging
@@ -195,9 +196,9 @@ class MarkovGenerator(object):
         deleted = True
         while deleted:
             deleted = False
-            for k, v in f.items():
+            for k, v in list(f.items()):
                 suffix = k[1:]
-                for last_char in v.keys():
+                for last_char in list(v.keys()):
                     #if we can't make suffix + last_char, can't select that char
                     if suffix + last_char not in f:
                         del v[last_char]
@@ -211,7 +212,7 @@ class MarkovGenerator(object):
         sum_ = 0.
         sum_entropy = 0.
         count = 0.
-        for i in frequencies.values():
+        for i in list(frequencies.values()):
             curr_entropy = i.Uncertainty
             curr_sum = sum(i.values())
             sum_ += curr_sum
@@ -254,7 +255,7 @@ class MarkovGenerator(object):
         freqs = self.Frequencies    #cache reference since it's frequently used
         #just pick one of the items at random, since calculating the weighted
         #frequencies is not possible without storing lots of extra info
-        keys = freqs.keys()
+        keys = list(freqs.keys())
         curr = choice(keys)
         result = []
         for i in range(burn +length):
@@ -396,7 +397,7 @@ def count_kwords(source, k, delimiter=''):
 def extract_prefix(kwords):
     """Converts dict of {w:count} to {w[:-1]:{w[-1]:count}}"""
     result = {}
-    for w, count in kwords.items():
+    for w, count in list(kwords.items()):
         prefix = w[:-1]
         suffix = w[-1]
         if prefix not in result:
@@ -437,23 +438,23 @@ def markov_order(word_counts, k, alpha):
     max_length: maximum correlation length to try
     """
     if k == 0:  #special case: test for unequal freqs
-        obs = word_counts.values()
+        obs = list(word_counts.values())
         total = sum(obs)    #will remain defined through loop
         exp = [total/len(word_counts)] * len(word_counts)
     elif k == 1: #special case: test for pair freqs
         prefix_counts = extract_prefix(word_counts)
         total = sum(word_counts.values())
-        words = word_counts.keys()
+        words = list(word_counts.keys())
         
         exp = [_pair_product(prefix_counts, w[0], w[1])/total for w in words]
-        obs = word_counts.values()
+        obs = list(word_counts.values())
     else:   # k >= 3: need to do general Markov chain
         #expect count(a_i.w.b_i) to be Pr(b_i|w)*count(a_i.w)
         cwb = {}    #count of word.b
         cw = {}     #count of word
         caw = {}    #count of a.word
         #build up counts of prefix, word, and suffix
-        for word, count in word_counts.items():
+        for word, count in list(word_counts.items()):
             aw, w, wb = word[:-1], word[1:-1], word[1:]
             if not wb in cwb:
                 cwb[wb] = 0
@@ -465,9 +466,9 @@ def markov_order(word_counts, k, alpha):
                 cw[w] = 0
             cw[w] += count
 
-        obs = word_counts.values()
+        obs = list(word_counts.values())
         exp = [cwb[w[1:]]/(cw[w[1:-1]])*caw[w[:-1]] for w in \
-            word_counts.keys()]
+            list(word_counts.keys())]
     return G_fit(obs, exp)
 
 def random_source(a, k, random_f=random):
@@ -475,9 +476,9 @@ def random_source(a, k, random_f=random):
     
     Specifically, for all words k, pr(i|k) = rand().
     """
-    result = dict.fromkeys(map(''.join, cartesian_product([a]*k)))
+    result = dict.fromkeys(list(map(''.join, cartesian_product([a]*k))))
     for k in result:
-        result[k] = Freqs(dict(zip(a, random_f(len(a)))))
+        result[k] = Freqs(dict(list(zip(a, random_f(len(a))))))
     return result
 
 def markov_order_tests(a, max_order=5, text_len=10000, verbose=False):
@@ -486,7 +487,7 @@ def markov_order_tests(a, max_order=5, text_len=10000, verbose=False):
     result = []
     max_estimated_order = max_order + 2
     for real_order in range(max_order):
-        print "Actual Markov order:", real_order
+        print("Actual Markov order:", real_order)
         s = random_source(a, real_order)
         m = MarkovGenerator(order=real_order, freqs=s)
         text = m.next(text_len)
@@ -494,7 +495,7 @@ def markov_order_tests(a, max_order=5, text_len=10000, verbose=False):
             words = count_kwords(text, word_length)
             g, prob = markov_order(words, word_length-1, a)
             if verbose:
-                print "Inferred order: %s G=%s P=%s" % (word_length-1, g, prob)
+                print("Inferred order: %s G=%s P=%s" % (word_length-1, g, prob))
             result.append([word_length-1, g, prob])
     return result
             
@@ -517,7 +518,7 @@ if __name__ == '__main__':
         for word_length in range(1, max_estimated_order):
             words = count_kwords(text, word_length)
             g, prob = markov_order(words, word_length-1, 'ATGC')
-            print "Inferred order: %s G=%s P=%s" % (word_length-1, g, prob)
+            print("Inferred order: %s G=%s P=%s" % (word_length-1, g, prob))
             
     else:
         try:
@@ -525,10 +526,10 @@ if __name__ == '__main__':
             max_order = int(argv[2])
             text = open(argv[3], 'U')
         except:
-           print "Usage: python markov.py num_chars order training_file"
-           print "...or python markov.py m training_file to check order"
+           print("Usage: python markov.py num_chars order training_file")
+           print("...or python markov.py m training_file to check order")
            exit()
         for order in range(max_order + 1):
             m = MarkovGenerator(text, order, calc_entropy=True)
-            print order,':', 'Entropy=', m.Entropy, m.next(length=length)
+            print(order,':', 'Entropy=', m.Entropy, m.next(length=length))
         

@@ -6,7 +6,7 @@
 File created on 19 Jun 2007.
 
 """
-from __future__ import division
+
 from numpy import array
 from cogent import LoadSeqs
 from cogent.util.unit_test import TestCase, main
@@ -85,27 +85,27 @@ class RecodeAlignmentTests(TestCase):
 
     def test_build_alphabet_map_handles_all_ids_and_defs_wo_error(self):
         """build_alphabet_map: handles all pre-defined alphabets w/o error"""
-        for alphabet_id, alphabet_def in alphabets.items():
+        for alphabet_id, alphabet_def in list(alphabets.items()):
             try:
                 build_alphabet_map(alphabet_id=alphabet_id)
             except ValueError:
-                raise AssertionError, "Failed on id: %s" % alphabet_id
+                raise AssertionError("Failed on id: %s" % alphabet_id)
             try:
                 build_alphabet_map(alphabet_def=alphabet_def)
             except ValueError:
-                raise AssertionError, "Failed on def: %s" % str(alphabet_def)
+                raise AssertionError("Failed on def: %s" % str(alphabet_def))
 
     def test_recode_dense_alignment_handles_all_ids_and_defs_wo_error(self):
         """recode_dense_alignment: handles pre-defined alphabets w/o error"""
-        for alphabet_id, alphabet_def in alphabets.items():
+        for alphabet_id, alphabet_def in list(alphabets.items()):
             try:
                 recode_dense_alignment(self.aln,alphabet_id=alphabet_id)
             except ValueError:
-                raise AssertionError, "Failed on id: %s" % alphabet_id
+                raise AssertionError("Failed on id: %s" % alphabet_id)
             try:
                 recode_dense_alignment(self.aln,alphabet_def=alphabet_def)
             except ValueError:
-                raise AssertionError, "Failed on def: %s" % str(alphabet_def)
+                raise AssertionError("Failed on def: %s" % str(alphabet_def))
 
     def test_recode_dense_alignment_leaves_original_alignment_intact(self):
         """recode_dense_alignment: leaves input alignment intact
@@ -281,7 +281,7 @@ class RecodeMatrixTests(TestCase):
         self.recoded_m1 =\
             [[0,0,21,0,0],[0,0,0,0,0],[21,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]]
         self.aa_order1 = 'DELIV'
-        self.input_freqs1 = dict(zip(self.aa_order1,[0.2]*5))
+        self.input_freqs1 = dict(list(zip(self.aa_order1,[0.2]*5)))
         self.alphabet1 = [('D','DE'),('L','LIV')]
 
         #create_recoded_rate_matrix(alphabets['a1_4'])
@@ -289,7 +289,7 @@ class RecodeMatrixTests(TestCase):
         self.recoded_m2 =\
             [[0,0,21,0,1],[0,0,0,0,0],[21,0,0,0,2],[0,0,0,0,0],[1,0,2,0,0]]
         self.aa_order2 = 'DELIC'
-        self.input_freqs2 = dict(zip(self.aa_order2,[0.2]*5))
+        self.input_freqs2 = dict(list(zip(self.aa_order2,[0.2]*5)))
         self.alphabet2 = [('D','DE'),('L','LI'),('C','C')]
         self.alphabet2_w_ambig = [('D','DEX'),('L','LIB'),('C','CZ')]
 

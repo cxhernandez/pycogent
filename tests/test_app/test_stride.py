@@ -36,7 +36,7 @@ class StrideTest(TestCase):
         self.assertEqual(res['ExitStatus'], 0)
         assert res['StdOut'] is not None
         self.assertTrue(res['StdOut'].readline().endswith('---------  2E12\n'))
-        self.assertEquals(len(res['StdOut'].readlines()), 267)
+        self.assertEqual(len(res['StdOut'].readlines()), 267)
         res.cleanUp()
 
     def test_stdout_input_from_path(self):
@@ -47,7 +47,7 @@ class StrideTest(TestCase):
         self.assertEqual(res['ExitStatus'], 0)
         assert res['StdOut'] is not None
         self.assertTrue(res['StdOut'].readline().endswith('---------  2E12\n'))
-        self.assertEquals(len(res['StdOut'].readlines()), 267)
+        self.assertEqual(len(res['StdOut'].readlines()), 267)
         res.cleanUp()
 
     def test_get_result_path(self):
@@ -58,9 +58,9 @@ class StrideTest(TestCase):
         s.Parameters['-f'].on(name)
         res = s(self.input_structure)
         self.assertEqual(res['ExitStatus'], 0)
-        self.assertEqualItems(res.keys(), ['StdOut', 'StdErr', 'ExitStatus', 'File'])
+        self.assertEqualItems(list(res.keys()), ['StdOut', 'StdErr', 'ExitStatus', 'File'])
         self.assertTrue(res['File'].readline().endswith('---------  2E12\n'))
-        self.assertEquals(len(res['File'].readlines()), 267)
+        self.assertEqual(len(res['File'].readlines()), 267)
         res.cleanUp()
         self.assertFalse(os.path.exists(name))
 

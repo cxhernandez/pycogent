@@ -689,7 +689,7 @@ class UsearchTests(TestCase):
         # confirm that the clusters look like what we expect
         expected_clusters = [['eco:b0015'],['eco:b0122','eco:b0122-like']]
         expected_clusters.sort()
-        actual_clusters = clusters_from_blast_uc_file(open(output_fp))[0].values()
+        actual_clusters = list(clusters_from_blast_uc_file(open(output_fp))[0].values())
         actual_clusters.sort()
         self.assertEqual(actual_clusters,expected_clusters)
 
@@ -712,7 +712,7 @@ class UsearchTests(TestCase):
         # confirm that the clusters look like what we expect
         expected_clusters = [['eco:b0015'],['eco:b0122']]
         expected_clusters.sort()
-        actual_clusters = clusters_from_blast_uc_file(open(output_fp))[0].values()
+        actual_clusters = list(clusters_from_blast_uc_file(open(output_fp))[0].values())
         actual_clusters.sort()
         self.assertEqual(actual_clusters,expected_clusters)
 
@@ -733,7 +733,7 @@ class UsearchTests(TestCase):
         # confirm that the clusters look like what we expect
         expected_clusters = [['eco:b0015'],['eco:b0122','eco:b0122-like']]
         expected_clusters.sort()
-        actual_clusters = clusters_from_blast_uc_file(open(output_fp))[0].values()
+        actual_clusters = list(clusters_from_blast_uc_file(open(output_fp))[0].values())
         actual_clusters.sort()
         self.assertEqual(actual_clusters,expected_clusters)
 

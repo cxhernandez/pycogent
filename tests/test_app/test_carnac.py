@@ -59,7 +59,7 @@ class CarnacTest(TestCase):
 
         c = Carnac(InputHandler='_input_as_lines')
         res = c(self.input)
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus',\
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus',\
         'ct1','eq1','ct2','eq2','out_seq1','out_seq2','graph','align'])
         self.assertEqual(res['ExitStatus'],0)
         assert res['ct1'] is not None

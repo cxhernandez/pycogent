@@ -5,7 +5,7 @@ see, for example: Jan de Leeuw 2004 (monotone regression),
 Rencher 2002: Methods of multivariate analysis, and the original work: 
 Kruskal 1964: Nonmetric multidimensional scaling
 """
-from __future__ import division
+
 from numpy import array, multiply, sum, zeros, size, shape, diag, dot, mean,\
     sqrt, transpose, trace, argsort, newaxis, finfo, all
 from numpy.random import seed, normal as random_gauss
@@ -88,7 +88,7 @@ class NMDS(object):
         
         self.verbosity = verbosity
         num_points = len(dissimilarity_mtx)
-        point_range = range(num_points)
+        point_range = list(range(num_points))
         self.dimension = dimension
         self.optimization_method = optimization_method
         
@@ -129,12 +129,12 @@ class NMDS(object):
 
         for i in range(max_iterations):
             if self.verbosity >= 1:
-                print("nonmetric broad iteration, stress: ", i,
-                self.stresses[-1])
+                print(("nonmetric broad iteration, stress: ", i,
+                self.stresses[-1]))
 
             if (self.stresses[-1] < self.min_abs_stress):
                 if self.verbosity >= 1:
-                    print "stress below cutoff, done" 
+                    print("stress below cutoff, done") 
                 break
             self._move_points()
             self._calc_distances()
@@ -145,7 +145,7 @@ class NMDS(object):
             if (self.stresses[-2]-self.stresses[-1]) / self.stresses[-2] <\
                 self.min_rel_improvement:
                 if self.verbosity >= 1:
-                    print "iteration improvement minimal. converged."
+                    print("iteration improvement minimal. converged.")
                 break
 
         # center and rotate the points, since pos, rotation is arbitrary
@@ -403,11 +403,11 @@ class NMDS(object):
             # choose whether to iterate again
             if abs((newstress - prestep_stress)/prestep_stress) < precision:
                 if self.verbosity >= 1:
-                    print("move pts converged after iteration: ", iter)
+                    print(("move pts converged after iteration: ", iter))
                 break
             if iter == (max_iters - 1):
                 if self.verbosity >= 1:
-                    print("move pts didn't converge in ", max_iters)
+                    print(("move pts didn't converge in ", max_iters))
         
     def _recalc_stress_from_pts(self, pts):
         """returns an updated value for stress based on input pts

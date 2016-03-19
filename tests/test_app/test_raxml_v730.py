@@ -12,7 +12,7 @@ from cogent.app.util import ApplicationError,get_tmp_filename
 from cogent.parse.phylip import get_align_for_phylip
 from cogent.core.tree import PhyloNode
 from cogent.core.moltype import RNA,DNA
-from StringIO import StringIO
+from io import StringIO
 from cogent.util.misc import app_path
 from subprocess import Popen, PIPE, STDOUT
 from cogent.core.alignment import Alignment
@@ -56,7 +56,7 @@ class GenericRaxml(TestCase):
         self.seqs1 = ['ACUGCUAGCUAGUAGCGUACGUA','GCUACGUAGCUAC',
             'GCGGCUAUUAGAUCGUA']
         self.labels1 = ['>1','>2','>3']
-        self.lines1 = flatten(zip(self.labels1,self.seqs1))
+        self.lines1 = flatten(list(zip(self.labels1,self.seqs1)))
 
         self.test_model = "GTRCAT"
 

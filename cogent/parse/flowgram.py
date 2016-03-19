@@ -60,7 +60,7 @@ class Flowgram(object):
         else: 
             self._flowgram = str(flowgram)
 
-        self.flowgram = map(float,self._flowgram.split())
+        self.flowgram = list(map(float,self._flowgram.split()))
 
         self.keySeq = KeySeq
 
@@ -150,7 +150,7 @@ class Flowgram(object):
         else:
             seq = []
             if self.floworder is None:
-                raise ValueError, "must have self.floworder set"
+                raise ValueError("must have self.floworder set")
             key = FakeRandom(self.floworder,True)
 
             flows_since_last = 0
@@ -286,8 +286,7 @@ class Flowgram(object):
 #                                    flow_indices[primer_len:]]))
             setattr(flow_copy, "Flow Indexes", "")
             #Update flowgram string representation
-            flow_copy._flowgram = "\t".join(map(lambda a:"%.2f"%a,
-                                                flow_copy.flowgram)) 
+            flow_copy._flowgram = "\t".join(["%.2f"%a for a in flow_copy.flowgram]) 
             #Update "Quality Scores" attribute
             if hasattr(self, "Quality Scores"):
                 qual_scores = getattr(flow_copy,"Quality Scores").split('\t')
@@ -373,7 +372,7 @@ def seq_to_flow(seq, id = None, keyseq = None, floworder = DEFAULT_FLOWORDER):
         right_missing = len(floworder) - (len(mask) % len(floworder))
         mask += "0" * right_missing
 
-    return Flowgram(map(float, mask), id, keyseq, floworder)
+    return Flowgram(list(map(float, mask)), id, keyseq, floworder)
 
 def build_averaged_flowgram(flowgrams):
     """Builds an averaged flowgram from a list of raw signals."""

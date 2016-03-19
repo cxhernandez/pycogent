@@ -139,7 +139,7 @@ class RdpClassifier20(CommandLineApplication):
             )
 
         if self.HaltExec: 
-            raise AssertionError, "Halted exec with command:\n" + command
+            raise AssertionError("Halted exec with command:\n" + command)
         # The return value of system is a 16-bit number containing the signal 
         # number that killed the process, and then the exit status. 
         # We only want to keep the exit status so do a right bitwise shift to 
@@ -149,9 +149,8 @@ class RdpClassifier20(CommandLineApplication):
         # Determine if error should be raised due to exit status of 
         # appliciation
         if not self._accept_exit_status(exit_status):
-            raise ApplicationError, \
-             'Unacceptable application exit status: %s, command: %s'\
-                % (str(exit_status),command)
+            raise ApplicationError('Unacceptable application exit status: %s, command: %s'\
+                % (str(exit_status),command))
         
         # open the stdout and stderr if not being suppressed
         out = None
@@ -184,9 +183,8 @@ class RdpClassifier20(CommandLineApplication):
         """
         command = self._get_jar_fp()
         if not exists(command):
-            raise ApplicationNotFoundError,\
-             "Cannot find jar file. Is it installed? Is $RDP_JAR_PATH"+\
-             " set correctly?"
+            raise ApplicationNotFoundError("Cannot find jar file. Is it installed? Is $RDP_JAR_PATH"+\
+             " set correctly?")
 
     def _get_jar_fp(self):
         """Returns the full path to the JAR file.
@@ -204,9 +202,8 @@ class RdpClassifier20(CommandLineApplication):
             return getenv('RDP_JAR_PATH')
         # error otherwise
         else:
-            raise ApplicationError,\
-             "$RDP_JAR_PATH is not set -- this must be set to use the"+\
-             " RDP classifier application controller."
+            raise ApplicationError("$RDP_JAR_PATH is not set -- this must be set to use the"+\
+             " RDP classifier application controller.")
 
     # Overridden to pull out JVM-specific command-line arguments.
     def _get_base_command(self):
@@ -216,7 +213,7 @@ class RdpClassifier20(CommandLineApplication):
         """
         # Necessary? Preserve for consistency.
         if self._command is None:
-            raise ApplicationError, '_command has not been set.'
+            raise ApplicationError('_command has not been set.')
 
         # Append a change directory to the beginning of the command to change 
         # to self.WorkingDir before running the command
@@ -224,7 +221,7 @@ class RdpClassifier20(CommandLineApplication):
         cd_command = ''.join(['cd ',str(self.WorkingDir),';'])
 
         jvm_command = "java"
-        jvm_arguments = self._commandline_join(self.JvmParameters.values())
+        jvm_arguments = self._commandline_join(list(self.JvmParameters.values()))
         jar_arguments = '-jar "%s"' % self._get_jar_fp()
 
         result = self._commandline_join(
@@ -240,7 +237,7 @@ class RdpClassifier20(CommandLineApplication):
         This seems to be a repeated pattern; may be useful in
         superclass.
         """
-        commands = filter(None, map(str, tokens))
+        commands = [_f for _f in map(str, tokens) if _f]
         return self._command_delimiter.join(commands).strip()
 
     @property
@@ -267,7 +264,7 @@ class RdpClassifier20(CommandLineApplication):
         parameters = getattr(self, '_' + name + '_parameters')
         synonyms   = getattr(self, '_' + name + '_synonyms')
         result = Parameters(parameters, synonyms)
-        for key in result.keys():
+        for key in list(result.keys()):
             result[key] = self.Parameters[key]
         return result
 
@@ -383,7 +380,7 @@ class RdpTrainer20(RdpClassifier20):
             )
 
         if self.HaltExec: 
-            raise AssertionError, "Halted exec with command:\n" + command
+            raise AssertionError("Halted exec with command:\n" + command)
         # The return value of system is a 16-bit number containing the signal 
         # number that killed the process, and then the exit status. 
         # We only want to keep the exit status so do a right bitwise shift to 
@@ -393,9 +390,8 @@ class RdpTrainer20(RdpClassifier20):
         # Determine if error should be raised due to exit status of 
         # appliciation
         if not self._accept_exit_status(exit_status):
-            raise ApplicationError, \
-             'Unacceptable application exit status: %s, command: %s'\
-                % (str(exit_status),command)
+            raise ApplicationError('Unacceptable application exit status: %s, command: %s'\
+                % (str(exit_status),command))
 
         # must write properties file to output directory manually
         properties_fp = path.join(model_output_dir, self.PropertiesFile)
@@ -458,7 +454,7 @@ class RdpTrainer20(RdpClassifier20):
             'properties': self.PropertiesFile,
         }
         result_paths = {}
-        for name, file in files.iteritems():
+        for name, file in files.items():
             result_paths[name] = ResultPath(
                 Path=path.join(output_dir, file), IsWritten=True)
         return result_paths
@@ -471,7 +467,7 @@ class RdpTrainer20(RdpClassifier20):
         """
         # Necessary? Preserve for consistency.
         if self._command is None:
-            raise ApplicationError, '_command has not been set.'
+            raise ApplicationError('_command has not been set.')
 
         # Append a change directory to the beginning of the command to change 
         # to self.WorkingDir before running the command
@@ -479,7 +475,7 @@ class RdpTrainer20(RdpClassifier20):
         cd_command = ''.join(['cd ',str(self.WorkingDir),';'])
 
         jvm_command = "java"
-        jvm_arguments = self._commandline_join(self.JvmParameters.values())
+        jvm_arguments = self._commandline_join(list(self.JvmParameters.values()))
         jar_arguments = '-cp "%s"' % self._get_jar_fp()
 
         result = self._commandline_join(
@@ -602,9 +598,9 @@ def assign_taxonomy(data, min_confidence=0.80, output_fp=None,
         try:
             output_file = open(output_fp,'w')
         except OSError:
-            raise OSError, "Can't open output file for writing: %s" % output_fp
+            raise OSError("Can't open output file for writing: %s" % output_fp)
             
-        for seq_id, values in results.items():
+        for seq_id, values in list(results.items()):
             output_file.write('%s\t%s\t%1.3f\n' % (seq_id,values[0],values[1]))
             
         output_file.close()

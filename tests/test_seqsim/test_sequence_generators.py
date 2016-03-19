@@ -7,13 +7,14 @@ from cogent.seqsim.sequence_generators import permutations, combinations, \
     PairFrequency, BasePairFrequency, RegionModel, ConstantRegion, \
     UnpairedRegion, ShuffledRegion, PairedRegion, MatchingRegion, \
     SequenceModel, Rule, Motif, Module, SequenceEmbedder
-from StringIO import StringIO
+from io import StringIO
 from operator import mul
 from sys import path
 from cogent.maths.stats.util import Freqs
 from cogent.util.misc import app_path
 from cogent.struct.rna2d import ViennaStructure
 from cogent.util.unit_test import TestCase, main
+from functools import reduce
 
 __author__ = "Rob Knight"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -60,7 +61,7 @@ class FunctionTests(TestCase):
     def test_permutations_k_equals_n(self):
         """permutations should return n! if k=n"""
         for n in self.standards[1:]:
-            self.assertEqual(permutations(n,n), reduce(mul, range(1,n+1)))
+            self.assertEqual(permutations(n,n), reduce(mul, list(range(1,n+1))))
             
     def test_combinations_k_equals_n(self):
         """combinations should return 1 if k = n"""
@@ -81,7 +82,7 @@ class FunctionTests(TestCase):
         """combinations(n,k) should equal combinations(n,n-k)"""
         for n in self.standards[3:]:
             for k in (0, 1, 5, 18):
-                self.assertEquals(combinations(n, k), combinations(n, n-k))
+                self.assertEqual(combinations(n, k), combinations(n, n-k))
 
     def test_combinations_arbitrary_values(self):
         """combinations(n,k) should equal results from spreadsheet"""
@@ -119,7 +120,7 @@ class SequenceGeneratorTests(TestCase):
         except OverflowError:
             pass
         else:
-            raise AssertionError, "Failed to raise expected OverflowError"
+            raise AssertionError("Failed to raise expected OverflowError")
 
     def test_numPossibilities(self):
         """SequenceGenerator.numPossibilities() should be robust to overflow"""
@@ -364,9 +365,9 @@ class PairFrequencyTests(TestCase):
         exp = Freqs({('U','U'):0.0625, ('U','C'):0.1875, 
                       ('C','U'):0.1875, ('C','C'):0.5625})
         
-        for k, v in exp.items():
+        for k, v in list(exp.items()):
             self.assertEqual(v, obs[k])
-        for k, v in obs.items():
+        for k, v in list(obs.items()):
             if k not in exp:
                 self.assertEqual(v, 0)
 
@@ -382,7 +383,7 @@ class PairFrequencyTests(TestCase):
         except KeyError:
             pass
         else:
-            raise AssertionError, "Expected KeyError."
+            raise AssertionError("Expected KeyError.")
         p = PairFrequency('UCCC', (('C','C'),))
         p[('C','C')] += 1
         try:
@@ -390,7 +391,7 @@ class PairFrequencyTests(TestCase):
         except KeyError:
             pass
         else:
-            raise AssertionError, "Expected KeyError."
+            raise AssertionError("Expected KeyError.")
 
 class BasePairFrequencyTests(TestCase):
     """Tests of the BaseFrequency class, constructed for easy initialization."""
@@ -557,11 +558,11 @@ class PairedRegionTests(TestCase):
             curr = (upstream[0], downstream[0])
             assert upstream[0] in Wobble[downstream[0]]
             states[curr] = states.get(curr, 0) + 1
-        for i in states.keys():
+        for i in list(states.keys()):
             assert i[1] in Wobble[i[0]]
         for i in Wobble:
             for j in Wobble[i]:
-                assert (i, j) in states.keys()
+                assert (i, j) in list(states.keys())
         expected_dict = {('A','U'):num_to_do/14, ('U','A'):num_to_do/14,
                         ('C','G'):num_to_do/14*4, ('G','C'):num_to_do/14*4,
                         ('U','G'):num_to_do/14*2, ('G','U'):num_to_do/14*2,}
@@ -569,8 +570,8 @@ class PairedRegionTests(TestCase):
         # call below it
         #for key, val in expected.items():
             #self.assertFloatEqualAbs(val, states[key], 130) #conservative?
-        expected = [val for key, val in expected_dict.items()]
-        observed = [states[key] for key, val in expected_dict.items()]
+        expected = [val for key, val in list(expected_dict.items())]
+        observed = [states[key] for key, val in list(expected_dict.items())]
         self.assertSimilarFreqs(observed, expected)
 
         assert ('G','U') in states
@@ -586,15 +587,15 @@ class PairedRegionTests(TestCase):
             curr = (upstream[0], downstream[0])
             assert upstream[0] in WatsonCrick[downstream[0]]
             states[curr] = states.get(curr, 0) + 1
-        for i in states.keys():
+        for i in list(states.keys()):
             assert i[1] in WatsonCrick[i[0]]
         for i in WatsonCrick:
             for j in WatsonCrick[i]:
-                assert (i, j) in states.keys()
+                assert (i, j) in list(states.keys())
         expected_dict = {('A','U'):num_to_do/4, ('U','A'):num_to_do/4,
                         ('C','G'):num_to_do/4, ('G','C'):num_to_do/4,}
-        expected = [val for key, val in expected_dict.items()]
-        observed = [states[key] for key, val in expected_dict.items()]
+        expected = [val for key, val in list(expected_dict.items())]
+        observed = [states[key] for key, val in list(expected_dict.items())]
         self.assertSimilarFreqs(observed, expected)
         #for key, val in expected.items():
         #    self.assertFloatEqualAbs(val, states[key], 130) #3 std devs
@@ -715,7 +716,7 @@ class RuleTests_compatibility(TestCase):
 
     def test_fits_in_sequence(self):
         """Rule.fitsInSequence should return True if sequence long enough"""
-        sequences = map('x'.__mul__, range(21))     #0 to 20 copies of 'x'
+        sequences = list(map('x'.__mul__, list(range(21))))     #0 to 20 copies of 'x'
         rules = [self.x, self.x_ok, self.x_ok_diff_sequences, self.x_bad_first,
                  self.x_bad_first_2, self.x_bad_second, self.x_bad_second_2]
         #test a bunch of values for all the rules we have handy
@@ -1139,24 +1140,24 @@ class SequenceEmbedderTests(TestCase):
     def xxx_test_count_long(self):
         self.ile_embedder.NumToDo = 100000
         self.ile_embedder.Composition = BaseFrequency('UCAG')
-        print
-        print "Extended helices"
+        print()
+        print("Extended helices")
         for length in range(30, 150):
             self.ile_embedder.Length = length
             good_count = self.ile_embedder.countMatches()   
-            print "Length: %s Matches: %s/100000" % (length, good_count)
-        print
+            print("Length: %s Matches: %s/100000" % (length, good_count))
+        print()
 
     def xxx_test_count_short(self):
         self.short_ile_embedder.NumToDo = 10000
         self.short_ile_embedder.Composition = BaseFrequency('UCAG')
-        print
-        print "Minimal motif"
+        print()
+        print("Minimal motif")
         for length in range(20, 150):
             self.short_ile_embedder.Length = length
             good_count = self.short_ile_embedder.countMatches()   
-            print "Length: %s Matches: %s/10000" % (length, good_count)
-        print
+            print("Length: %s Matches: %s/10000" % (length, good_count))
+        print()
 
 
 

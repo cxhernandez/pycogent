@@ -24,7 +24,7 @@ class GeneralSetUp(TestCase):
             'RPGLCQVFADATPTGWGLVMGHQRMRGTFSAPLPIHTAELLAACFARSRSGANIIGTDNSVV',
             'MLKQVEIFTDGSCLGNPGPGGYGAILRYRGREKTFSAGYTRTTNNRMELMAAIV']
         self.labels1 = ['>HTL2','>MMLV', '>HEPB', '>ECOL']
-        self.lines1 = flatten(zip(self.labels1,self.seqs1))
+        self.lines1 = flatten(list(zip(self.labels1,self.seqs1)))
         self.out = \
 """
                             DIALIGN 2.2.1 

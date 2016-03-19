@@ -35,16 +35,15 @@ def stockholm_from_alignment(aln, interleave_len=None, GC_annotation=None):
     try:
         order = aln.RowOrder
     except:
-        order = aln.keys()
+        order = list(aln.keys())
         order.sort()
     
     seqs = SequenceCollection(aln)
     stockholm_list = ["# STOCKHOLM 1.0\n"]
     
     if seqs.isRagged():
-        raise ValueError,\
-             "Sequences in alignment are not all the same length." +\
-             "Cannot generate Stockholm format."
+        raise ValueError("Sequences in alignment are not all the same length." +\
+             "Cannot generate Stockholm format.")
     
     aln_len = seqs.SeqLen
     #Get all labels
@@ -57,10 +56,10 @@ def stockholm_from_alignment(aln, interleave_len=None, GC_annotation=None):
         GC_annotation_list = \
             [(k,GC_annotation[k]) for k in sorted(GC_annotation.keys())]
         #Add GC_annotation to list of labels.
-        labels.extend(['#=GC '+ k for k in GC_annotation.keys()])
-        for k,v in GC_annotation.items():
+        labels.extend(['#=GC '+ k for k in list(GC_annotation.keys())])
+        for k,v in list(GC_annotation.items()):
             if len(v) != aln_len:
-                raise ValueError, """GC annotation %s is not same length as alignment. Cannot generate Stockholm format."""%(k)
+                raise ValueError("""GC annotation %s is not same length as alignment. Cannot generate Stockholm format."""%(k))
     
     #Find all label lengths in order to get padding.
     label_lengths = [len(l) for l in labels]

@@ -6,6 +6,7 @@ from random import choice
 from numpy import array, zeros, transpose, arange, concatenate, any
 from numpy.random import permutation
 from cogent.core.tree import PhyloNode
+from functools import reduce
 
 __author__ = "Rob Knight"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -218,7 +219,7 @@ class RangeNode(PhyloNode):
                 vals = [getattr(c, attr) for c in node.Children \
                     if hasattr(c, attr)]
                 #get rid of None values
-                vals = filter(lambda x: x is not None, vals)
+                vals = [x for x in vals if x is not None]
                 if vals:
                     setattr(node, attr, reduce(f, vals))
                 else:
@@ -469,7 +470,7 @@ class RangeNode(PhyloNode):
         on the other side of the root were deleted. If no nodes are kept, 
         will return an empty root node with no children.
         """
-        taxon_ids = dict.fromkeys(map(id, taxa))
+        taxon_ids = dict.fromkeys(list(map(id, taxa)))
         node_ids = self.indexByFunc(id)
         #select specified ids
         for t in taxon_ids:
@@ -531,10 +532,10 @@ class RangeNode(PhyloNode):
             self.Q = q
         if special_qs:
             ids = self.IdIndex
-            for k, v in special_qs.items():
+            for k, v in list(special_qs.items()):
                 ids[int(k)].Q = v
         if (not hasattr(self, 'Q')) or (not self.Q):
-            raise ValueError, "Failed to assign Q matrix to root."
+            raise ValueError("Failed to assign Q matrix to root.")
         self.propagateAttr('Q', overwrite)
 
     def assignP(self):

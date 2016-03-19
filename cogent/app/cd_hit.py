@@ -179,14 +179,14 @@ class CD_HIT(CommandLineApplication):
         if self.Parameters['-o'].isOn():
             return self.Parameters['-o'].Value
         else:
-            raise ValueError, "No output file specified"
+            raise ValueError("No output file specified")
 
     def _get_clstr_outfile(self):
         """Returns the absolute path to the clstr outfile"""
         if self.Parameters['-o'].isOn():
             return ''.join([self.Parameters['-o'].Value, '.clstr'])
         else:
-            raise ValueError, "No output file specified"
+            raise ValueError("No output file specified")
 
     def _get_result_paths(self, data):
         """Return dict of {key: ResultPath}"""
@@ -243,7 +243,7 @@ def cdhit_clusters_from_seqs(seqs, moltype, params=None):
     elif moltype is DNA:
         app = CD_HIT_EST(WorkingDir=working_dir, params=params)
     else:
-        raise ValueError, "Moltype must be either PROTEIN, RNA, or DNA"
+        raise ValueError("Moltype must be either PROTEIN, RNA, or DNA")
 
     # grab result
     res = app(int_map.toFasta())
@@ -290,7 +290,7 @@ def cdhit_from_seqs(seqs, moltype, params=None):
     elif moltype is DNA:
         app = CD_HIT_EST(WorkingDir=working_dir, params=params)
     else:
-        raise ValueError, "Moltype must be either PROTEIN, RNA, or DNA"
+        raise ValueError("Moltype must be either PROTEIN, RNA, or DNA")
 
     # grab result
     res = app(seqs.toFasta())

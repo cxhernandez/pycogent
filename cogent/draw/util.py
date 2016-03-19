@@ -11,7 +11,7 @@ etc.
 
 See individual docstrings for more info.
 """
-from __future__ import division
+
 from matplotlib import use, rc, rcParams
 
 __author__ = "Stephanie Wilson"
@@ -160,9 +160,9 @@ def scatter_classic(x, y, s=None, c='b'):
         s = [s]*len(x)
 
     if len(c)!=len(x):
-        raise ValueError, 'c and x are not equal lengths'
+        raise ValueError('c and x are not equal lengths')
     if len(s)!=len(x):
-        raise ValueError, 's and x are not equal lengths'
+        raise ValueError('s and x are not equal lengths')
 
     patches = []
     for thisX, thisY, thisS, thisC in zip(x,y,s,c):
@@ -272,7 +272,7 @@ def init_graph_display(title=None, aux_title=None, size=4.0, \
     elif graph_shape == '2to1':
         gcf().set_size_inches(2*size, size)
     else:
-        raise ValueError, "Got unknown graph shape %s" % graph_shape
+        raise ValueError("Got unknown graph shape %s" % graph_shape)
     
     #set or create axes
     if axes is None:

@@ -351,7 +351,7 @@ class StockholmParserTests(TestCase):
             structure = r.Info['Struct']
             self.assertEqual(headers['GF']['AccessionNumber'], 'RF00014')
             self.assertEqual(headers['GF']['Author'], 'Mifsud W')
-            self.assertEqualItems(sequences.values(), expected_sequences)
+            self.assertEqualItems(list(sequences.values()), expected_sequences)
             assert isinstance(sequences, Alignment)
             self.assertEqual(structure, expected_structure)
             assert isinstance(structure,WussStructure)
@@ -379,11 +379,11 @@ class StockholmParserTests(TestCase):
         
         # strict = False
         x =  list(StockholmParser(self._fake_record_bad_header_1, strict=False))
-        obs = list(StockholmParser(self._fake_record_bad_header_1,\
-            strict=False))[0].Info.GF.keys()
+        obs = list(list(StockholmParser(self._fake_record_bad_header_1,\
+            strict=False))[0].Info.GF.keys())
         self.assertEqual(len(obs),1)
-        obs = list(StockholmParser(self._fake_record_bad_header_2,\
-            strict=False))[0].Info.GF.keys()
+        obs = list(list(StockholmParser(self._fake_record_bad_header_2,\
+            strict=False))[0].Info.GF.keys())
         self.assertEqual(len(obs),1)
 
     def test_StockholmParser_strict_invalid_sequences(self):
@@ -445,7 +445,10 @@ fake_gc_annotation = """#=GC SS_cons    ..........<<<<<<<<<<.....>>>>>>>>>>..
 #=GC RF    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 """
 
-fake_gs_annotation = """#=GS 1N77_C BP 0 70 cWW CC#=GS 1N77_C BP 1 69 cWW CC#=GS 1N77_C BP 2 68 cWW CC#=GS 1N77_C BP 3 67 cWW CC
+fake_gs_annotation = """#=GS 1N77_C BP 0 70 cWW CC
+#=GS 1N77_C BP 1 69 cWW CC
+#=GS 1N77_C BP 2 68 cWW CC
+#=GS 1N77_C BP 3 67 cWW CC
 """
 
 fake_gr_annotation = """#=GR 1N77_C SS    ..........<<<<<<<<<<.....>>>>>>>>>>..

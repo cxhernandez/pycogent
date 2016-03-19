@@ -1948,7 +1948,7 @@ class FastMetricNystromScalingTests(TestCase):
         (seedmat, order) = build_seed_matrix(
             FULL_SYM_MATRIX.shape[0], seedmat_dim, dist_func)
         self.assertTrue(len(order) == FULL_SYM_MATRIX.shape[0])
-        self.assertTrue(sorted(order) == range(FULL_SYM_MATRIX.shape[0]))
+        self.assertTrue(sorted(order) == list(range(FULL_SYM_MATRIX.shape[0])))
         self.assertTrue(seedmat.shape == (
                 seedmat_dim, FULL_SYM_MATRIX.shape[0]))
 
@@ -1980,8 +1980,8 @@ class FastMetricNystromScalingTests(TestCase):
         stress = goodness_of_fit.Stress(FULL_SYM_MATRIX, mds_coords)
         kruskal_stress_big_mat = stress.calcKruskalStress()
         if PRINT_STRESS:
-            print("INFO: Kruskal stress for Nystrom MDS (big_seed_matrix, dim=%d) = %f" % \
-                      (dim, kruskal_stress_big_mat))
+            print(("INFO: Kruskal stress for Nystrom MDS (big_seed_matrix, dim=%d) = %f" % \
+                      (dim, kruskal_stress_big_mat)))
         self.assertTrue(kruskal_stress_big_mat < 0.04)
 
 
@@ -1989,8 +1989,8 @@ class FastMetricNystromScalingTests(TestCase):
         stress = goodness_of_fit.Stress(FULL_SYM_MATRIX, mds_coords)
         kruskal_stress_small_mat = stress.calcKruskalStress()
         if PRINT_STRESS:
-            print("INFO: Kruskal stress for Nystrom MDS (small_seed_matrix, dim=%d) = %f" % \
-                      (dim, kruskal_stress_small_mat))
+            print(("INFO: Kruskal stress for Nystrom MDS (small_seed_matrix, dim=%d) = %f" % \
+                      (dim, kruskal_stress_small_mat)))
         self.assertTrue(kruskal_stress_small_mat < 0.06)
 
         self.assertTrue(kruskal_stress_small_mat > kruskal_stress_big_mat)

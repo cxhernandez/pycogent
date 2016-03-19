@@ -49,11 +49,9 @@ class RNAforester(CommandLineApplication):
         """ Raise an ApplicationNotFoundError if the app is not accessible
         """
         if not app_path('RNAforester'):
-            raise ApplicationNotFoundError,\
-             "Cannot find RNAforester. Is it installed? Is it in your path?"
+            raise ApplicationNotFoundError("Cannot find RNAforester. Is it installed? Is it in your path?")
         if not app_path('RNAshapes'):
-            raise ApplicationNotFoundError,\
-             "Cannot find RNAshapes. Is it installed? Is it in your path?"
+            raise ApplicationNotFoundError("Cannot find RNAshapes. Is it installed? Is it in your path?")
 
 #Override these functions to biuld up the command  
     def __call__(self,data=None, remove_tmp=True):
@@ -86,13 +84,12 @@ class RNAforester(CommandLineApplication):
         # input and output (file) specifications
 
         first,second = self.BaseCommand
-        command = self._command_delimiter.join(filter(None,\
-            [first,input_arg,second,'>',outfile,'2>',errfile]))
+        command = self._command_delimiter.join([_f for _f in [first,input_arg,second,'>',outfile,'2>',errfile] if _f])
 
         #print 'COMMAND',command
 
         if self.HaltExec: 
-            raise AssertionError, "Halted exec with command:\n" + command
+            raise AssertionError("Halted exec with command:\n" + command)
         # The return value of system is a 16-bit number containing the signal 
         # number that killed the process, and then the exit status. 
         # We only want to keep the exit status so do a right bitwise shift to 
@@ -102,9 +99,8 @@ class RNAforester(CommandLineApplication):
         # Determine if error should be raised due to exit status of 
         # appliciation
         if not self._accept_exit_status(exit_status):
-            raise ApplicationError, \
-             'Unacceptable application exit status: %s, command: %s'\
-                % (str(exit_status),command)
+            raise ApplicationError('Unacceptable application exit status: %s, command: %s'\
+                % (str(exit_status),command))
         
         # open the stdout and stderr if not being suppressed
         out = None
@@ -142,7 +138,7 @@ class RNAforester(CommandLineApplication):
         # to self.WorkingDir before running the command
         cd_command = ''.join(['cd ',self.WorkingDir,';'])
         if self._command1 is None:
-            raise ApplicationError, '_command has not been set.'
+            raise ApplicationError('_command has not been set.')
 
         parameters = self.Parameters
         command1 = self._command1
@@ -154,8 +150,7 @@ class RNAforester(CommandLineApplication):
 
         command_part2.append(command2)
 
-        command_part2.append(self._command_delimiter.join(filter(\
-            None,(map(str,parameters.values())))))
+        command_part2.append(self._command_delimiter.join([_f for _f in (list(map(str,list(parameters.values())))) if _f]))
       
         return self._command_delimiter.join(command_part1).strip(),\
                self._command_delimiter.join(command_part2).strip()

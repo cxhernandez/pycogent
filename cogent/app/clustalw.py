@@ -472,7 +472,7 @@ def build_tree_from_alignment(aln, moltype, best_tree=False, params=None):
     elif moltype == PROTEIN:
         params['-type'] = 'p'
     else:
-        raise ValueError, "moltype must be DNA, RNA, or PROTEIN"
+        raise ValueError("moltype must be DNA, RNA, or PROTEIN")
 
     # best_tree -> bootstrap
     if best_tree:
@@ -587,7 +587,7 @@ def align_unaligned_seqs(seqs, moltype, params=None):
     alignment = dict(ClustalParser(res['Align'].readlines()))
     #Make new dict mapping original IDs
     new_alignment = {}
-    for k,v in alignment.items():
+    for k,v in list(alignment.items()):
         new_alignment[int_keys[k]]=v
     #Create an Alignment object from alignment dict
     new_alignment = Alignment(new_alignment,MolType=moltype)
@@ -648,7 +648,7 @@ def add_seqs_to_alignment(seqs, aln, moltype, params=None):
     
     #Make new dict mapping original IDs
     new_alignment = {}
-    for k,v in alignment.items():
+    for k,v in list(alignment.items()):
         new_alignment[seq_int_keys[k]]=v
     #Create an Alignment object from alignment dict
     new_alignment = Alignment(new_alignment,MolType=moltype)
@@ -709,7 +709,7 @@ def align_two_alignments(aln1, aln2, moltype, params=None):
     
     #Make new dict mapping original IDs
     new_alignment = {}
-    for k,v in alignment.items():
+    for k,v in list(alignment.items()):
         new_alignment[aln1_int_keys[k]]=v
     #Create an Alignment object from alignment dict
     new_alignment = Alignment(new_alignment,MolType=moltype)

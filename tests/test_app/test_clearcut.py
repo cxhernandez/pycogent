@@ -27,12 +27,12 @@ class GeneralSetUp(TestCase):
             'GCGGCUAUUAGAUCGUA']
         
         self.labels1 = ['>1','>2','>3']
-        self.lines1 = flatten(zip(self.labels1,self.seqs1))
+        self.lines1 = flatten(list(zip(self.labels1,self.seqs1)))
 
         self.seqs2=['UAGGCUCUGAUAUAAUAGCUCUC','UAUCGCUUCGACGAUUCUCUGAUAGAGA',
             'UGACUACGCAU']
         self.labels2=['>a','>b','>c']
-        self.lines2 = flatten(zip(self.labels2,self.seqs2))
+        self.lines2 = flatten(list(zip(self.labels2,self.seqs2)))
         
         self.temp_dir = tempfile.mkdtemp()
         #self.temp_dir_spaces = '/tmp/test for clearcut/'

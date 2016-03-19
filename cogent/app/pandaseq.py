@@ -139,7 +139,7 @@ def join_paired_end_reads_pandaseq(
     # check / make absolute infile paths
     for p in infile_paths:
         if not os.path.exists(p):
-            raise IOError, 'Infile not found at: %s' % p
+            raise IOError('Infile not found at: %s' % p)
     
     # required by pandaseq to assemble
     params['-f'] = abs_r1_path
@@ -187,9 +187,9 @@ def join_paired_end_reads_pandaseq(
     path_dict['Assembled'] = assembled_output_file_name
 
     # sanity check that files actually exist in path lcoations
-    for path in path_dict.values():
+    for path in list(path_dict.values()):
         if not os.path.exists(path):
-            raise IOError, 'Output file not found at: %s' % path
+            raise IOError('Output file not found at: %s' % path)
 
     return path_dict
 

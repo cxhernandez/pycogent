@@ -61,4 +61,4 @@ if __name__ == '__main__':
         max_cai = 1
     f = CaiSeqFilter(training_freqs, min_cai, max_cai)
     for label, seq in filter_seqs(infile, f):
-        print '>'+label+'\n'+seq+'\n'
+        print('>'+label+'\n'+seq+'\n')

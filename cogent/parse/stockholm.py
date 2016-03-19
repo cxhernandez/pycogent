@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Provides a parser for Stockholm format files.
 """
-from string import strip
+strip = str.strip
 from cogent.parse.record import RecordError
 from cogent.parse.record_finder import DelimitedRecordFinder
 from cogent.parse.clustal import ClustalParser
@@ -132,8 +132,8 @@ def GfToInfo(gf_lines,strict=True):
                 raise RecordError
         except:
             if strict:
-                raise RecordError, "Failed to extract feature and content " +\
-                    "information from line %s"%(line)
+                raise RecordError("Failed to extract feature and content " +\
+                    "information from line %s"%(line))
             else:
                 continue
         if feature in ['BM','DR','RM','CC','FT']:
@@ -147,7 +147,7 @@ def GfToInfo(gf_lines,strict=True):
     # transform initial dict into final one
     # throw away useless information; group information
     final_info={}
-    for key in initial_info.keys():
+    for key in list(initial_info.keys()):
         name = _gf_field_names.get(key,key)
         if name == 'Comment':
             value = ' '.join(initial_info[key])
@@ -175,8 +175,8 @@ def GcToInfo(gc_lines,strict=True):
                 raise RecordError
         except:
             if strict:
-                raise RecordError, "Failed to extract feature and content " +\
-                    "information from line %s"%(line)
+                raise RecordError("Failed to extract feature and content " +\
+                    "information from line %s"%(line))
             else:
                 continue
 
@@ -185,7 +185,7 @@ def GcToInfo(gc_lines,strict=True):
     # transform initial dict into final one
     # throw away useless information; group information
     final_info={}
-    for key in initial_info.keys():
+    for key in list(initial_info.keys()):
         name = _gc_field_names.get(key,key)
         value = initial_info[key]
         final_info[name] = ''.join(value)
@@ -211,8 +211,8 @@ def GsToInfo(gs_lines,strict=True):
                 raise RecordError
         except:
             if strict:
-                raise RecordError, "Failed to extract feature and content " +\
-                    "information from line %s"%(line)
+                raise RecordError("Failed to extract feature and content " +\
+                    "information from line %s"%(line))
             else:
                 continue
         if feature in ['DE','DR','BP']:
@@ -228,7 +228,7 @@ def GsToInfo(gs_lines,strict=True):
     # transform initial dict into final one
     # throw away useless information; group information
     final_info={}
-    for key in initial_info.keys():
+    for key in list(initial_info.keys()):
         name = _gs_field_names.get(key,key)
         value = initial_info[key]
         final_info[name] = value
@@ -255,8 +255,8 @@ def GrToInfo(gr_lines,strict=True):
                 raise RecordError
         except:
             if strict:
-                raise RecordError, "Failed to extract feature and content " +\
-                    "information from line %s"%(line)
+                raise RecordError("Failed to extract feature and content " +\
+                    "information from line %s"%(line))
             else:
                 continue
         if feature not in initial_info:
@@ -268,10 +268,10 @@ def GrToInfo(gr_lines,strict=True):
     # transform initial dict into final one
     # throw away useless information; group information
     final_info={}
-    for feature in initial_info.keys():
+    for feature in list(initial_info.keys()):
         name = _gr_field_names.get(feature,feature)
         value = initial_info[feature]
-        for k,v in value.items():
+        for k,v in list(value.items()):
             value[k]=''.join(v)
         final_info[name] = value
     
@@ -345,7 +345,7 @@ def MinimalStockholmParser(infile,strict=True,seq_constructor=Rna):
                 error = 'Found record with missing element(s): '
                 if not sequences:
                     error += 'sequences'
-                raise RecordError, error
+                raise RecordError(error)
             else:
                 continue
         #join all sequence parts together, construct label
@@ -353,9 +353,9 @@ def MinimalStockholmParser(infile,strict=True,seq_constructor=Rna):
             new_seqs = load_from_clustal(sequences,strict=strict,
                 seq_constructor=seq_constructor)
             sequences = new_seqs
-        except (DataError, RecordError), e:
+        except (DataError, RecordError) as e:
             if strict:
-                raise RecordError, str(e)
+                raise RecordError(str(e))
             else:
                 continue
 
@@ -365,10 +365,9 @@ def MinimalStockholmParser(infile,strict=True,seq_constructor=Rna):
                 res = load_from_clustal(structure, strict=strict, gap_char='.')
                 assert len(res.NamedSeqs) == 1 #otherwise multiple keys
                 structure = res.NamedSeqs['#=GC SS_cons']
-            except (RecordError, KeyError, AssertionError), e:
+            except (RecordError, KeyError, AssertionError) as e:
                 if strict:
-                    raise RecordError,\
-                        "Can't parse structure of family"
+                    raise RecordError("Can't parse structure of family")
                 structure = None
         yield {'GF':gf, 'GC':gc, 'GS':gs, 'GR':gr}, sequences, structure
                 
@@ -387,13 +386,13 @@ def StockholmParser(lines, seq_constructor=Rna, info_constructor_dict=\
         (lines,strict=strict,seq_constructor=seq_constructor):
         family_info = {}
         if strict:
-            for k,v in annotation.items():
+            for k,v in list(annotation.items()):
                 label_constructor = info_constructor_dict[k]
                 try:
                     family_info[k] = label_constructor(v,strict=strict)
                 except:
-                    raise RecordError,"Info construction failed on " +\
-                        "record on the %s annotation"%(k)
+                    raise RecordError("Info construction failed on " +\
+                        "record on the %s annotation"%(k))
             try:
                 for seq in alignment.Seqs:
                     _process_seq(seq, strict)
@@ -401,13 +400,13 @@ def StockholmParser(lines, seq_constructor=Rna, info_constructor_dict=\
                 alignment.Info.update(family_info)
                 alignment.Info.update({'Struct':structure})
                 yield alignment
-            except Exception, e:
-                raise RecordError,"Sequence construction failed on " +\
+            except Exception as e:
+                raise RecordError("Sequence construction failed on " +\
                     "record with reference %s"%\
-                        (family_info['GF'].get('AccessionNumber',None))
+                        (family_info['GF'].get('AccessionNumber',None)))
         else:
             try:
-                for k,v in annotation.items():
+                for k,v in list(annotation.items()):
                     label_constructor = info_constructor_dict[k]
                     family_info[k] = label_constructor(v,strict=strict)
 
@@ -417,7 +416,7 @@ def StockholmParser(lines, seq_constructor=Rna, info_constructor_dict=\
                 alignment.Info.update(family_info)
                 alignment.Info.update({'Struct':structure})
                 yield alignment
-            except Exception, e:
+            except Exception as e:
                 continue
 
 

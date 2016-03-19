@@ -1,6 +1,6 @@
 """Biplot and triplot for ordination results.
 """
-from itertools import imap
+
 import pylab; from pylab import xlim, ylim, plot, scatter
 from matplotlib import cm
 from matplotlib.colors import rgb2hex, Normalize, Colormap
@@ -105,9 +105,9 @@ def map_colors(colors, cmap=None, lut=None, mode='hexs', **norm_kw):
     if mode == 'arrays':
         return rgb_arrays
     elif mode == 'tuples':
-        return list(imap(tuple, rgb_arrays))
+        return list(map(tuple, rgb_arrays))
     else: # mode == 'hexs':
-        return list(imap(rgb2hex, rgb_arrays))
+        return list(map(rgb2hex, rgb_arrays))
 
 def text_points(points, strs, **kw):
     """print each str at each point.

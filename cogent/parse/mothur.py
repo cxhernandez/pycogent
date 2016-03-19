@@ -2,7 +2,7 @@
 #file cogent.parse.mothur.py
 """Parses Mothur otu list"""
 
-from record_finder import is_empty
+from .record_finder import is_empty
 
 __author__ = "Kyle Bittinger"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"

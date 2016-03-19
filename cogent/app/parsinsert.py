@@ -22,7 +22,7 @@ from cogent.core.moltype import DNA, RNA, PROTEIN
 from cogent.core.alignment import SequenceCollection,Alignment
 from os.path import splitext, join,abspath
 from cogent.parse.phylip import get_align_for_phylip
-from StringIO import StringIO
+from io import StringIO
 
 
 class ParsInsert(CommandLineApplication):
@@ -58,9 +58,8 @@ class ParsInsert(CommandLineApplication):
 
     def _handle_app_result_build_failure(self,out,err,exit_status,result_paths):
         """ Catch the error when files are not produced """
-        raise ApplicationError, \
-         'ParsInsert failed to produce an output file due to the following error: \n\n%s ' \
-         % err.read()
+        raise ApplicationError('ParsInsert failed to produce an output file due to the following error: \n\n%s ' \
+         % err.read())
 
     def _get_result_paths(self,data):
         """ Get the resulting tree"""

@@ -108,7 +108,7 @@ class GoodnessOfFitTestCase(unittest.TestCase):
                                       [ 1. ,  1.41421356,  1. ,  0. ]])
         derived_distmat = self.stress._calc_pwdist(square_mds)
         # check if dervied and original array are (more or less) the same
-        self.assert_((derived_distmat-square_distmat).sum() < 0.000001)
+        self.assertTrue((derived_distmat-square_distmat).sum() < 0.000001)
 
 
     def test_argument_mixup_exception(self):

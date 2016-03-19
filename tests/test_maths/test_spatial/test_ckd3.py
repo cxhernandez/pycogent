@@ -35,12 +35,12 @@ class KDTreeTest(TestCase):
     def test_instance(self):
         """check if KDTree instance behaves correctly."""
         kdt = ckd3.KDTree(self.arr)
-        self.assertEquals(kdt.dims, 3)
+        self.assertEqual(kdt.dims, 3)
         def assig():
             kdt.dims = 4
         self.assertRaises(AttributeError, assig)
-        self.assertEquals(kdt.dims, 3)
-        self.assertEquals(kdt.pnts, 1000)
+        self.assertEqual(kdt.dims, 3)
+        self.assertEqual(kdt.pnts, 1000)
 
     def test_knn(self):
         """testing k-nearest neighbors.

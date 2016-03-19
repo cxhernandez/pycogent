@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from __future__ import division
+
 from cogent.util.unit_test import TestCase, main
 from cogent.align.algorithm import ScoreCell, MatchScorer, equality_scorer,\
     default_gap, default_gap_symbol, ScoreMatrix, NeedlemanWunschMatrix, \

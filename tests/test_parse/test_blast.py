@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """Tests of BLAST parser.
 """
-from string import split, strip
 from cogent.util.unit_test import TestCase, main
 from cogent.parse.blast import iter_finder, query_finder, iteration_set_finder,\
     is_blast_junk, is_blat_junk, make_label, PsiBlastQueryFinder, \
@@ -9,6 +8,8 @@ from cogent.parse.blast import iter_finder, query_finder, iteration_set_finder,\
     PsiBlastTableParser, PsiBlastFinder, GenericBlastParser9, \
     PsiBlastParser9, LastProteinIds9, QMEBlast9, QMEPsiBlast9, \
     fastacmd_taxonomy_splitter, FastacmdTaxonomyParser
+
+split, strip = str.split, str.strip
 
 __author__ = "Micah Hamady"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -101,26 +102,26 @@ ece:Z4182	cvi:CV2422	41.67	72	42	0	39	110	29	100	2e-06	52.8""".split('\n')
     def test_iter_finder(self):
         """iter_finder should split on lines starting with '# Iteration:'"""
         lines = 'abc\n# Iteration: 3\ndef'.split('\n')
-        self.assertEqual(map(iter_finder,lines), [False, True, False])
+        self.assertEqual(list(map(iter_finder,lines)), [False, True, False])
 
     def test_query_finder(self):
         """query_finder should split on lines starting with '# Query:'"""
         lines = 'abc\n# Query: dfdsffsd\ndef'.split('\n')
-        self.assertEqual(map(query_finder,lines), [False, True, False])
-    
+        self.assertEqual(list(map(query_finder,lines)), [False, True, False])
+
     def test_iteration_set_finder(self):
         """iter_finder should split on lines starting with '# Iteration:'"""
         lines = 'abc\n# Iteration: 3\ndef\n# Iteration: 1'.split('\n')
-        self.assertEqual(map(iteration_set_finder,lines), \
+        self.assertEqual(list(map(iteration_set_finder,lines)), \
             [False, False, False, True])
 
     def test_is_junk(self):
         """is_junk should reject an assortment of invalid lines"""
         #Note: testing two functions that call it instead of function itself
         lines = 'abc\n# BLAST blah blah\n   \n# BLAT blah\n123'.split('\n')
-        self.assertEqual(map(is_blast_junk, lines), \
+        self.assertEqual(list(map(is_blast_junk, lines)), \
             [False, True, True, False, False])
-        self.assertEqual(map(is_blat_junk, lines), \
+        self.assertEqual(list(map(is_blat_junk, lines)), \
             [False, False, True, True, False])
 
     def test_make_label(self):
@@ -151,20 +152,20 @@ ece:Z4182	cvi:CV2422	41.67	72	42	0	39	110	29	100	2e-06	52.8""".split('\n')
 
     def test_PsiBlastTableParser(self):
         """PsiBlastTableParser should wrap values in table."""
-        fields = map(strip,
-'Query id, Subject id, % identity, alignment length, mismatches, gap openings, q. start, q. end, s. start, s. end, e-value, bit score'.split(','))
-        
-        table = map(split, """ece:Z4147       ece:Z4147       100.00  176     0       0       1       176     1       176     2e-89    328
+        fields = list(map(strip,
+'Query id, Subject id, % identity, alignment length, mismatches, gap openings, q. start, q. end, s. start, s. end, e-value, bit score'.split(',')))
+
+        table = list(map(split, """ece:Z4147       ece:Z4147       100.00  176     0       0       1       176     1       176     2e-89    328
         ece:Z4147       ecs:ECs3687     100.00  176     0       0       1       176     1       176     2e-89    328
         ece:Z4147       ecc:c3425       100.00  176     0       0       1       176     1       176     2e-89    328
-        ece:Z4147       sfl:SF2840      100.00  176     0       0       1       176     1       176     2e-89    328""".split('\n'))
+        ece:Z4147       sfl:SF2840      100.00  176     0       0       1       176     1       176     2e-89    328""".split('\n')))
         headed_table = [fields] + table
         new_table, new_fields = PsiBlastTableParser(headed_table)
         self.assertEqual(new_fields, fields)
         self.assertEqual(len(new_table), 4)
         self.assertEqual(new_table[1], ['ece:Z4147', 'ecs:ECs3687', 100.0, \
             176, 0, 0, 1, 176, 1, 176, 2e-89, 328])
-        
+
     def test_GenericBlastParser9(self):
         """GenericBlastParser9 should read blast's tabular format (#9)."""
         rec = self.rec
@@ -210,7 +211,7 @@ ece:Z4182	cvi:CV2422	41.67	72	42	0	39	110	29	100	2e-06	52.8""".split('\n')
         self.assertEqual(result, ['ece:Z4181', 'ecs:ECs3717', 'cvi:CV2421',\
             'sfl:CP0138'])
         #should work on multiple records
-        result = map(LastProteinIds9, PsiBlastQueryFinder(self.rec2))
+        result = list(map(LastProteinIds9, PsiBlastQueryFinder(self.rec2)))
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0], ['ece:Z4181', 'ecs:ECs3717', 'cvi:CV2421',\
             'sfl:CP0138', 'spt:SPA2730', 'sec:SC2804', 'stm:STM2872'])
@@ -279,7 +280,7 @@ Scientific name: cf. Acremonium sp. KR21-2
         self.assertEqual(r0['seq_id'], 'gi|3021565|emb|AJ223314.1|PSAJ3314')
         self.assertEqual(r1['tax_id'], '228610')
 
-        
-                            
+
+
 if __name__ == "__main__":
     main()

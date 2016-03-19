@@ -119,12 +119,12 @@ class RNAfoldTests(TestCase):
         """RNAfold: _get_result_paths() should work on unnamed seq"""
         r = RNAfold()
         res = r(self.unnamed_seq)
-        self.assertEqualItems(res.keys(),\
+        self.assertEqualItems(list(res.keys()),\
             ['StdOut','StdErr','ExitStatus','SS','DP'])
-        self.failUnless(res['DP'] is None)
-        self.failUnless(res['SS'] is not None)
-        self.failUnless(res['StdOut'] is not None)
-        self.failUnless(res['StdErr'] is None)
+        self.assertTrue(res['DP'] is None)
+        self.assertTrue(res['SS'] is not None)
+        self.assertTrue(res['StdOut'] is not None)
+        self.assertTrue(res['StdErr'] is None)
         self.assertEqual(res['ExitStatus'],0)
         res.cleanUp()
     
@@ -133,7 +133,7 @@ class RNAfoldTests(TestCase):
        
         r = RNAfold()
         res = r(self.named_seq)
-        self.assertEqualItems(res.keys(),\
+        self.assertEqualItems(list(res.keys()),\
             ['StdOut','StdErr','ExitStatus','SS','DP','namedseq1_ss',\
             'namedseq2_ss','namedseq1_dp','namedseq2_dp']) 
         res.cleanUp()
@@ -143,7 +143,7 @@ class RNAfoldTests(TestCase):
 
         r = RNAfold()
         res = r(self.mixed_seq)
-        self.assertEqualItems(res.keys(),\
+        self.assertEqualItems(list(res.keys()),\
             ['StdOut','StdErr','ExitStatus','SS','DP','namedseq1_ss',\
             'namedseq1_dp']) 
         res.cleanUp()
@@ -154,12 +154,12 @@ class RNAfoldTests(TestCase):
         r = RNAfold()
         r.Parameters['-p'].on()
         res = r(self.unnamed_seq)
-        self.assertEqualItems(res.keys(),\
+        self.assertEqualItems(list(res.keys()),\
             ['StdOut','StdErr','ExitStatus','SS','DP'])
-        self.failUnless(res['DP'] is not None)
-        self.failUnless(res['SS'] is not None)
-        self.failUnless(res['StdOut'] is not None)
-        self.failUnless(res['StdErr'] is None)
+        self.assertTrue(res['DP'] is not None)
+        self.assertTrue(res['SS'] is not None)
+        self.assertTrue(res['StdOut'] is not None)
+        self.assertTrue(res['StdErr'] is None)
         self.assertEqual(res['ExitStatus'],0)
         res.cleanUp()
 
@@ -167,13 +167,13 @@ class RNAfoldTests(TestCase):
         """RNAfold: _get_result_paths() should work with diff working dir"""
         r = RNAfold(WorkingDir=self.temp_dir)
         res = r(self.unnamed_seq)
-        self.assertEqualItems(res.keys(),\
+        self.assertEqualItems(list(res.keys()),\
             ['StdOut','StdErr','ExitStatus','SS','DP'])
-        self.failUnless(res['DP'] is None)
-        self.failUnless(res['SS'] is not None)
-        self.failUnless(isinstance(res['SS'],file))
-        self.failUnless(res['StdOut'] is not None)
-        self.failUnless(res['StdErr'] is None)
+        self.assertTrue(res['DP'] is None)
+        self.assertTrue(res['SS'] is not None)
+        self.assertTrue(isinstance(res['SS'],file))
+        self.assertTrue(res['StdOut'] is not None)
+        self.assertTrue(res['StdErr'] is None)
         self.assertEqual(res['ExitStatus'],0)
         res.cleanUp()
 
@@ -321,20 +321,20 @@ class RNAsuboptTests(TestCase):
         seq = ['AUAGCUAGCUAUGCGCUAGCGGAUUAGCUAGCUAGCGA',\
         'ucgaucgaucagcuagcuauuauauaua']
         res = r(seq)
-        self.assertEqualItems(res.keys(),\
+        self.assertEqualItems(list(res.keys()),\
             ['StdOut','StdErr','ExitStatus'])
-        self.failUnless(res['StdOut'] is not None)
-        self.failUnless(res['StdErr'] is None)
+        self.assertTrue(res['StdOut'] is not None)
+        self.assertTrue(res['StdErr'] is None)
         self.assertEqual(res['ExitStatus'],0)
         res.cleanUp()
         
         r = RNAsubopt({'-s':None,'-lodos':None,'-d':3,'-logML':None,\
             '-noLP':None,'-4':None,'-noGU':None,'-noCloseGU':None})
         res = r(seq)
-        self.assertEqualItems(res.keys(),\
+        self.assertEqualItems(list(res.keys()),\
             ['StdOut','StdErr','ExitStatus'])
-        self.failUnless(res['StdOut'] is not None)
-        self.failUnless(res['StdErr'] is None)
+        self.assertTrue(res['StdOut'] is not None)
+        self.assertTrue(res['StdErr'] is None)
         #self.assertEqual(res['ExitStatus'],0) #platform-dependent?
         res.cleanUp()
 
@@ -406,11 +406,11 @@ class RNAplotTests(TestCase):
         """RNAplot: _get_result_paths() should work on unnamed seq"""
         r = RNAplot()
         res = r(self.unnamed_seqs)
-        self.assertEqualItems(res.keys(),\
+        self.assertEqualItems(list(res.keys()),\
             ['StdOut','StdErr','ExitStatus','SS'])
-        self.failUnless(res['SS'] is not None)
-        self.failUnless(res['StdOut'] is not None)
-        self.failUnless(res['StdErr'] is None)
+        self.assertTrue(res['SS'] is not None)
+        self.assertTrue(res['StdOut'] is not None)
+        self.assertTrue(res['StdErr'] is None)
         self.assertEqual(res['ExitStatus'],0)
         res.cleanUp()
     
@@ -419,7 +419,7 @@ class RNAplotTests(TestCase):
        
         r = RNAplot()
         res = r(self.named_seqs)
-        self.assertEqualItems(res.keys(),\
+        self.assertEqualItems(list(res.keys()),\
             ['StdOut','StdErr','ExitStatus','namedseq1_ss',\
             'namedseq2_ss']) 
         res.cleanUp()
@@ -429,7 +429,7 @@ class RNAplotTests(TestCase):
 
         r = RNAplot()
         res = r(self.mixed_seqs)
-        self.assertEqualItems(res.keys(),\
+        self.assertEqualItems(list(res.keys()),\
             ['StdOut','StdErr','ExitStatus','SS','namedseq1_ss']) 
         res.cleanUp()
 
@@ -439,11 +439,11 @@ class RNAplotTests(TestCase):
         r = RNAplot()
         r.Parameters['-t'].on(0)
         res = r(self.unnamed_seqs)
-        self.assertEqualItems(res.keys(),\
+        self.assertEqualItems(list(res.keys()),\
             ['StdOut','StdErr','ExitStatus','SS'])
-        self.failUnless(res['SS'] is not None)
-        self.failUnless(res['StdOut'] is not None)
-        self.failUnless(res['StdErr'] is None)
+        self.assertTrue(res['SS'] is not None)
+        self.assertTrue(res['StdOut'] is not None)
+        self.assertTrue(res['StdErr'] is None)
         self.assertEqual(res['ExitStatus'],0)
         res.cleanUp()
 
@@ -451,12 +451,12 @@ class RNAplotTests(TestCase):
         """RNAplot: _get_result_paths() should work with diff working dir"""
         r = RNAplot(WorkingDir=self.temp_dir)
         res = r(self.unnamed_seqs)
-        self.assertEqualItems(res.keys(),\
+        self.assertEqualItems(list(res.keys()),\
             ['StdOut','StdErr','ExitStatus','SS'])
-        self.failUnless(res['SS'] is not None)
-        self.failUnless(isinstance(res['SS'],file))
-        self.failUnless(res['StdOut'] is not None)
-        self.failUnless(res['StdErr'] is None)
+        self.assertTrue(res['SS'] is not None)
+        self.assertTrue(isinstance(res['SS'],file))
+        self.assertTrue(res['StdOut'] is not None)
+        self.assertTrue(res['StdErr'] is None)
         self.assertEqual(res['ExitStatus'],0)
         res.cleanUp()
     

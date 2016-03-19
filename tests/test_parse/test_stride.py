@@ -49,9 +49,9 @@ class StrideParseTest(TestCase):
     def test_stride_xtra(self):
         """tests if residues get annotated with parsed data."""
         stride_xtra(self.input_structure)
-        self.assertEquals(\
+        self.assertEqual(\
             self.input_structure[(0,)][('A',)][(('H_HOH', 138, ' '),)].xtra, {})
-        self.assertAlmostEquals(\
+        self.assertAlmostEqual(\
             self.input_structure[(0,)][('A',)][(('ILE', 86, ' '),)].xtra['STRIDE_ASA'], 13.9)
         self.input_structure[(0,)][('A',)].remove_hetero()
         self.input_structure[(0,)][('B',)].remove_hetero()

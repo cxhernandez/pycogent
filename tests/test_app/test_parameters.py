@@ -559,14 +559,14 @@ class ParametersTests(TestCase):
     def test_all_off(self):
         """Parameters: all_off() should turn all parametes off"""
         p = self.p2
-        for v in p.values():
+        for v in list(p.values()):
             try:
                 v.on(3)
             except TypeError:
                 v.on()
             assert v.isOn()
         p.all_off()
-        for v in p.values():
+        for v in list(p.values()):
             assert v.isOff()
 
 def parametersTests(TestCase):

@@ -2,7 +2,7 @@
 
 
 from numpy import array
-from itertools import izip
+
 from cogent.core.entity import HIERARCHY, copy, StructureHolder, ModelHolder
 from cogent.maths.geometry import coords_to_symmetry, coords_to_crystal
 from cogent.struct.selection import einput
@@ -104,13 +104,13 @@ def expand_symmetry(model, mode='uc', name='UC', **kwargs):
     all_coords = coords_to_symmetry(coords, fmx, omx, mxs, mode)
     models = ModelHolder(name)
 
-    for i in xrange(0, len(mxs)):
+    for i in range(0, len(mxs)):
         # copy model
         new_model = copy(model) # with additional models which
         new_atoms = einput(new_model, 'A')
         # patch with coordinates
         new_coords = all_coords[i]
-        for (atom_id, new_coord) in izip(atoms.keys(), new_coords):
+        for (atom_id, new_coord) in zip(list(atoms.keys()), new_coords):
             new_atoms[atom_id[1:]].coords = new_coord
         # give it an id: the models are numbered by the symmetry operations with
         # identity being the first model
@@ -140,13 +140,13 @@ def expand_crystal(structure, n=1, name='XTAL'):
     # expand the coordinates to crystal
     all_coords = coords_to_crystal(coords, fmx, omx, n)
     structures = StructureHolder(name)
-    rng = range(-n, n + 1) # a range like -2, -1, 0, 1, 2
+    rng = list(range(-n, n + 1)) # a range like -2, -1, 0, 1, 2
     vectors = [(x, y, z) for x in rng for y in rng for z in rng]
     for i, (u, v, w) in enumerate(vectors):
         new_structure = copy(structure)
         new_atoms = einput(new_structure, 'A')
         new_coords = all_coords[i, 0]
-        for (atom_id, new_coord) in izip(atoms.keys(), new_coords):
+        for (atom_id, new_coord) in zip(list(atoms.keys()), new_coords):
             new_atoms[atom_id].coords = new_coord
         new_structure.setName("%s_%s%s%s" % (sn, u, v, w))
         structures.addChild(new_structure)

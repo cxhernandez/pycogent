@@ -51,7 +51,7 @@ class PknotsrgTest(TestCase):
 
         p = PknotsRG(InputHandler='_input_as_lines')
         res = p(self.input)
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus'])
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus'])
         self.assertEqual(res['ExitStatus'],0)
         assert res['StdOut'] is not None
         res.cleanUp()

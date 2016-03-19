@@ -156,9 +156,9 @@ class Blat(CommandLineApplication):
         command_parts = []
         cd_command = ''.join(['cd ',str(self.WorkingDir),';'])
         if self._command is None:
-            raise ApplicationError, '_command has not been set.'
+            raise ApplicationError('_command has not been set.')
         command = self._command
-        parameters = sorted([str(x) for x in self.Parameters.values() 
+        parameters = sorted([str(x) for x in list(self.Parameters.values()) 
                             if str(x)])
 
         synonyms = self._synonyms
@@ -170,7 +170,7 @@ class Blat(CommandLineApplication):
         command_parts += parameters
         if self._output: command_parts.append(self._output.Path) # Positional
 
-        return self._command_delimiter.join(filter(None,command_parts)).strip()
+        return self._command_delimiter.join([_f for _f in command_parts if _f]).strip()
 
     BaseCommand = property(_get_base_command)
 
@@ -183,8 +183,8 @@ class Blat(CommandLineApplication):
         if (not isabs(database)) \
           or (not isabs(query)) \
           or (not isabs(output)):
-            raise ApplicationError, "Only absolute paths allowed.\n%s" %\
-                                    ', '.join(data)
+            raise ApplicationError("Only absolute paths allowed.\n%s" %\
+                                    ', '.join(data))
 
         self._database = FilePath(database)
         self._query = FilePath(query)
@@ -368,16 +368,16 @@ def assign_dna_reads_to_protein_database(query_fasta_fp, database_fasta_fp,
 
     # make sure temp_dir specifies an absolute path
     if not isabs(temp_dir):
-        raise ApplicationError, "temp_dir must be an absolute path."
+        raise ApplicationError("temp_dir must be an absolute path.")
 
     # if the user specified parameters other than default, then use them.
     # However, if they try to change the database or query types, raise an
     # applciation error.
     if '-t' in params or '-q' in params:
-        raise ApplicationError, "Cannot change database or query types " + \
+        raise ApplicationError("Cannot change database or query types " + \
                                 "when using " + \
                                 "assign_dna_reads_to_dna_database. " + \
-                                "Use assign_reads_to_database instead."
+                                "Use assign_reads_to_database instead.")
     
     my_params.update(params)
 
@@ -392,9 +392,9 @@ def assign_dna_reads_to_protein_database(query_fasta_fp, database_fasta_fp,
         s = DNA.makeSequence(sequence)
         translations = standard_code.sixframes(s)
         frames = [1,2,3,-1,-2,-3]
-        translations = dict(zip(frames, translations))
+        translations = dict(list(zip(frames, translations)))
 
-        for frame, translation in sorted(translations.iteritems()):
+        for frame, translation in sorted(translations.items()):
             entry = '>{seq_id}_frame_{frame}\n{trans}\n'
             entry = entry.format(seq_id=seq_id, frame=frame, trans=translation)
             tmp_out.write(entry)

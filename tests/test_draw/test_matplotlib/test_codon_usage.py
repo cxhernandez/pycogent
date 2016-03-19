@@ -44,8 +44,8 @@ def insert_before_extension(name, item):
 def make_generic_adaptor_test(adaptor_f, plot_f, default_outfilename):
     """Makes adaptor test for generic graphs."""
     def adaptor_test(codons, infilename, name, outfilename=default_outfilename):
-        print "=> outfile:", outfilename
-        print "from file:", infilename
+        print("=> outfile:", outfilename)
+        print("from file:", infilename)
         graph_data = adaptor_f(codons)
         plot_f(graph_data, num_genes=len(codons), graph_name=outfilename,\
             title=name)
@@ -56,8 +56,8 @@ def make_generic_adaptor_test(adaptor_f, plot_f, default_outfilename):
 def make_contour_adaptor_test(adaptor_f, plot_f, default_outfilename):
     """Makes adaptor test for contour graphs."""
     def adaptor_test(codons, infilename, name, outfilename=default_outfilename):
-        print "=> outfile:", outfilename
-        print "from file:", infilename
+        print("=> outfile:", outfilename)
+        print("from file:", infilename)
         xy_data = adaptor_f(codons)
         x, y, data = format_contour_array(xy_data)
         plot_f(x, y, data, xy_data, num_genes=len(codons), \
@@ -69,9 +69,9 @@ def make_contour_adaptor_test(adaptor_f, plot_f, default_outfilename):
 def make_pr2bias_adaptor_test(adaptor_f, plot_f, default_outfilename):
     """Makes adaptor test for pr2bias graphs."""
     def adaptor_test(codons, infilename, name, outfilename=default_outfilename):
-        print "=> base outfile:", outfilename
-        print "from file:", infilename
-        for aa, triplet in aa_labels.items():
+        print("=> base outfile:", outfilename)
+        print("from file:", infilename)
+        for aa, triplet in list(aa_labels.items()):
             triplet = triplet.replace('T','U')
             graph_data = adaptor_f(codons, block=triplet[:2])
             curr_outfilename = insert_before_extension(outfilename, triplet)
@@ -86,10 +86,10 @@ def make_gc_gradient_adaptor_test(adaptor_f, plot_f, default_outfilename, \
     """Makes adaptor test for replicated graphs over e.g. a GC gradient"""
     def adaptor_test(codons, infilename, name, outfilename=default_outfilename):
         min_gene_threshold=10   #suppress bins with few genes
-        print "=>base outfile:", outfilename
-        print "from file:", infilename
-        print "one graph:", one_graph
-        print "one series:", one_series
+        print("=>base outfile:", outfilename)
+        print("from file:", infilename)
+        print("one graph:", one_graph)
+        print("one series:", one_series)
         gc_bins = bin_by_p3(codons)
         if one_series:  #assume we want to adapt the list of codon usages
             data = adaptor_f(gc_bins)
@@ -199,16 +199,16 @@ def codons_to_graph(codons, as_file, species, which_tests):
     
     adaptor_tests= all_adaptor
     codon_data_fname=as_file
-    print "Running adaptor tests..."
+    print("Running adaptor tests...")
     codon_data = codons
     if which_tests:
         for i in which_tests:
-            print "doing test %s" % i
+            print("doing test %s" % i)
             a = adaptor_tests[i]
             a(codon_data, codon_data_fname, species)
     else:
         for i, a in enumerate(adaptor_tests):
-            print "doing test %s" % i
+            print("doing test %s" % i)
             a(codon_data,codon_data_fname, species)
             
 if __name__ == '__main__':
@@ -224,11 +224,11 @@ if __name__ == '__main__':
         codon_data_fname = test_file_name
 
     if len(argv) > 2:
-        which_tests = map(int, argv[2].split(','))
+        which_tests = list(map(int, argv[2].split(',')))
     else:
         which_tests = None
         
-    print "Running adaptor tests..."
+    print("Running adaptor tests...")
     if codon_data_fname.endswith('.nuc'):   #assume FASTA from KEGG
         codon_data = kegg_fasta_to_codon_list(open(codon_data_fname))
     else:
@@ -236,10 +236,10 @@ if __name__ == '__main__':
 
     if which_tests:
         for i in which_tests:
-            print "doing test %s" % i
+            print("doing test %s" % i)
             a = adaptor_tests[i]
             a(codon_data, codon_data_fname, as_species(codon_data_fname))
     else:
         for i, a in enumerate(adaptor_tests):
-            print "doing test %s" % i
+            print("doing test %s" % i)
             a(codon_data, codon_data_fname, as_species(codon_data_fname))

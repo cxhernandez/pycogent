@@ -172,7 +172,7 @@ class Dialign(CommandLineApplication):
         if self.Parameters['-fn'].isOn():
             aln_filename = self._absolute(str(self.Parameters['-fn'].Value))
         else:
-            raise ValueError, "No output file specified."
+            raise ValueError("No output file specified.")
         return aln_filename
     
     def _get_result_paths(self,data):

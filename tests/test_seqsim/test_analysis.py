@@ -122,15 +122,15 @@ class analysisTests(TestCase):
         #check we got at most the same number of items as in probs
         assert len(rates) <= len(probs)
         #check that we didn't get anything bad
-        vals = rates.values()
+        vals = list(rates.values())
         for v in vals:
             assert not v.isSignificantlyComplex()
         #check that we didn't miss anything good
-        for key, val in probs.items():
+        for key, val in list(probs.items()):
             if key not in rates:
                 try:
                     r = val.toRates()
-                    print r.isValid()
+                    print(r.isValid())
                     assert r.isSignificantlyComplex() or (not r.isValid())
                 except (ZeroDivisionError, OverflowError, ValueError):
                     pass
@@ -142,7 +142,7 @@ class analysisTests(TestCase):
         m3 = m1 * 0.5
         m4 = zeros((4,4))
         m5 = array([0,0])
-        r1, r2, r3, r4, r5 = [Rates(i, DnaPairs) for i in m1,m2,m3,m4,m5]
+        r1, r2, r3, r4, r5 = [Rates(i, DnaPairs) for i in (m1,m2,m3,m4,m5)]
     
         data = {(0,1,0):r1, (1,2,0):r2, (2,0,0):r3, (2,1,1):r4}
         
@@ -265,7 +265,7 @@ class analysisTests(TestCase):
         except AssertionError:
             pass
         else:
-            raise AssertionError, "Expected different arrays before/after norm"
+            raise AssertionError("Expected different arrays before/after norm")
    
     def test_multivariate_normal_prob(self):
         """Multivariate normal prob should match R results"""

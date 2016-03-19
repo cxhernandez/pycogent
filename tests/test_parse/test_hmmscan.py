@@ -30,10 +30,10 @@ class hmmscanTests(TestCase):
                 '0', '1', '1', '1', '1', 'UreF']
 
         parser = MinimalTbloutParser(tblout)
-        self.assertEqual(parser.next(), exp1)
-        self.assertEqual(parser.next(), exp2)
-        self.assertEqual(parser.next(), exp3)
-        self.assertRaises(StopIteration, parser.next)
+        self.assertEqual(next(parser), exp1)
+        self.assertEqual(next(parser), exp2)
+        self.assertEqual(next(parser), exp3)
+        self.assertRaises(StopIteration, parser.__next__)
 
     def test_RichTbloutParser(self):
         """More useful returns"""
@@ -59,10 +59,10 @@ class hmmscanTests(TestCase):
         exp3 = dict([(h,t(e)) for h,t,e in zip(headers,types,expbase3)])
 
         parser = RichTbloutParser(tblout)
-        self.assertEqual(parser.next(), exp1)
-        self.assertEqual(parser.next(), exp2)
-        self.assertEqual(parser.next(), exp3)
-        self.assertRaises(StopIteration, parser.next)
+        self.assertEqual(next(parser), exp1)
+        self.assertEqual(next(parser), exp2)
+        self.assertEqual(next(parser), exp3)
+        self.assertRaises(StopIteration, parser.__next__)
 
 tblout = """#                                                               --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
 # target name        accession  query name           accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target

@@ -2,8 +2,8 @@
 # test_mothur.py
 
 
-from __future__ import with_statement
-from cStringIO import StringIO
+
+from io import StringIO
 from os import remove, rmdir
 from tempfile import mkdtemp, mkstemp, NamedTemporaryFile
 from cogent.util.unit_test import TestCase, main
@@ -96,14 +96,14 @@ class MothurTests(TestCase):
     def test_working_directory(self):
         """Mothur.WorkingDir attribute should not be cast to FilePath object"""
         app = Mothur(WorkingDir='/tmp')
-        self.assertEquals(str(app.WorkingDir), '/tmp')
+        self.assertEqual(str(app.WorkingDir), '/tmp')
 
     def test_call_with_multiline_string(self):
         """Mothur.__call__() should return correct otu's for input as single string"""
         app = Mothur()
         result = app(self.small_fasta)
         observed_otus = result['otu list'].read()
-        self.assertEquals(observed_otus, self.small_otus)
+        self.assertEqual(observed_otus, self.small_otus)
         result.cleanUp()
 
     def test_call_with_lines(self):
@@ -112,7 +112,7 @@ class MothurTests(TestCase):
         app = Mothur(InputHandler='_input_as_lines')
         result = app(lines)
         observed_otus = result['otu list'].read()
-        self.assertEquals(observed_otus, self.small_otus)
+        self.assertEqual(observed_otus, self.small_otus)
         result.cleanUp()
 
     def test_call_with_path(self):
@@ -124,7 +124,7 @@ class MothurTests(TestCase):
         app = Mothur(InputHandler='_input_as_path', WorkingDir=working_dir)
         result = app(filename)
         observed_otus = result['otu list'].read()
-        self.assertEquals(observed_otus, self.small_otus)
+        self.assertEqual(observed_otus, self.small_otus)
         remove(filename)
         result.cleanUp()
         rmdir(working_dir)
@@ -135,7 +135,7 @@ class MothurTests(TestCase):
         app = Mothur(WorkingDir=working_dir)
         result = app(self.small_fasta)
         observed_otus = result['otu list'].read()
-        self.assertEquals(observed_otus, self.small_otus)
+        self.assertEqual(observed_otus, self.small_otus)
         result.cleanUp()
         rmdir(working_dir)
 
@@ -144,7 +144,7 @@ class MothurTests(TestCase):
         app = Mothur()
         result = app(self.complement_fasta)
         observed_otus = result['otu list'].read()
-        self.assertEquals(observed_otus, self.complement_otus)
+        self.assertEqual(observed_otus, self.complement_otus)
         result.cleanUp()
 
     def test_mothur_from_file(self):
@@ -152,7 +152,7 @@ class MothurTests(TestCase):
         f = StringIO(self.small_fasta)
         f.seek(0)
         parsed_otus = mothur_from_file(f)
-        self.assertEquals(parsed_otus, self.small_otus_parsed)
+        self.assertEqual(parsed_otus, self.small_otus_parsed)
 
 
 class TestMothurClassifySeqs(TestCase):

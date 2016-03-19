@@ -2,7 +2,7 @@
 """Extracts data from NCBI nodes.dmp and names.dmp files.
 """
 from cogent.core.tree import TreeNode
-from string import strip
+strip = str.strip
 
 __author__ = "Jason Carnes"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -78,14 +78,14 @@ class NcbiTaxon(object):
               'HiddenSubtreeRoot', 'Comments'] 
     def __init__(self, line):
         """Returns new NcbiTaxon from line containing taxonomy data."""
-        line_pieces = map(strip, line.split('|'))
+        line_pieces = list(map(strip, line.split('|')))
         for i in [0, 1, 5, 6, 7, 8, 9, 10, 11]:
             line_pieces[i] = int(line_pieces[i])
         #fix trailing delimiter
         last = line_pieces[-1]
         if last.endswith('|'):
             line_pieces[-1] = last[:-1]
-        self.__dict__ = dict(zip(self.Fields, line_pieces))
+        self.__dict__ = dict(list(zip(self.Fields, line_pieces)))
         self.Name = '' #will get name field from names.dmp; fillNames
         self.RankId = RanksToNumbers.get(self.Rank, None)
         
@@ -130,9 +130,9 @@ class NcbiName(object):
     Fields = ['TaxonId', 'Name', 'UniqueName', 'NameClass']
     def __init__(self, line):
         """Returns new NcbiName from line containing name data."""
-        line_pieces = map(strip, line.split('|'))
+        line_pieces = list(map(strip, line.split('|')))
         line_pieces[0] = int(line_pieces[0])    #convert taxon_id
-        self.__dict__ = dict(zip(self.Fields, line_pieces))
+        self.__dict__ = dict(list(zip(self.Fields, line_pieces)))
         
     def __str__(self):
         """Writes data out in similar format as the one we got it from."""
@@ -169,7 +169,7 @@ class NcbiTaxonomy(object):
         """
         names_to_nodes = {}
         ids_to_nodes = {}
-        for t_id, t in taxa.iteritems():
+        for t_id, t in taxa.items():
             name_rec = names.get(t_id, None)
             if name_rec:
                 name = name_rec.Name
@@ -185,7 +185,7 @@ class NcbiTaxonomy(object):
 
         deadbeats = {}
         #build the tree by connecting each node to its parent
-        for t_id, t in ids_to_nodes.iteritems():
+        for t_id, t in ids_to_nodes.items():
             if t.ParentId == t.TaxonId:
                 t.Parent = None
             else:
@@ -193,9 +193,8 @@ class NcbiTaxonomy(object):
                     ids_to_nodes[t.ParentId].append(t)
                 except KeyError:    #found a child whose parent doesn't exist
                     if strict:
-                        raise MissingParentError, \
-                            "Node %s has parent %s, which isn't in taxa." % \
-                            (t_id, t.ParentId)
+                        raise MissingParentError("Node %s has parent %s, which isn't in taxa." % \
+                            (t_id, t.ParentId))
                     else:
                         deadbeats[t.ParentId] = t
         self.Deadbeats = deadbeats

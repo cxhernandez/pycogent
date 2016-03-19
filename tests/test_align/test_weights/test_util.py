@@ -30,7 +30,7 @@ class WeightsTests(TestCase):
         self.assertEqual(w['seq1'],2)
         w.normalize()
         exp = {'seq1':0.1333333, 'seq2':0.2, 'seq3':0.6666666}
-        self.assertFloatEqual(w.values(), exp.values())
+        self.assertFloatEqual(list(w.values()), list(exp.values()))
         
 class UtilTests(TestCase):
     
@@ -110,14 +110,14 @@ class UtilTests(TestCase):
         #characters are ignored. In a sequence this means that 
         #several positions will contain only zeros in the profile.
         exp = zeros([len(seq),4],Float64)
-        for x,y in zip(range(len(seq)),[2,0,1,3]):
+        for x,y in zip(list(range(len(seq))),[2,0,1,3]):
             exp[x,y] = 1
         self.assertEqual(SeqToProfile(seq,char_order="TCAG",\
             split_degenerates=False).Data.tolist(),exp.tolist()) 
        
         #Same thing should work as well when the char order is not passed in
         exp = zeros([len(seq),4],Float64)
-        for x,y in zip(range(len(seq)),[2,0,1,3]):
+        for x,y in zip(list(range(len(seq))),[2,0,1,3]):
             exp[x,y] = 1
         self.assertEqual(SeqToProfile(seq, split_degenerates=False)\
             .Data.tolist(),exp.tolist()) 
@@ -126,7 +126,7 @@ class UtilTests(TestCase):
         #All symbols in the sequence are in the char order, no row
         #should contain only zeros. Degenerate symbols are not split.
         exp = zeros([len(seq),8],Float64)
-        for x,y in zip(range(len(seq)),[2,0,1,3,4,5,6,7]):
+        for x,y in zip(list(range(len(seq))),[2,0,1,3,4,5,6,7]):
             exp[x,y] = 1
         self.assertEqual(SeqToProfile(seq,char_order="TCAGRYN-",\
             split_degenerates=False).Data.tolist(), exp.tolist())

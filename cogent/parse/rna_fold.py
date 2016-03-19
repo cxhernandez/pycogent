@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Parses RNAfold dot plot output file.
 """
-from string import strip
+strip = str.strip
 from cogent.parse.record_finder import LabeledRecordFinder
 
 __author__ = "Jeremy Widmann"
@@ -53,7 +53,7 @@ def getIndices(lines):
     """
     index_list = []
     #For each line that ends with 'ubox' (which denotes lines with indices)
-    for line in filter(lambda x: x.endswith('ubox'), lines):
+    for line in [x for x in lines if x.endswith('ubox')]:
             #split on whitespace
             up_index,down_index,probability,ubox = line.split()
             #Build tuple with indices and pair probability

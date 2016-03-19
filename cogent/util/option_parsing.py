@@ -145,8 +145,7 @@ def set_required_parameter(key,kwargs):
     try:
         return kwargs[key]
     except KeyError:
-        raise KeyError,\
-         "parse_command_line_parameters requires value for %s" % key
+        raise KeyError("parse_command_line_parameters requires value for %s" % key)
         
 def parse_command_line_parameters(**kwargs):
     """ Constructs the OptionParser object and parses command line arguments
@@ -235,7 +234,7 @@ def parse_command_line_parameters(**kwargs):
            '-- useful for debugging [default: %default]',default=False)
 
     # Add the optional options
-    map(parser.add_option,optional_options)
+    list(map(parser.add_option,optional_options))
     
     # Parse the command line
     # command_line_text will None except in test cases, in which 

@@ -41,23 +41,23 @@ class AnnotationTest(TestCase):
 
         data_model = {(None, 0):{'model':1}}
         xtradata(data_model, structure)
-        self.assertEquals(model.xtra, {'model': 1})
+        self.assertEqual(model.xtra, {'model': 1})
 
         data_chain = {(None, None, 'B'):{'chain':1}}
         xtradata(data_chain, model)
-        self.assertEquals(chain.xtra, {'chain': 1})
+        self.assertEqual(chain.xtra, {'chain': 1})
 
         data_chain = {(None, 0, 'B'):{'chain': 2}}
         xtradata(data_chain, structure)
-        self.assertEquals(chain.xtra['chain'], 2)
+        self.assertEqual(chain.xtra['chain'], 2)
 
         data_residue = {(None, None, 'B', ('LEU', 24, ' ')):{'residue':1}}
         xtradata(data_residue, model)
-        self.assertEquals(residue.xtra, {'residue': 1})
+        self.assertEqual(residue.xtra, {'residue': 1})
 
         data_residue = {(None, 0, 'B', ('LEU', 24, ' ')):{'residue':2}}
         xtradata(data_residue, structure)
-        self.assertEquals(residue.xtra, {'residue': 2})
+        self.assertEqual(residue.xtra, {'residue': 2})
 
 
 if __name__ == '__main__':

@@ -344,4 +344,4 @@ def demo(seq1, seq2):
 
 if __name__ == '__main__':
     from sys import argv
-    print demo(argv[1], argv[2])
+    print(demo(argv[1], argv[2]))

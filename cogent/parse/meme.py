@@ -150,7 +150,7 @@ def extractModuleData(module_data, alphabet, remap_dict):
 
     #Get ModuleInstances: module_data[2]
     instance_data = module_data[2][4:-2]
-    for i in xrange(len(instance_data)):
+    for i in range(len(instance_data)):
         instance_data[i] = instance_data[i].split()
     #Create a ModuleInstance object and add it to Module for each instance
     for instance in instance_data:
@@ -210,7 +210,7 @@ def extractSummaryData(summary_block):
     #print summary
     summary_dict = {}
     #Split on whitespace
-    for i in xrange(len(summary)):
+    for i in range(len(summary)):
         summary[i] = summary[i].split()
     #Add necesary data to dict
     for seq in summary:
@@ -245,17 +245,17 @@ def MemeParser(lines, allowed_ids=[]):
         summary_block = getSummaryBlock(module_blocks[-1])
         #Extract summary data and get summary_dict
         summary_dict = extractSummaryData(summary_block)
-        seq_names = summary_dict['CombinedP'].keys()
+        seq_names = list(summary_dict['CombinedP'].keys())
         if allowed_ids:
             remap_dict,warning = make_remap_dict(seq_names,allowed_ids)
             if warning:
                 warnings.append(warning)
             sd = {}
-            for k,v in summary_dict['CombinedP'].items():
+            for k,v in list(summary_dict['CombinedP'].items()):
                 sd[remap_dict[k]]=v
             summary_dict['CombinedP']=sd
         else:
-            remap_dict = dict(zip(seq_names,seq_names))
+            remap_dict = dict(list(zip(seq_names,seq_names)))
         
         #Add summary dict to MotifResults object
         meme_motif_results.Results = summary_dict

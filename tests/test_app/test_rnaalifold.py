@@ -67,7 +67,7 @@ class RnaalifoldTest(TestCase):
 
         r = RNAalifold(InputHandler='_input_as_lines')
         res = r(self.input)
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus','SS'])
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus','SS'])
         self.assertEqual(res['ExitStatus'],0)
         assert res['StdOut'] is not None
 

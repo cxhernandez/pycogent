@@ -40,14 +40,14 @@ class flowgram_tests(TestCase):
         c = Flowgram('0.0 1.1 3.0 1.0', Name='a')
         b = Flowgram('0.5 1.0 4.0 0.0', Name = 'b')
         obs_a, obs_labels, obs_info = flows_from_generic([c,b])
-        self.assertEqual(map(str,obs_a), ['0.0\t1.1\t3.0\t1.0',
+        self.assertEqual(list(map(str,obs_a)), ['0.0\t1.1\t3.0\t1.0',
                                           '0.5\t1.0\t4.0\t0.0'])
         self.assertEqual(obs_labels, ['a','b'])
         self.assertEqual(obs_info, [None,None])
 
         f = ['0.0 1.1 3.0 1.0','0.5 1.0 4.0 0.0']
         obs_a, obs_labels, obs_info = flows_from_generic(f)
-        self.assertEqual(map(str,obs_a), ['0.0 1.1 3.0 1.0',
+        self.assertEqual(list(map(str,obs_a)), ['0.0 1.1 3.0 1.0',
                                           '0.5 1.0 4.0 0.0'])
         self.assertEqual(obs_labels, [None,None])
         self.assertEqual(obs_info, [None,None])
@@ -56,7 +56,7 @@ class flowgram_tests(TestCase):
         """flows_from_flowCollection should init from existing collection"""
         c = FlowgramCollection({'a':'0.0 1.1 3.0 1.0','b':'0.5 1.0 4.0 0.0'})
         obs_a, obs_labels, obs_info = flows_from_flowCollection(c)
-        self.assertEqual(map(str,obs_a), ['0.0\t1.1\t3.0\t1.0',
+        self.assertEqual(list(map(str,obs_a)), ['0.0\t1.1\t3.0\t1.0',
                                           '0.5\t1.0\t4.0\t0.0'])
         self.assertEqual(obs_labels, ['a','b'])
         self.assertEqual(obs_info, [None,None])
@@ -65,13 +65,13 @@ class flowgram_tests(TestCase):
         """seqs_from_kv_pairs should initialize from key-value pairs"""
         c = [['a','0.0 1.1 3.0 1.0'],['b','0.5 1.0 4.0 0.0']]
         obs_a, obs_labels, obs_info = flows_from_kv_pairs(c)
-        self.assertEqual(map(str,obs_a), ['0.0 1.1 3.0 1.0','0.5 1.0 4.0 0.0'])
+        self.assertEqual(list(map(str,obs_a)), ['0.0 1.1 3.0 1.0','0.5 1.0 4.0 0.0'])
         self.assertEqual(obs_labels, ['a','b'])
         self.assertEqual(obs_info, [None,None])
 
         c =[['a',Flowgram('0.0 1.1 3.0 1.0')],['b',Flowgram('0.5 1.0 4.0 0.0')]]
         obs_a, obs_labels, obs_info = flows_from_kv_pairs(c)
-        self.assertEqual(map(str,obs_a), ['0.0\t1.1\t3.0\t1.0','0.5\t1.0\t4.0\t0.0'])
+        self.assertEqual(list(map(str,obs_a)), ['0.0\t1.1\t3.0\t1.0','0.5\t1.0\t4.0\t0.0'])
         self.assertEqual(obs_labels, ['a','b'])
         self.assertEqual(obs_info, [None,None])
 
@@ -83,13 +83,13 @@ class flowgram_tests(TestCase):
         """flows_from_dict should init from dictionary"""
         c = {'a':'0.0 1.1 3.0 1.0','b':'0.5 1.0 4.0 0.0'}
         obs_a, obs_labels, obs_info = flows_from_dict(c)
-        self.assertEqual(map(str,obs_a), ['0.0 1.1 3.0 1.0','0.5 1.0 4.0 0.0'])
+        self.assertEqual(list(map(str,obs_a)), ['0.0 1.1 3.0 1.0','0.5 1.0 4.0 0.0'])
         self.assertEqual(obs_labels, ['a','b'])
         self.assertEqual(obs_info, [None,None])
 
         c ={'a':Flowgram('0.0 1.1 3.0 1.0'),'b':Flowgram('0.5 1.0 4.0 0.0')}
         obs_a, obs_labels, obs_info = flows_from_dict(c)
-        self.assertEqual(map(str,obs_a), ['0.0\t1.1\t3.0\t1.0','0.5\t1.0\t4.0\t0.0'])
+        self.assertEqual(list(map(str,obs_a)), ['0.0\t1.1\t3.0\t1.0','0.5\t1.0\t4.0\t0.0'])
         self.assertEqual(obs_labels, ['a','b'])
         self.assertEqual(obs_info, [None,None])
         
@@ -106,7 +106,7 @@ class flowgram_tests(TestCase):
         seqs = [('a','ATCGT'), ('b','ACCCAG'), ('c','GTAATG')]
         a = SequenceCollection(seqs)
 
-        flows = seqs_to_flows(a.items())
+        flows = seqs_to_flows(list(a.items()))
         assert isinstance(flows,FlowgramCollection)
         
         for f,i in zip(flows,['0.0 1.0 0.0 0.0 1.0 0.0 1.0 1.0 1.0 0.0 0.0 0.0',
@@ -116,7 +116,7 @@ class flowgram_tests(TestCase):
 
         probs ={0:[1.0,0,0,0,0],1:[0,1.0,0,0,0],2:[0,0,1.0,0,0],3:[0,0,0,1.0,0]}
         
-        flows = seqs_to_flows(a.items(), probs = probs, bin_size = 1.0)
+        flows = seqs_to_flows(list(a.items()), probs = probs, bin_size = 1.0)
         assert isinstance(flows,FlowgramCollection)
         
         for f,i in zip(flows,['0.0 1.0 0.0 0.0 1.0 0.0 1.0 1.0 1.0 0.0 0.0 0.0',
@@ -175,7 +175,7 @@ class FlowgramCollectionTests(TestCase):
         d = {'a':'0.0 1.1 3.0 1.0','b':'0.5 1.0 4.0 0.0'}
         a = self.Class(d)
         self.assertEqual(a, d)
-        self.assertEqual(a.NamedFlows.items(), d.items())
+        self.assertEqual(list(a.NamedFlows.items()), list(d.items()))
 
     def test_init_name_mapped(self):
         """FlowgramCollection init should allow name mapping function"""
@@ -183,10 +183,10 @@ class FlowgramCollectionTests(TestCase):
         f = lambda x: x.upper()
         a = self.Class(d, name_conversion_f=f)
         self.assertNotEqual(a, d)
-        self.assertNotEqual(a.NamedFlows.items(), d.items())
+        self.assertNotEqual(list(a.NamedFlows.items()), list(d.items()))
         d_upper = {'A':'0.0 1.1 3.0 1.0','B':'0.5 1.0 4.0 0.0'}
         self.assertEqual(a, d_upper)
-        self.assertEqual(a.NamedFlows.items(), d_upper.items())
+        self.assertEqual(list(a.NamedFlows.items()), list(d_upper.items()))
         
 
     def test_init_flow(self):
@@ -226,7 +226,7 @@ class FlowgramCollectionTests(TestCase):
 
         self.assertEqual(first.Names, ['a','b'])
         self.assertEqual(sec.Names, ['b', 'a'])
-        self.assertEqual(un.Names, un.NamedFlows.keys())
+        self.assertEqual(un.Names, list(un.NamedFlows.keys()))
 
         first_list = list(first.flow_str)
         sec_list = list(sec.flow_str)
@@ -393,11 +393,11 @@ class FlowgramCollectionTests(TestCase):
         """FlowgramCollection iterFlows() method should support reordering"""
         f = self.Class(['0.0 1.1 3.0 1.0','0.5 1.0 4.0 0.0','1.5 0.0 2.0 1.0'], \
             Names=['a','b','c'])
-        flows = map(str,list(f.iterFlows()))
+        flows = list(map(str,list(f.iterFlows())))
         self.assertEqual(flows, ['0.0\t1.1\t3.0\t1.0',
                          '0.5\t1.0\t4.0\t0.0','1.5\t0.0\t2.0\t1.0'])
         flows = list(f.iterFlows(flow_order=['b','a','a']))
-        self.assertEqual(map(str,flows), ['0.5\t1.0\t4.0\t0.0',
+        self.assertEqual(list(map(str,flows)), ['0.5\t1.0\t4.0\t0.0',
                                           '0.0\t1.1\t3.0\t1.0',
                                           '0.0\t1.1\t3.0\t1.0'])
         self.assertSameObj(flows[1], flows[2])
@@ -497,7 +497,7 @@ class FlowgramCollectionTests(TestCase):
                           , 'b': '1.5 1.0 0.0 0.0 2.5 1.0 2.0 1.0'})
         self.assertEqual(f.toDict(), {'a':'0.5 1.0 4.0 0.0 1.5 0.0 0.0 2.0'
                                       ,'b':'1.5 1.0 0.0 0.0 2.5 1.0 2.0 1.0'})
-        for i in f.toDict().values():
+        for i in list(f.toDict().values()):
             assert isinstance(i, str)
             
     def test_omitAmbiguousFlows(self):

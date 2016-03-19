@@ -53,7 +53,7 @@ class UnafoldTest(TestCase):
 
         u = hybrid_ss_min(InputHandler='_input_as_lines')
         res = u(self.input)
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus',\
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus',\
         'ct','dG','run','plot_37','ext_37'])
         self.assertEqual(res['ExitStatus'],0)
         assert res['ct'] is not None

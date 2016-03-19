@@ -22,7 +22,7 @@ from cogent.data.ligand_properties import HOH_NAMES, LIGAND_AREAIMOL_VDW_RADII
 from operator import itemgetter, gt, ge, lt, le, eq, ne, or_, and_, contains, \
                                                                  is_, is_not
 from collections import defaultdict
-from itertools import izip
+
 from copy import copy, deepcopy
 
 __author__ = "Marcin Cieslik"
@@ -385,7 +385,7 @@ class MultiEntity(Entity):
         return new_instance
 
     def __iter__(self):
-        return self.itervalues()
+        return iter(self.values())
 
     def setSort_tuple(self, sort_tuple=None):
         """Set the ``sort_tuple attribute``. The ``sort_tuple`` is a tuple 
@@ -395,10 +395,10 @@ class MultiEntity(Entity):
             self.sort_tuple = sort_tuple
         else:   # making the sort tuple, ugly, uggly, uaughhlly ble
             sort_tuple = [None, None, None, None, None, None]
-            key_lenght = len(self.keys()[0])
+            key_lenght = len(list(self.keys())[0])
             stop_i = self.index + 2                    # next level, open right [)
             start_i = stop_i - key_lenght               # before all nones
-            indexes = range(start_i, stop_i)            # Nones to change
+            indexes = list(range(start_i, stop_i))            # Nones to change
             for value, index in enumerate(indexes):
                 sort_tuple[index] = value
             self.sort_tuple = sort_tuple
@@ -411,13 +411,13 @@ class MultiEntity(Entity):
         return self.sort_tuple
 
     def itervalues(self, unmask=False):
-        return (v for v in super(MultiEntity, self).itervalues() if not v.masked or unmask)
+        return (v for v in super(MultiEntity, self).values() if not v.masked or unmask)
 
     def iteritems(self, unmask=False):
-        return ((k, v) for k, v in super(MultiEntity, self).iteritems() if not v.masked or unmask)
+        return ((k, v) for k, v in super(MultiEntity, self).items() if not v.masked or unmask)
 
     def iterkeys(self, unmask=False):
-        return (k for k, v in super(MultiEntity, self).iteritems() if not v.masked or unmask)
+        return (k for k, v in super(MultiEntity, self).items() if not v.masked or unmask)
 
     def values(self, *args, **kwargs):
         return list(self.itervalues(*args, **kwargs))
@@ -449,7 +449,7 @@ class MultiEntity(Entity):
         if masked != self.masked or force:   # the second condition is when
             if masked:                       # an entity has all children masked
                 # we have to mask children        # but is not masked itself
-                for child in self.itervalues():   # only unmasked children
+                for child in self.values():   # only unmasked children
                     child.setMasked()
                     child.setModified(False, False)
             else:
@@ -515,7 +515,7 @@ class MultiEntity(Entity):
 
     def _setTable(self, entity):
         """Recursive helper method for ``entity.setTable``."""
-        for e in entity.itervalues():
+        for e in entity.values():
             self.table[e.getLevel()].update({e.getFull_id():e})
             self._setTable(e)
 
@@ -547,7 +547,7 @@ class MultiEntity(Entity):
     def updateIds(self):
         """Update self with children ids."""
         ids = []
-        for (id_, child) in self.iteritems():
+        for (id_, child) in self.items():
             new_id = child.getId()
             if id_ != new_id:
                 ids.append((id_, new_id))
@@ -561,7 +561,7 @@ class MultiEntity(Entity):
         ``Nones`` are place-holders if a child does not have the requested data.
         If xtra is True the xtra dictionary (``xtra``) will be searched, if
         method is ``True`` the child attribute will be called."""
-        values = self.sortedvalues() if sorted else self.values()
+        values = self.sortedvalues() if sorted else list(self.values())
         if xtra:
             # looking inside the xtra of children
             data = [child.xtra.get(attr) for child in values] # could get None
@@ -585,10 +585,10 @@ class MultiEntity(Entity):
         function defines how children data should be transformed to become
         the parents data e.g. summed."""
         if self.index <= HIERARCHY.index(level) - 2:
-            for child in self.itervalues():
+            for child in self.values():
                 child.propagateData(function, level, attr, **kwargs)
         datas = self.getData(attr, **kwargs)
-        if isinstance(function, basestring):
+        if isinstance(function, str):
              function = eval(function)        
         transformed_datas = function(datas)
         if kwargs.get('xtra'):
@@ -612,7 +612,7 @@ class MultiEntity(Entity):
         method."""
         children_count = self.countChildren(*args, **kwargs)
         lenght = float(len(self))  # it could be len(children_count)?
-        for (key_, value_) in children_count.iteritems():
+        for (key_, value_) in children_count.items():
             children_count[key_] = value_ / lenght
         return children_count
 
@@ -623,7 +623,7 @@ class MultiEntity(Entity):
         kwargs['forgiving'] = False
         data = self.getData(*args, **kwargs)
         clusters = defaultdict(dict) # by default returns {}
-        for (key, (id_, child)) in izip(data, self.iteritems()):
+        for (key, (id_, child)) in zip(data, iter(self.items())):
             clusters[key].update({id_:child})
         return clusters
 
@@ -636,8 +636,8 @@ class MultiEntity(Entity):
         kwargs['forgiving'] = False
         data = self.getData(*args, **kwargs)
         children = {}
-        for (got, (id_, child)) in izip(data, self.iteritems()):
-            if isinstance(operator, basestring):
+        for (got, (id_, child)) in zip(data, iter(self.items())):
+            if isinstance(operator, str):
                 operator = eval(operator)
             if operator(value, got):
                 children.update({id_:child})
@@ -651,7 +651,7 @@ class MultiEntity(Entity):
         kwargs['forgiving'] = False
         data = self.getData(*args, **kwargs)
         children = []
-        for (got, (id_, child)) in izip(data, self.iteritems()):
+        for (got, (id_, child)) in zip(data, iter(self.items())):
             children.append((got, (id_, child)))
         return children
 
@@ -662,7 +662,7 @@ class MultiEntity(Entity):
         kwargs['forgiving'] = False
         data = self.getData(*args, **kwargs)
         propertydict = {}
-        for (got, id_) in izip(data, self.iterkeys()):
+        for (got, id_) in zip(data, iter(self.keys())):
             propertydict.update(((id_, got),))
         return propertydict
 
@@ -670,7 +670,7 @@ class MultiEntity(Entity):
         """Strips children based on selection criteria. See: 
         ``selectChildren``. Additional arguments and keyworded arguments are 
         passed to the ``selectChildren`` method."""
-        children_ids = self.selectChildren(*args, **kwargs).keys()
+        children_ids = list(self.selectChildren(*args, **kwargs).keys())
         for id_ in children_ids:
             self.delChild(id_)
 
@@ -678,7 +678,7 @@ class MultiEntity(Entity):
         """Mask children based on selection criteria. See: ``selectChildren``.
         Additional arguments and keyworded arguments are passed to the 
         ``selectChildren`` method."""
-        children = self.selectChildren(*args, **kwargs).itervalues()
+        children = iter(self.selectChildren(*args, **kwargs).values())
         for child in children:
             child.setMasked() # child.setModified child.parent.setModified
 
@@ -686,13 +686,13 @@ class MultiEntity(Entity):
         """Unmask children based on selection criteria. See: 
         ``selectChildren``. Additional arguments and keyworded arguments are 
         passed to the ``selectChildren`` method."""
-        children = self.selectChildren(*args, **kwargs).itervalues()
+        children = iter(self.selectChildren(*args, **kwargs).values())
         for child in children:
             child.setUnmasked() # child.setModified child.parent.setModified
 
     def moveRecursively(self, origin):
         """Move ``Entity`` instance recursively to the origin."""
-        for child in self.itervalues():
+        for child in self.values():
             try:
                 child.moveRecursively(origin)
             except:
@@ -704,7 +704,7 @@ class MultiEntity(Entity):
     def setCoordsRecursively(self):
         """Set coordinates (``coords``) recursively. Useful if any child had its
         coordinates changed."""
-        for child in self.itervalues():
+        for child in self.values():
             try:
                 child.setCoordsRecursively()
             except:
@@ -719,7 +719,7 @@ class MultiEntity(Entity):
         are passed to the ``getData`` method."""
         # select only some children
         if args or kwargs:
-            children = self.selectChildren(*args, **kwargs).values()
+            children = list(self.selectChildren(*args, **kwargs).values())
         else:
             children = self
         coords = []
@@ -733,12 +733,12 @@ class MultiEntity(Entity):
         try:
             return self.coords
         except AttributeError:
-            raise AttributeError, "Entity has coordinates not set."
+            raise AttributeError("Entity has coordinates not set.")
 
     def dispatch(self, method, *args, **kwargs):
         """Calls a method of all children with given arguments and keyworded 
         arguments."""
-        for child in self.itervalues():
+        for child in self.values():
             getattr(child, method)(*args, **kwargs)
 
 
@@ -901,13 +901,13 @@ class Residue(MultiEntity):
         """Sets the hetero flag. A valid flag is ' ' or 'H'. If 'H' the flag
         becomes part of the residue name i.e. H_XXX."""
         if not h_flag in (' ', 'H'):
-            raise AttributeError, "Only ' ' and 'H' hetero flags allowed."
+            raise AttributeError("Only ' ' and 'H' hetero flags allowed.")
         if len(self.name) == 3:
             self.name = "%s_%s" % (h_flag, self.name)
         elif len(self.name) == 5:
             self.name = "%s_%s" % (h_flag, self.name[2:])
         else:
-            raise ValueError, 'Non-standard residue name'
+            raise ValueError('Non-standard residue name')
         self.h_flag = h_flag
         self.setId()
 
@@ -943,7 +943,7 @@ class Atom(Entity):
         self.element = element
         Entity.__init__(self, at_long_id, at_name)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self.id)
 
     def __repr__(self):
@@ -1057,7 +1057,7 @@ class Holder(MultiEntity):
     def updateIds(self):
         """Update self with children long ids."""
         ids = []
-        for (id_, child) in self.iteritems():
+        for (id_, child) in self.items():
             new_id = child.getFull_id()
             if id_ != new_id:
                 ids.append((id_, new_id))
@@ -1150,7 +1150,7 @@ class StructureBuilder(object):
             self.model._initChild(self.chain)
         else:
             self.chain = self.model[(chain_id,)]
-            raise ConstructionWarning, "Chain %s is not continous" % chain_id
+            raise ConstructionWarning("Chain %s is not continous" % chain_id)
 
     def initSeg(self, seg_id):
         """Does not create an ``Entity`` instance, but updates the segment id,
@@ -1167,8 +1167,8 @@ class StructureBuilder(object):
             self.chain._initChild(self.residue)
         else:
             self.residue = self.chain[(res_long_id,)]
-            raise ConstructionWarning, "Residue %s%s%s is not continuous" % \
-                                                                    res_long_id
+            raise ConstructionWarning("Residue %s%s%s is not continuous" % \
+                                                                    res_long_id)
 
     def initAtom(self, at_long_id, at_name, ser_num, coord, occupancy, \
                   bfactor, element):
@@ -1185,7 +1185,7 @@ class StructureBuilder(object):
                        ser_num)
             self.model.junk._initChild(Atom(full_id, at_name, ser_num, coord, \
                                              occupancy, bfactor, element))
-            raise ConstructionError, 'Atom %s%s is defined twice.' % at_long_id
+            raise ConstructionError('Atom %s%s is defined twice.' % at_long_id)
 
     def getStructure(self):
         """Update coordinates (``coords``), set the children-table (``table``) 

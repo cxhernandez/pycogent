@@ -63,13 +63,13 @@ class CommandLineAppResult(dict):
         self['StdErr'] = err
         self['ExitStatus'] = exit_status
        
-        self.file_keys = result_paths.keys()
-        for key,value in result_paths.items():
+        self.file_keys = list(result_paths.keys())
+        for key,value in list(result_paths.items()):
             if value.IsWritten:
                 try:
                     self[key] = open(value.Path)
                 except IOError:
-                    raise ApplicationError, 'Could not open %s' %value.Path
+                    raise ApplicationError('Could not open %s' %value.Path)
             else:
                 self[key] = None
 
@@ -117,7 +117,7 @@ class Application(object):
         """
         self.Parameters = Parameters(self._parameters, self._synonyms)
         if params:
-            for key,v in params.items():
+            for key,v in list(params.items()):
                 try:
                     self.Parameters[key].on(v)
                 except TypeError:
@@ -231,11 +231,10 @@ class CommandLineApplication(Application):
 
         # Build up the command, consisting of a BaseCommand followed by
         # input and output (file) specifications
-        command = self._command_delimiter.join(filter(None,\
-            [self.BaseCommand,str(input_arg),'>',str(outfile),'2>',\
-                str(errfile)]))
+        command = self._command_delimiter.join([_f for _f in [self.BaseCommand,str(input_arg),'>',str(outfile),'2>',\
+                str(errfile)] if _f])
         if self.HaltExec: 
-            raise AssertionError, "Halted exec with command:\n" + command
+            raise AssertionError("Halted exec with command:\n" + command)
         # The return value of system is a 16-bit number containing the signal 
         # number that killed the process, and then the exit status. 
         # We only want to keep the exit status so do a right bitwise shift to 
@@ -245,11 +244,10 @@ class CommandLineApplication(Application):
         # Determine if error should be raised due to exit status of 
         # appliciation
         if not self._accept_exit_status(exit_status):
-            raise ApplicationError, \
-             'Unacceptable application exit status: %s\n' % str(exit_status) +\
+            raise ApplicationError('Unacceptable application exit status: %s\n' % str(exit_status) +\
              'Command:\n%s\nStdOut:\n%s\nStdErr:\n%s\n' % (command, 
                                                            open(outfile).read(), 
-                                                           open(errfile).read())
+                                                           open(errfile).read()))
         # bash returns 127 as the exit status if the command could not
         # be found -- raise an ApplicationError on status == 127.
         # elif exit_status == 127:
@@ -289,7 +287,7 @@ class CommandLineApplication(Application):
              when expected files aren't present.
         
         """
-        raise ApplicationError, "Error constructing CommandLineAppResult."
+        raise ApplicationError("Error constructing CommandLineAppResult.")
    
    
     def _input_as_string(self,data):
@@ -352,7 +350,7 @@ class CommandLineApplication(Application):
 
         """
         return self._command_delimiter.join(\
-            map(str,map(self._input_as_path,data)))
+            map(str,list(map(self._input_as_path,data))))
 
     def _absolute(self,path):
         """ Convert a filename to an absolute path """
@@ -376,14 +374,13 @@ class CommandLineApplication(Application):
         # WorkingDir should be in quotes -- filenames might contain spaces
         cd_command = ''.join(['cd ',str(self.WorkingDir),';'])
         if self._command is None:
-            raise ApplicationError, '_command has not been set.'
+            raise ApplicationError('_command has not been set.')
         command = self._command
         parameters = self.Parameters
         
         command_parts.append(cd_command)
         command_parts.append(command)
-        command_parts.append(self._command_delimiter.join(filter(\
-            None,(map(str,parameters.values())))))
+        command_parts.append(self._command_delimiter.join([_f for _f in (list(map(str,list(parameters.values())))) if _f]))
       
         return self._command_delimiter.join(command_parts).strip()
     
@@ -430,9 +427,8 @@ class CommandLineApplication(Application):
         """
         command = self._command
         if not (exists(command) or app_path(command)):
-            raise ApplicationNotFoundError,\
-             "Cannot find %s. Is it installed? Is it in your path?"\
-             % command
+            raise ApplicationNotFoundError("Cannot find %s. Is it installed? Is it in your path?"\
+             % command)
 
     
     def _accept_exit_status(self,exit_status):
@@ -552,17 +548,17 @@ class ParameterIterBase:
         app_param_set = set(self.AppParams.keys())
         if not param_set.issubset(app_param_set):
             not_present = str(param_set.difference(app_param_set))
-            raise ValueError, "Parameter(s) %s not present in app" % not_present
+            raise ValueError("Parameter(s) %s not present in app" % not_present)
 
         # Validate AlwaysOn
         alwayson_set = set(AlwaysOn)
         if not alwayson_set.issubset(param_set):
             not_present = str(alwayson_set.difference(param_set))
-            raise ValueError, "AlwaysOn value(s) %s not in Parameters" % \
-                    not_present
+            raise ValueError("AlwaysOn value(s) %s not in Parameters" % \
+                    not_present)
 
         # Make sure all values are lists
-        for k,v in Parameters.items():
+        for k,v in list(Parameters.items()):
             if not isinstance(v, list):
                 Parameters[k] = [v]
         _my_params = Parameters
@@ -572,7 +568,7 @@ class ParameterIterBase:
             _my_params[k].append(False)
 
         # Create seperate key/value lists preserving index relation
-        self._keys, self._values = zip(*sorted(_my_params.items()))
+        self._keys, self._values = list(zip(*sorted(_my_params.items())))
 
         # Construct generator
         self._generator = self._init_generator()
@@ -596,8 +592,8 @@ class ParameterIterBase:
     def __iter__(self):
         return self
 
-    def next(self):
-        return self._generator.next()
+    def __next__(self):
+        return next(self._generator)
 
     def reset(self):
         self._generator = self._init_generator()
@@ -634,9 +630,9 @@ def cmdline_generator(param_iter, PathToBin=None, PathToCmd=None, \
     """
     # Make sure we have input(s) and output
     if PathsToInputs is None:
-        raise ValueError, "No inputfile specified"
+        raise ValueError("No inputfile specified")
     if PathToOutput is None:
-        raise ValueError, "No outputfile specified"
+        raise ValueError("No outputfile specified")
 
     if not isinstance(PathsToInputs, list):
         PathsToInputs = [PathsToInputs]
@@ -673,7 +669,7 @@ def cmdline_generator(param_iter, PathToBin=None, PathToCmd=None, \
         # Support for multiple input files
         for inputfile in PathsToInputs:
             cmdline = [base_command]    
-            cmdline.extend(sorted(filter(None, map(str, params.values()))))
+            cmdline.extend(sorted([_f for _f in map(str, list(params.values())) if _f]))
 
             # Input can come from stdin or specified input argument
             if InputParam is None:

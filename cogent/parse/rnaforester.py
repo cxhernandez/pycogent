@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-
-from string import strip,split
-from cogent.struct.rna2d import Pairs,ViennaStructure
+from cogent.struct.rna2d import Pairs, ViennaStructure
+strip, split = str.strip, str.split
 
 __author__ = "Shandy Wikman"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -15,13 +14,13 @@ __status__ = "Development"
 def rnaforester_parser(lines):
     """Parser for RNAforester output format
 
-    Returns a list containing: alignemnt,consensus sequence and consensus 
+    Returns a list containing: alignemnt,consensus sequence and consensus
     structure
     Ex: [{alignment},consensus sequence,[consensus structure]]
     """
-    
+
     result = []
-    
+
     for block in cluster_parser(lines):
         for struct in line_parser(block):
             result.append(struct)
@@ -29,7 +28,7 @@ def rnaforester_parser(lines):
     return result
 
 
-def cluster_parser(lines): 
+def cluster_parser(lines):
     """To parse lines into rnaforester clluster blocks"""
     block = []
     first = True
@@ -46,7 +45,7 @@ def cluster_parser(lines):
     yield block
 
 def line_parser(block):
-    """Parses the stdout output from RNAforester and return the concensus 
+    """Parses the stdout output from RNAforester and return the concensus
     structure prediction along with alignment and consensus sequence.
     """
     odd = True
@@ -103,4 +102,3 @@ def to_pairs(struct):
     struct = struct.toPairs()
 
     return struct
-

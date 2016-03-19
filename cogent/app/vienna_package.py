@@ -109,14 +109,14 @@ def get_constrained_fold(sequence, constraint_string, params=None):
     """
     #Check that sequence and constraint string exist.
     if not sequence:
-        raise ValueError, 'No sequence found!'
+        raise ValueError('No sequence found!')
     elif not constraint_string:
-        raise ValueError, 'No constraint string found!'
+        raise ValueError('No constraint string found!')
     
     sequence = str(sequence) 
     #Check that sequence and constraint_string are equal length.
     if len(sequence) != len(constraint_string):
-        raise ValueError, 'Sequence and constraint string are not same length!'
+        raise ValueError('Sequence and constraint string are not same length!')
     app = RNAfold(params=params)
     #Turn on constrained folding.
     app.Parameters['-C'].on()
@@ -137,7 +137,7 @@ def get_secondary_structure(sequence, params=None):
     """
     #Check that sequence and constraint string exist.
     if not sequence:
-        raise ValueError, 'No sequence found!'
+        raise ValueError('No sequence found!')
     
     sequence = str(sequence) 
 
@@ -335,7 +335,7 @@ def plot_from_seq_and_struct(seq, struct,seqname=None, params=None):
     #Construct ViennaStructure.  Object will handle errors in struct string.
     struct = ViennaStructure(struct)
     if len(seq) != len(struct):
-        raise DataError, 'Sequence and structure are not same length!'
+        raise DataError('Sequence and structure are not same length!')
     app = RNAplot(WorkingDir='/tmp',\
         params=params)
     if seqname is None:

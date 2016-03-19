@@ -103,11 +103,10 @@ class Consan(CommandLineApplication):
 
         # Build up the command, consisting of a BaseCommand followed by
         # input and output (file) specifications
-        command = self._command_delimiter.join(filter(None,\
-            [self.BaseCommand,str(input_arg),'>',str(outfile),'2>',\
-                str(errfile)]))
+        command = self._command_delimiter.join([_f for _f in [self.BaseCommand,str(input_arg),'>',str(outfile),'2>',\
+                str(errfile)] if _f])
         if self.HaltExec:
-            raise AssertionError, "Halted exec with command:\n" + command
+            raise AssertionError("Halted exec with command:\n" + command)
         # The return value of system is a 16-bit number containing the signal 
         # number that killed the process, and then the exit status. 
         # We only want to keep the exit status so do a right bitwise shift to 
@@ -120,9 +119,8 @@ class Consan(CommandLineApplication):
         # Determine if error should be raised due to exit status of 
         # appliciation
         if not self._accept_exit_status(exit_status):
-            raise ApplicationError, \
-             'Unacceptable application exit status: %s, command: %s'\
-                % (str(exit_status),command)
+            raise ApplicationError('Unacceptable application exit status: %s, command: %s'\
+                % (str(exit_status),command))
 
         # open the stdout and stderr if not being suppressed
         out = None

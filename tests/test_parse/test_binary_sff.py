@@ -180,7 +180,7 @@ class ParsingFunctionTests(TestCase):
     def test_parse_read(self):
         self.sff_file.seek(440)
         observed = parse_read(self.sff_file, 400)
-        expected = dict(READ_HEADER.items() + READ_DATA.items())
+        expected = dict(list(READ_HEADER.items()) + list(READ_DATA.items()))
         self.assertEqual(observed, expected)
 
     def test_parse_sff(self):

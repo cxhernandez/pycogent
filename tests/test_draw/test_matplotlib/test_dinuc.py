@@ -46,7 +46,7 @@ class dinuc_tests(TestCase):
 
         
         a_data = {'hgt':[spec_a_ht_gene], \
-            None: map(add_random, [spec_a_ave.copy() for i in range(10)])}
+            None: list(map(add_random, [spec_a_ave.copy() for i in range(10)]))}
 
         b_data = {'hgt':[spec_b_ht_gene], 'ribosomal':[spec_b_rb_gene], \
             None:[spec_b_ave]}

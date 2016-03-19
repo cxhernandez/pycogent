@@ -18,7 +18,7 @@ import warnings
 
 from cogent.align.traceback import alignment_traceback
 from cogent.evolve.likelihood_tree import LikelihoodTreeEdge
-from indel_positions import leaf2pog
+from .indel_positions import leaf2pog
 from cogent import LoadSeqs
 from cogent.core.alignment import Aligned
 from cogent.align.traceback import map_traceback
@@ -75,7 +75,7 @@ class PointerEncoding(object):
         self.limits = 2 ** self.widths
         self.max_states = self.limits[-1]
         if DEBUG:
-            print self.max_states, "states allowed in viterbi traceback"
+            print(self.max_states, "states allowed in viterbi traceback")
         self.positions = numpy.array([0, x, x+y], int)
         #a.flags.writeable = False
     def encode(self, x, y, s):
@@ -98,7 +98,7 @@ def py_calc_rows(plan, x_index, y_index, i_low, i_high, j_low, j_high,
     if use_scaling:
         warnings.warn("Pure python version of DP code can suffer underflows")
         # because it ignores 'exponents', the Pyrex version doesn't.
-    source_states = range(len(T))
+    source_states = list(range(len(T)))
     BEGIN = 0
     ERROR = len(T)
     (rows, exponents) = rows
@@ -448,7 +448,7 @@ class AlignablePOG(_Alignable):
             for i in ps:
                 last_successor[i] = successor
             discard_list[successor] = []
-        for (i, successor) in last_successor.items():
+        for (i, successor) in list(last_successor.items()):
             discard_list[successor].append(i)
         return discard_list
     
@@ -529,7 +529,7 @@ def adaptPairTM(pairTM, finite=False):
         T = full_matrix
         state_directions_list = list(enumerate(pairTM.Tags))
     
-    this_row_last = lambda (state, (dx,dy)):(not (dx or dy), not dx)
+    this_row_last = lambda state_dx_dy:(not (state_dx_dy[1][0] or state_dx_dy[1][1]), not state_dx_dy[1][0])
     state_directions_list.sort(key=this_row_last)
     # sorting into desirable order (sort may not be necessary)
     

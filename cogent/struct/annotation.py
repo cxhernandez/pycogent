@@ -20,7 +20,7 @@ def xtradata(data, entity):
                 dictionaries.
         - entity: top-level entity, which contains the entities which will hold 
                   the data."""
-    for full_id, data in data.iteritems():
+    for full_id, data in data.items():
         sub_entity = entity
         strip_full_id = [i for i in full_id if i is not None]
         for short_id in strip_full_id:

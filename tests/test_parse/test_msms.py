@@ -4,9 +4,9 @@ import os, tempfile
 from cogent.util.unit_test import TestCase, main
 from cogent.parse.msms import parse_VertFile
 try:
-    from cStringIO import StringIO
+    from io import StringIO
 except ImportError:
-    from StringIO import StringIO
+    from io import StringIO
 
 __author__ = "Marcin Cieslik"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"

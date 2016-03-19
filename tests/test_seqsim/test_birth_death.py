@@ -214,7 +214,7 @@ class BirthDeathModelTests(TestCase):
             try:
                 result = m(filter=True, exact=True)
                 self.assertEqual(len(list(result.traverse())), 10)
-            except (TooManyTaxaError, ExtinctionError), e:
+            except (TooManyTaxaError, ExtinctionError) as e:
                 pass
     
     def test_call(self):

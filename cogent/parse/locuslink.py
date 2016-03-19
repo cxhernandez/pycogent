@@ -4,14 +4,14 @@
 Notes:
 
 The LocusLink format is documented in the README file, but unfortunately this
-documentation is mostly lies. Fields that are supposed to be unique are 
+documentation is mostly lies. Fields that are supposed to be unique are
 repeated, fields whose only association with each other is their order are
 found out of order, etc.
 
-I suspect that it is impossible to parse the entire file as it was intended, 
+I suspect that it is impossible to parse the entire file as it was intended,
 and writing a parser that conforms to the specification is not useful because
-the file does not match the specificiation. Consequently, I chose to break 
-the assocation between fields that are supposed to form 'sets' within a 
+the file does not match the specificiation. Consequently, I chose to break
+the assocation between fields that are supposed to form 'sets' within a
 subrecord rather than trying to figure out what the sets are from incomplete
 data. This means that e.g. products will not be associated with _particular_
 RNAs: however, all RNAs and all products produced by a locus will be returned.
@@ -20,10 +20,10 @@ The following fields are assumed to be unique (* = required):
     *LOCUSID
      CURRENT_LOCUSID
      LOCUS_CONFIRMED
-     LOCUS_TYPE    
+     LOCUS_TYPE
     *ORGANISM
      STATUS
-     OFFICIAL_SYMBOL 
+     OFFICIAL_SYMBOL
      PREFERRED_SYMBOL
      OFFICIAL_GENE_NAME
      PREFERRED_GENE_NAME
@@ -36,14 +36,14 @@ This applies especially to lines with pipe-delimited fields such as GO, CDD,
 CONTIG, etc.
 
 It is _likely_, but not necessarily true, that items at corresponding indices
-in the lists for grouped fields (e.g. MAP and MAPLINK, PHENOTYPE and 
+in the lists for grouped fields (e.g. MAP and MAPLINK, PHENOTYPE and
 PHENOTYPE_ID,BUTTON and LINK) refer to the same item (i.e. MAP[0] and MAPLINK[0]
 are probably a map and its corresponding link).
 """
 from cogent.parse.record import MappedRecord, FieldWrapper, DelimitedSplitter,\
     list_adder, list_extender, int_setter, LineOrientedConstructor
 from cogent.parse.record_finder import LabeledRecordFinder
-from string import maketrans, strip
+maketrans, strip = str.maketrans, str.strip
 
 __author__ = "Rob Knight"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -133,13 +133,13 @@ contig_wrapper = FieldWrapper(['Accession', 'Gi', 'Strain', 'From', 'To', \
     'Orientation', 'Chromosome', 'Assembly'], pipes)
 def _read_contig(line):
     """Reads CONTIG lines. Format described in full docstring.
-    
+
     Accession|Gi|Strain|From|To|Orientation|Chromosome|Assembly
     """
     return MappedRecord(contig_wrapper(line))
 
 _ll_multi = dict.fromkeys('RELL NG NR NM NC NP PRODUCT TRANSVAR ASSEMBLY CONTIG XG XR EVID XM XP CDD ACCNUM TYPE PROT PREFERRED_PRODUCT ALIAS_SYMBOL ALIAS_PROT PHENOTYPE PHENOTYPE_ID SUMMARY UNIGENE OMIM CHR MAP MAPLINK STS COMP ECNUM BUTTON LINK DB_DESCR DB_LINK PMID GRIF SUMFUNC GO EXTANNOT'.split())
-for i in _ll_multi.keys():
+for i in list(_ll_multi.keys()):
     _ll_multi[i] = []
 
 class LocusLink(MappedRecord):
@@ -153,7 +153,7 @@ class LocusLink(MappedRecord):
         'ACCNUM':'AccessionNumbers','TYPE':'AccessionTypes','PROT':'ProteinIds',
         'OFFICIAL_SYMBOL':'OfficialSymbol','PREFERRED_SYMBOL':'PreferredSymbol',
         'OFFICIAL_GENE_NAME':'OfficialGeneName',
-        'PREFERRED_GENE_NAME':'PreferredGeneName', 
+        'PREFERRED_GENE_NAME':'PreferredGeneName',
         'PREFERRED_PRODUCT':'PreferredProducts',
         'ALIAS_SYMBOL':'SymbolAliases','ALIAS_PROT':'ProteinAliases',
         'PHENOTYPE':'Phenotypes', 'PHENOTYPE_ID':'PhenotypeIds',
@@ -163,7 +163,7 @@ class LocusLink(MappedRecord):
         'LINK':'Links', 'DB_DESCR':'DbDescriptions','DB_LINK':'DbLinks',
         'PMID':'PubMedIds','GRIF':'Grifs', 'SUMFUNC':'FunctionSummaries',
         'GO':'GoIds', 'EXTANNOT':'ExternalAnnotations'}
-              
+
 def _accession_adder(obj, field, line):
     """Adds accessions to relevant field"""
     list_adder(obj, field, _read_accession(line))
@@ -260,4 +260,4 @@ if __name__ == '__main__':
     filename = argv[1]
     count = 0
     for record in LocusLinkParser(open(filename)):
-        print record
+        print(record)

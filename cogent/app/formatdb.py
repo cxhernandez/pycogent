@@ -6,7 +6,7 @@
 File created on 16 Sep 2009.
 
 """
-from __future__ import division
+
 from optparse import OptionParser
 from os.path import split, splitext
 from os import remove
@@ -118,7 +118,7 @@ def build_blast_db_from_fasta_path(fasta_path,is_protein=False,\
         fdb.Parameters['-p'].on('F')
     app_result = fdb(fasta_path)
     db_filepaths = []
-    for v in app_result.values():
+    for v in list(app_result.values()):
         try:
             db_filepaths.append(v.name)
         except AttributeError:

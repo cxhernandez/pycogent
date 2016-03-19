@@ -45,24 +45,24 @@ class ManipulationTest(TestCase):
         self.assertTrue(leu25icA is not leu25)
         self.assertTrue(leu25icA[(('N', ' '),)] is not leu25[(('N', ' '),)])
         leu25icA.setIc('A')
-        self.assertEquals(leu25icA.getId(), (('LEU', 25, 'A'),))
+        self.assertEqual(leu25icA.getId(), (('LEU', 25, 'A'),))
         chainB.addChild(leu25icA)
         self.assertFalse(chainB[(('LEU', 25, 'A'),)] is \
                          chainB[(('LEU', 25, ' '),)])
-        self.assertEquals(clean_ical(self.input_structure), \
+        self.assertEqual(clean_ical(self.input_structure), \
                           ([], [('2E12', 0, 'B', ('LEU', 25, 'A'))]))
         clean_ical(self.input_structure, pretend=False)
 
         self.assertTrue(chainB[(('LEU', 25, 'A'),)] is leu25icA)
-        self.assertFalse((('LEU', 25, 'A'),) in chainB.keys())
+        self.assertFalse((('LEU', 25, 'A'),) in list(chainB.keys()))
         self.assertFalse((('LEU', 25, 'A'),) in chainB)
         self.assertTrue((('LEU', 25, 'A'),) in chainB.keys(unmask=True))
 
         self.input_structure.setUnmasked(force=True)
-        self.assertEquals(clean_ical(self.input_structure), \
+        self.assertEqual(clean_ical(self.input_structure), \
                           ([], [('2E12', 0, 'B', ('LEU', 25, 'A'))]))
         clean_ical(self.input_structure, pretend=False, mask=False)
-        self.assertFalse((('LEU', 25, 'A'),) in chainB.keys())
+        self.assertFalse((('LEU', 25, 'A'),) in list(chainB.keys()))
         self.assertFalse((('LEU', 25, 'A'),) in chainB)
         self.assertFalse((('LEU', 25, 'A'),) in chainB.keys(unmask=True))
 
@@ -80,16 +80,16 @@ class ManipulationTest(TestCase):
         """tests the expansion of a unit-cell to a crystal"""
         fh = open(fn, 'r')
         input_structure = PDBParser(fh)
-        self.assertTrue(input_structure.values(), 4) # 4 models
+        self.assertTrue(list(input_structure.values()), 4) # 4 models
         sh = expand_crystal(input_structure)
         self.assertTrue(len(sh) == 27)
         fd, fn2 = tempfile.mkstemp('.pdb')
         os.close(fd)
         fh = open(fn2, 'w')
         a1 = einput(input_structure, 'A')
-        a2 = einput(sh.values()[3], 'A')
-        k = a1.values()[99].getFull_id()
-        name = sh.values()[3].name
+        a2 = einput(list(sh.values())[3], 'A')
+        k = list(a1.values())[99].getFull_id()
+        name = list(sh.values())[3].name
         a1c = a1[k].coords
         a2c = a2[(name,) + k[1:]].coords
         self.assertTrue(len(a1), len(a2))

@@ -19,7 +19,7 @@ difficulty.
 """
 from cogent.core.tree import PhyloNode
 from cogent.parse.record import RecordError
-from string import strip, maketrans
+strip, maketrans = str.strip, str.maketrans
 
 __author__ = "Rob Knight"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -43,7 +43,7 @@ def safe_for_tree(s):
 
 def bad_dnd_tokens(s, is_valid_name):
     """Returns list of bad dnd tokens from s, using is_valid_name for names.
-    
+
     Useful for finding trees with misformatted names that break parsing.
     """
     for t in DndTokenizer(s):
@@ -59,11 +59,11 @@ def bad_dnd_tokens(s, is_valid_name):
             continue
         #if we got here, nothing worked, so yield the current token
         yield t
-        
+
 
 def DndTokenizer(data):
     """Tokenizes data into a stream of punctuation, labels and lengths.
-    
+
     Note: data should all be a single sequence, e.g. a single string.
     """
     in_quotes = False
@@ -81,13 +81,13 @@ def DndTokenizer(data):
             sa = saved.append
         else:
             sa(d)
-    
+
 
 def DndParser(lines, constructor=PhyloNode, unescape_name=False):
     """Returns tree from the Clustal .dnd file format, and anything equivalent.
-    
+
     Tree is made up of cogent.base.tree.PhyloNode objects, with branch lengths
-    (by default, although you can pass in an alternative constructor 
+    (by default, although you can pass in an alternative constructor
     explicitly).
     """
     if isinstance(lines, str):
@@ -100,9 +100,9 @@ def DndParser(lines, constructor=PhyloNode, unescape_name=False):
     left_count = data.count('(')
     right_count = data.count(')')
     if left_count != right_count:
-        raise RecordError, "Found %s left parens but %s right parens." % \
-            (left_count, right_count)
-    
+        raise RecordError("Found %s left parens but %s right parens." % \
+            (left_count, right_count))
+
     tokens = DndTokenizer(data)
     curr_node = None
     state = 'PreColon'
@@ -157,14 +157,14 @@ def DndParser(lines, constructor=PhyloNode, unescape_name=False):
         elif state == 'PostColon':  #length data for the current node
             curr_node.Length = float(t)
         else:   #can't think of a reason to get here
-            raise RecordError, "Incorrect PhyloNode state? %s" % t
+            raise RecordError("Incorrect PhyloNode state? %s" % t)
         state = 'PreColon'  #get here for any non-colon token
         state1 = 'PreClosed'
         last_token = t
-        
+
     if curr_node is not None and curr_node.Parent is not None:
-        raise RecordError, "Didn't get back to root of tree."
-    
+        raise RecordError("Didn't get back to root of tree.")
+
     if curr_node is None:       #no data -- return empty node
         return constructor()
     return curr_node    #this should be the root of the tree
@@ -174,6 +174,6 @@ def _new_child(old_node, constructor):
     new_node = constructor()
     new_node.Parent = old_node
     if old_node is not None:
-        if id(new_node) not in map(id, old_node.Children):
+        if id(new_node) not in list(map(id, old_node.Children)):
             old_node.Children.append(new_node)
     return new_node

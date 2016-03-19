@@ -58,7 +58,7 @@ class MyRandom(Random):
             # An n-length list is smaller than a k-length set, or this is a
             # mapping type so the other algorithm wouldn't work.
             pool = array(list(population))
-            for i in xrange(k):         # invariant:  non-selected at [0,n-i)
+            for i in range(k):         # invariant:  non-selected at [0,n-i)
                 j = _int(random() * (n-i))
                 result[i] = pool[j]
                 pool[j] = pool[n-i-1]   # move non-selected item into vacancy
@@ -66,7 +66,7 @@ class MyRandom(Random):
             try:
                 selected = set()
                 selected_add = selected.add
-                for i in xrange(k):
+                for i in range(k):
                     j = _int(random() * n)
                     while j in selected:
                         j = _int(random() * n)

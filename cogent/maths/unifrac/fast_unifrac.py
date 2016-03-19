@@ -12,7 +12,7 @@ from cogent.cluster.metric_scaling import *
 from cogent.core.tree import PhyloNode, TreeError
 from cogent.cluster.UPGMA import UPGMA_cluster
 from cogent.phylo.nj import nj
-from StringIO import StringIO
+from io import StringIO
 
 __author__ = "Rob Knight and Micah Hamady"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -38,7 +38,7 @@ TEST_ON_PAIRWISE = "Pairwise"
 TEST_ON_TREE = "Tree"
 TEST_ON_ENVS = "Envs"
 
-def identity(x): return range(x)
+def identity(x): return list(range(x))
 
 def num_comps(num_envs):
     """ Calc number of comparisons for Bonferroni correction """
@@ -55,7 +55,7 @@ def mcarlo_sig(real_val, sim_vals, num_comps, tail='low'):
     returns (raw pval, corrected pval)
     """
     if num_comps < 1:
-        raise ValueError, "num_comps must be > 0"
+        raise ValueError("num_comps must be > 0")
     sim_vals = array(sim_vals) 
     out_count = 0
     pop_size = float(len(sim_vals))
@@ -64,7 +64,7 @@ def mcarlo_sig(real_val, sim_vals, num_comps, tail='low'):
     elif tail == 'high':
         out_count = sum(sim_vals > real_val) 
     else:
-        raise ValueError, "tail must be 'low' or 'high'"
+        raise ValueError("tail must be 'low' or 'high'")
     raw_pval = out_count/pop_size
     cor_pval = raw_pval * num_comps
     # reset to 1.0 if corrected if > 1.0 
@@ -111,8 +111,8 @@ def fast_unifrac_permutations_file(tree_in, envs_in, weighted=False,
                     tail='high')
                 result.append((first_env, second_env, raw_pval, cor_pval))
                 if verbose:
-                    print "env %s vs %s" % (first_env, second_env)
-                    print raw_pval, cor_pval, num_uenvs, cur_num_comps, 'high'
+                    print("env %s vs %s" % (first_env, second_env))
+                    print(raw_pval, cor_pval, num_uenvs, cur_num_comps, 'high')
     # calculate single p-value for whole tree
     elif test_on == TEST_ON_TREE:
         # will be using env_unique_fraction
@@ -130,7 +130,7 @@ def fast_unifrac_permutations_file(tree_in, envs_in, weighted=False,
                 tail='high')
             result.append((unique_envs[i], raw_pval, cor_pval))
     else:
-        raise ValueError, "Invalid test_on value: %s" % str(test_on)
+        raise ValueError("Invalid test_on value: %s" % str(test_on))
     return result
 
 def fast_p_test_file(tree_in, envs_in, num_iters=1000, verbose=False, 
@@ -155,8 +155,8 @@ def fast_p_test_file(tree_in, envs_in, num_iters=1000, verbose=False,
                     tail='low')
                 result.append((first_env, second_env, raw_pval, cor_pval))
                 if verbose:
-                    print "P Test: env %s vs %s" % (first_env, second_env)
-                    print raw_pval, cor_pval, num_uenvs, cur_num_comps, 'low'
+                    print("P Test: env %s vs %s" % (first_env, second_env))
+                    print(raw_pval, cor_pval, num_uenvs, cur_num_comps, 'low')
     # calculate real, sim vals and p-vals for whole tree
     elif test_on == TEST_ON_TREE:
         real = fast_p_test(t, envs, num_iters=1, permutation_f=identity)[0]
@@ -164,7 +164,7 @@ def fast_p_test_file(tree_in, envs_in, num_iters=1000, verbose=False,
         raw_pval, cor_pval = mcarlo_sig(real, sim, 1, tail='low')
         result.append(('Whole Tree', raw_pval))
     else:
-        raise ValueError, "Invalid test_on value: %s" % str(test_on)
+        raise ValueError("Invalid test_on value: %s" % str(test_on))
 
     return result
 
@@ -191,7 +191,7 @@ def _fast_unifrac_setup(t, envs, make_subtree=True):
     #Note: envs get sorted at the step above
     branch_lengths = get_branch_lengths(node_index)
     if not envs:
-        raise ValueError, "No valid samples/environments found. Check whether tree tips match otus/taxa present in samples/environments"
+        raise ValueError("No valid samples/environments found. Check whether tree tips match otus/taxa present in samples/environments")
     return envs, count_array, unique_envs, env_to_index, node_to_index, env_names, branch_lengths, nodes, t
 
 def fast_unifrac_whole_tree(t, envs, num_iters, permutation_f=permutation):
@@ -318,7 +318,7 @@ def fast_p_test(t, envs, num_iters, first_env=None, second_env=None,
         count_array = count_array[:,[first_ix,second_ix]] #ditch rest of array
     # else if both envs are none, we're doing whole tree 
     elif not (first_env is None and second_env is None):
-        raise ValueError, "Both envs must either have a value or be None."
+        raise ValueError("Both envs must either have a value or be None.")
 
     bound_indices = bind_to_array(nodes, count_array)
     orig_count_array = count_array.copy()
@@ -346,7 +346,7 @@ def shared_branch_length(t, envs, env_count=1):
     
 
     if len(unique_envs) < env_count:
-        raise ValueError, "Not enough environments for env_count"
+        raise ValueError("Not enough environments for env_count")
 
     index_to_env = dict([(i,e) for i,e in enumerate(unique_envs)])
 
@@ -371,7 +371,7 @@ def shared_branch_length(t, envs, env_count=1):
 
     # compute shared branch length for each environments
     result = {}
-    for envs_tuple, taxa_indices in envs_to_investigate.items():
+    for envs_tuple, taxa_indices in list(envs_to_investigate.items()):
         valid_rows = zeros(len(count_array))
         for i in taxa_indices:
             valid_rows[i] = 1.0
@@ -461,7 +461,7 @@ def fast_unifrac(t, envs, weighted=False, metric=unifrac, is_symmetric=True,
     """
     modes = set(modes)  #allow list, etc. of modes to be passed in.
     if not modes or modes - UNIFRAC_VALID_MODES:
-        raise ValueError, "Invalid run modes: %s, valid: %s" % (str(modes),str(UNIFRAC_VALID_MODES))
+        raise ValueError("Invalid run modes: %s, valid: %s" % (str(modes),str(UNIFRAC_VALID_MODES)))
 
     envs, count_array, unique_envs, env_to_index, node_to_index, env_names, branch_lengths, nodes, t = _fast_unifrac_setup(t, envs, make_subtree)
     bound_indices = bind_to_array(nodes, count_array)
@@ -562,7 +562,7 @@ def unifrac_tasks_from_matrix(u, env_names, modes=UNIFRAC_DEFAULT_MODES):
         result[UNIFRAC_PCOA] =  output_pca(point_matrix, eigvals, env_names)
 
     if UNIFRAC_CLUST_ENVS in modes:
-        nodes = map(PhyloNode, env_names)
+        nodes = list(map(PhyloNode, env_names))
         BIG = 1e305
         U = u.copy()
         for i in range(len(U)):
@@ -649,18 +649,18 @@ def weight_by_num_tips(tree_list, envs_list):
 
 def weight_by_branch_length(tree_list, envs_list):
     """Weights each tree by the sum of its branch length."""
-    return array([sum(filter(None, [i.Length for i in \
-        t.traverse(self_before=True,self_after=False) if hasattr(i, 'Length')])) for t in tree_list])
+    return array([sum([_f for _f in [i.Length for i in \
+        t.traverse(self_before=True,self_after=False) if hasattr(i, 'Length')] if _f]) for t in tree_list])
 
 def weight_by_num_seqs(tree_list, envs_list):
     """Weights each tree by the number of seqs it contains."""
-    return array(map(sum_env_dict, envs_list))
+    return array(list(map(sum_env_dict, envs_list)))
 
 def get_all_env_names(envs):
     """Returns set of all env names from envs."""
     result = set()
-    for e in envs.values():
-        result.update(e.keys())
+    for e in list(envs.values()):
+        result.update(list(e.keys()))
     return result
 
 def consolidate_skipping_missing_matrices(matrices, env_names, weights, 
@@ -725,8 +725,8 @@ def reshape_by_name(m, old_names, new_names, default_off_diag=0,default_diag=0,
             result[new_i, new_j] = val
     if masked:
         mask = ones((num_names, num_names), float)
-        for i in pairs.values():
-            for j in pairs.values():
+        for i in list(pairs.values()):
+            for j in list(pairs.values()):
                 mask[i,j] = 0
         result = ma.array(result, mask=mask)
     return result
@@ -943,17 +943,17 @@ def _load_tree(tree_str, envs_str, title):
     """Load tree and return """
     tree_in = StringIO(CRUMP_TREE)
     envs_in = StringIO(CRUMP_ENVS)
-    print """\n(((((Running: %s""" % title
+    print("""\n(((((Running: %s""" % title)
     return  tree_in, envs_in
 
 def _display_results(out):
-    print "Results:", out, "\n)))))"
+    print("Results:", out, "\n)))))")
 
 if __name__ == '__main__':
     """
     Examples below using Crump tree and envs
     """
-    from StringIO import StringIO
+    from io import StringIO
 
     tree_in, envs_in = _load_tree(CRUMP_TREE, CRUMP_ENVS, "unifrac - pairwise example (unweighted)")
     out = fast_unifrac_permutations_file(tree_in, envs_in, weighted=False, num_iters=100, verbose=True)
@@ -983,4 +983,4 @@ if __name__ == '__main__':
     out = fast_p_test_file(tree_in, envs_in, num_iters=10, verbose=True, test_on=TEST_ON_TREE)
     _display_results(out)
 
-    print "Done examples."
+    print("Done examples.")

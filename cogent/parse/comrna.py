@@ -89,7 +89,7 @@ def common(structs):
     indx = tmp_list.index(winner)-1
     result.append([tmp_list[indx],winner]) #adds the most common structure first
     del frequency[key]
-    for i in frequency.keys(): #rest of structures added
+    for i in list(frequency.keys()): #rest of structures added
         i = Pairs(i)
         indx = tmp_list.index(i)-1
         result.append([tmp_list[indx],i])
@@ -193,8 +193,8 @@ def pairsParser(seqBlock,names):
                     try:
                         seq.append(tmp[2])#[name,start nr,seq,end nr]
                     except:
-                        print 'LINE',line
-                        print 'BLOCK', seqBlock
+                        print('LINE',line)
+                        print('BLOCK', seqBlock)
                     sIndx.append(index(line,tmp[2]))            
                     record = True
                 else:
@@ -217,7 +217,7 @@ def pairsParser(seqBlock,names):
             Fseq = ''.join([Fseq,seq[i]])
             Fstruct = ''.join([Fstruct,tmpStruct])
         #Applies a position to every letter in structure sequence    
-        letterPos = zip(range(len(Fseq)),Fstruct)
+        letterPos = list(zip(list(range(len(Fseq))),Fstruct))
         
 ###############################################################################
 #Cunstruction of dictionary for where every letter in structure has a list of
@@ -241,13 +241,13 @@ def pairsParser(seqBlock,names):
 #oL and cL (open and close list), to be able to fold the positions into pairs
 
         pairs = []
-        for value in alphabet.values():
+        for value in list(alphabet.values()):
             middle = len(value)/2
             oL = value[:middle]
             cL = value[middle:]
             #pairs are created by making a tuple of the first in oL to
             #the last in cl, second in oL to second last in cL and so on
-            pairs.extend(zip(oL,cL.__reversed__()))
+            pairs.extend(list(zip(oL,cL.__reversed__())))
 
         yield Pairs(pairs),Fseq
 

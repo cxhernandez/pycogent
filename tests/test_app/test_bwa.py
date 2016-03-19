@@ -74,9 +74,9 @@ class BWAtests(TestCase):
         HALT_EXEC=True)
 
         # Should not be allowed
-        self.assertRaisesRegexp(ApplicationError, "Invalid argument", 
+        self.assertRaisesRegex(ApplicationError, "Invalid argument", 
                                 index_invalid.check_arguments)
-        self.assertRaisesRegexp(ApplicationError, "Invalid argument",
+        self.assertRaisesRegex(ApplicationError, "Invalid argument",
                                 index_invalid_prefix.check_arguments)
 
         # Should execute and not raise any exceptions
@@ -108,22 +108,22 @@ class BWAtests(TestCase):
         test_paths = {'prefix': '/fa_in', 'fastq_in': '/fq_in'}
 
         # Should Halt Exec (AssertionError) right before execution
-        self.assertRaisesRegexp(AssertionError, 'Halted exec', aln_valid, 
+        self.assertRaisesRegex(AssertionError, 'Halted exec', aln_valid, 
                                 test_paths)
         # also need to make sure the base command is correct
         self.assertIn('; bwa aln -f /sai_out -n 3.0 -o 5 /fa_in /fq_in',
                      aln_valid.BaseCommand)
 
         # Should fail
-        self.assertRaisesRegexp(ApplicationError, 
+        self.assertRaisesRegex(ApplicationError, 
                                 "Invalid argument", aln_invalid1,
                                 test_paths)
 
-        self.assertRaisesRegexp(ApplicationError, 
+        self.assertRaisesRegex(ApplicationError, 
                                 "Invalid argument", aln_invalid2,
                                 test_paths)
 
-        self.assertRaisesRegexp(ApplicationError, 
+        self.assertRaisesRegex(ApplicationError, 
                                 "Please specify an output file",
                                 aln_invalid3, test_paths)
 
@@ -150,18 +150,18 @@ class BWAtests(TestCase):
         bwasw = BWA_bwasw(params={'-f':'/sam_out'}, HALT_EXEC=True)
 
         # should raise ApplicationError for wrong I/O files; failure
-        self.assertRaisesRegexp(ApplicationError, "Missing required input",
+        self.assertRaisesRegex(ApplicationError, "Missing required input",
                                 bwasw, missing)
-        self.assertRaisesRegexp(ApplicationError, "Invalid input arguments",
+        self.assertRaisesRegex(ApplicationError, "Invalid input arguments",
                                 bwasw, extra)
-        self.assertRaisesRegexp(ApplicationError, "Only absolute paths",
+        self.assertRaisesRegex(ApplicationError, "Only absolute paths",
                                 bwasw, rel_fp)
 
         # should raise AssertionError (Halt Exec); success
         # tests valid arguments with and without the optional 
         # _query_fasta_2 argument
-        self.assertRaisesRegexp(AssertionError, 'Halted exec', bwasw, valid)
-        self.assertRaisesRegexp(AssertionError, 'Halted exec', bwasw, 
+        self.assertRaisesRegex(AssertionError, 'Halted exec', bwasw, valid)
+        self.assertRaisesRegex(AssertionError, 'Halted exec', bwasw, 
                                 valid_with_mate)
 
     def test_get_base_command(self):
@@ -184,12 +184,12 @@ class BWAtests(TestCase):
         
 
         # make sure both sets run, and that the command appears to be correct
-        self.assertRaisesRegexp(AssertionError, 
+        self.assertRaisesRegex(AssertionError, 
                                 'Halted exec', aln, first_files)
         self.assertIn('; bwa aln -f /sai_out -n 1.0 /fa_in1 /fq_in1',
                       aln.BaseCommand)
 
-        self.assertRaisesRegexp(AssertionError, 'Halted exec', aln,
+        self.assertRaisesRegex(AssertionError, 'Halted exec', aln,
                                 second_files)
         self.assertIn('; bwa aln -f /sai_out -n 1.0 /fa_in2 /fq_in2',
                       aln.BaseCommand)
@@ -199,7 +199,7 @@ class BWAtests(TestCase):
         aln2 = BWA_aln(params = {'-n': 2.5, '-o': 7, '-f':'/sai_out'},
                                 HALT_EXEC=True)
 
-        self.assertRaisesRegexp(AssertionError, 'Halted exec', aln2, 
+        self.assertRaisesRegex(AssertionError, 'Halted exec', aln2, 
                                 first_files)
         self.assertIn('; bwa aln -f /sai_out -n 2.5 -o 7 /fa_in1 /fq_in1',
         aln2.BaseCommand)
@@ -276,7 +276,7 @@ class BWAtests(TestCase):
         
         # for each of the 5 output files (not counting stdout, stderr, and
         # the exitStatus), make sure the file paths are as expcted.
-        for filetype, result in results.iteritems():
+        for filetype, result in results.items():
             if filetype not in ('ExitStatus'):
                 # be sure to remove these 5 files
                 self.files_to_remove.append(result.name)
@@ -298,16 +298,16 @@ class BWAtests(TestCase):
         query = '/query'
         out = '/sam'
 
-        self.assertRaisesRegexp(ApplicationError, 
+        self.assertRaisesRegex(ApplicationError, 
                             "Must specify which algorithm",
                             assign_reads_to_database, query, database, out, 
                             no_alg)
 
-        self.assertRaisesRegexp(ApplicationError, "Unknown algorithm",
+        self.assertRaisesRegex(ApplicationError, "Unknown algorithm",
                             assign_reads_to_database, query, database, out,
                             wrong_alg)
 
-        self.assertRaisesRegexp(ApplicationError,
+        self.assertRaisesRegex(ApplicationError,
                             "aln is an intermediate step",
                             assign_reads_to_database, query, database, out,
                             no_aln_params)

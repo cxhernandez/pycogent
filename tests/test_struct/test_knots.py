@@ -4,7 +4,7 @@
 """Provides tests for classes and functions in the file knots.py
 """
 
-from __future__ import division
+
 from cogent.util.unit_test import TestCase, main
 from cogent.util.dict2d import Dict2D
 from cogent.struct.rna2d import Pairs
@@ -526,7 +526,7 @@ class PairedRegionsTests(TestCase):
         obs = prs.conflictCliques()
         exp = [PairedRegions([pr2,pr3]),PairedRegions([pr5,pr4])]
         for i in obs:
-            self.failUnless(i in exp)
+            self.assertTrue(i in exp)
         self.assertEqual(len(obs), len(exp))
 
         prs = PairedRegions()
@@ -560,7 +560,7 @@ class ConflictMatrixTests(TestCase):
         d = [(1,10),(2,9),(12,20),(13,19),(14,18)]
         exp = Dict2D({0:{0:False,1:False},1:{0:False,1:False}})
         self.assertEqual(f(d).Matrix, exp)
-        self.failIf(not isinstance(f(d).Matrix, Dict2D))
+        self.assertFalse(not isinstance(f(d).Matrix, Dict2D))
         
         # 1 conflict
         d = [(1,10),(2,9),(12,20),(13,19),(14,18),(15,30),(16,29)]
@@ -598,7 +598,7 @@ class ConflictMatrixTests(TestCase):
         prs = PairedRegions([pr1,pr2])
         exp = Dict2D({0:{0:False,1:False},1:{0:False,1:False}})
         self.assertEqual(f(prs).Matrix, exp)
-        self.failIf(not isinstance(f(prs).Matrix, Dict2D))
+        self.assertFalse(not isinstance(f(prs).Matrix, Dict2D))
         
         pr1 = PairedRegion(1,10,2, Id=0)
         pr2 = PairedRegion(12,20,3, Id=1)
@@ -939,9 +939,9 @@ class DPTests(TestCase):
         exp1, exp_rem1 = [(10,20),(11,19)], [(15,25),(16,24)]
         exp2, exp_rem2 = [(15,25),(16,24)], [(10,20),(11,19)]
         obs = opt_single_random(p)
-        self.failUnless(obs == exp1 or obs == exp2)
+        self.assertTrue(obs == exp1 or obs == exp2)
         obs = opt_single_random(p, return_removed=True)
-        self.failUnless(obs == (exp1, exp_rem1) or obs == (exp2, exp_rem2))
+        self.assertTrue(obs == (exp1, exp_rem1) or obs == (exp2, exp_rem2))
            
     def test_opt_single_property(self):
         """opt_single_property: three properties"""

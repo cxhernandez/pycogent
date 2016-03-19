@@ -2,7 +2,7 @@
 
 """Provides utility methods for sequence weighting
 """
-from __future__ import division
+
 
 from numpy import array, zeros, dot as matrixmultiply, ones, identity, take,\
     asarray, uint8 as UInt8, add, sqrt
@@ -11,6 +11,7 @@ from cogent.util.array import hamming_distance
 from cogent.core.profile import Profile, CharMeaningProfile
 from cogent.core.moltype import DNA, RNA, PROTEIN
 from cogent.core.alignment import Alignment
+from functools import reduce
 
 __author__ = "Sandra Smit"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -32,8 +33,8 @@ class Weights(dict):
 
     def normalize(self):
         """Normalizes to one. Works in place!"""
-        total = sum(self.values(), 0)
-        for k, v in self.items():
+        total = sum(list(self.values()), 0)
+        for k, v in list(self.items()):
             self[k] = v/total
 
 
@@ -49,7 +50,7 @@ def number_of_pseudo_seqs(alignment):
     option and the choice is with equal likelihood from any of the observed
     characters. (See Implementation Notes for more details).
     """
-    return reduce(lambda x, y: x*y, map(len,alignment.columnProbs()))
+    return reduce(lambda x, y: x*y, list(map(len,alignment.columnProbs())))
 
 def pseudo_seqs_exact(alignment,n=None):
     """Returns all possible pseudo sequences (generated from the alignment)
@@ -98,7 +99,7 @@ def pseudo_seqs_monte_carlo(alignment,n=1000):
     for x in range(n):
         seq = []
         for i in freqs:
-            seq.append(choice(i.keys()))
+            seq.append(choice(list(i.keys())))
         yield ''.join(seq)
 
 def row_to_vote(row):
@@ -167,7 +168,7 @@ def eigenvector_for_largest_eigenvalue(matrix):
     for i in range(1000):
         new_v = matrixmultiply(matrix,v)
         new_v = new_v/sum(new_v, 0) #normalize
-        if sum(map(abs,new_v-v), 0) > 1e-9:
+        if sum(list(map(abs,new_v-v)), 0) > 1e-9:
             v = new_v #not converged yet
             continue
         else: #converged
@@ -320,17 +321,17 @@ def AlnToProfile(aln, alphabet=None, char_order=None, split_degenerates=False,\
     """
 
     if alphabet is None:
-        alphabet = aln.values()[0].MolType
+        alphabet = list(aln.values())[0].MolType
     if char_order is None:
         char_order = list(alphabet)
     if weights is None:
-        weights = dict.fromkeys(aln.keys(),1/len(aln))
+        weights = dict.fromkeys(list(aln.keys()),1/len(aln))
     
     char_meaning = CharMeaningProfile(alphabet, char_order,\
         split_degenerates)
 
     profiles = []
-    for k,v in aln.items():
+    for k,v in list(aln.items()):
         idxs = array(str(v).upper(), 'c').view(UInt8)
         profiles.append(char_meaning.Data[idxs] * weights[k])
     s = reduce(add,profiles)
@@ -338,8 +339,8 @@ def AlnToProfile(aln, alphabet=None, char_order=None, split_degenerates=False,\
     result = Profile(s,alphabet, char_order)
     try:
         result.normalizePositions()
-    except Exception, e:
-        raise ValueError,e
+    except Exception as e:
+        raise ValueError(e)
         #"Probably one of the rows in your profile adds up to zero,\n "+\
         #"because you are ignoring all of the characters in the "+\
         #"corresponding\n column in the alignment"

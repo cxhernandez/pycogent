@@ -3,7 +3,7 @@
 
 """
 from cogent.seqsim.markov import MarkovGenerator
-from StringIO import StringIO
+from io import StringIO
 from operator import mul
 from sys import path
 from cogent.util.unit_test import TestCase, main

@@ -52,7 +52,7 @@ class CovetTest(TestCase):
 
         c = Covet(InputHandler='_input_as_lines')
         res = c(self.input,remove_tmp=False)
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus','cm'
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus','cm'
                                           ,'_input_filename'])
         self.assertEqual(res['ExitStatus'],0)
         assert res['StdOut'] is not None
@@ -104,7 +104,7 @@ class CovesTest(TestCase):
         s.close()
 
         res = c('single.fasta')
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus'])
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus'])
         self.assertEqual(res['ExitStatus'],0)
         assert res['StdOut'] is not None
         res.cleanUp()

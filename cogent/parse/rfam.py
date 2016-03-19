@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Provides a parser for Rfam format files.
 """
-from string import strip
+strip = str.strip
 from cogent.parse.record import RecordError
 from cogent.parse.record_finder import DelimitedRecordFinder
 from cogent.parse.clustal import ClustalParser
@@ -101,8 +101,8 @@ def HeaderToInfo(header,strict=True):
                 raise RecordError
         except:
             if strict:
-                raise RecordError, "Failed to extract label and content " +\
-                    "information from line %s"%(line)
+                raise RecordError("Failed to extract label and content " +\
+                    "information from line %s"%(line))
             else:
                 continue
         if label in ['BM','DR','RM','CC']:
@@ -116,7 +116,7 @@ def HeaderToInfo(header,strict=True):
     # transform initial dict into final one
     # throw away useless information; group information
     final_info={}
-    for key in initial_info.keys():
+    for key in list(initial_info.keys()):
         name = _field_names.get(key,key)
         if name == 'Comment':
             value = ' '.join(initial_info[key])
@@ -145,8 +145,8 @@ def NameToInfo(sequence, strict=True):
             pos = None
     except: #unable to split, so string doesn't contain '/'
         if strict:
-            raise RecordError, "Failed to extract genbank id and positions" +\
-            " from label %s"%label
+            raise RecordError("Failed to extract genbank id and positions" +\
+            " from label %s"%label)
         else:
             gb = None
             pos =None
@@ -155,9 +155,8 @@ def NameToInfo(sequence, strict=True):
             start, end = pos.split('-',1) #split start and end pos
         except:
             if strict:
-                raise RecordError,\
-                    "Failed to extract genbank id and positions from label %s"\
-                    %label
+                raise RecordError("Failed to extract genbank id and positions from label %s"\
+                    %label)
             else:
                 start = None
                 end = None
@@ -232,7 +231,7 @@ def MinimalRfamParser(infile,strict=True,seq_constructor=ChangedRnaSequence):
                     error += 'sequences '
                 if not structure:
                     error += 'structure '
-                raise RecordError, error
+                raise RecordError(error)
             else:
                 continue
         #join all sequence parts together, construct label
@@ -240,9 +239,9 @@ def MinimalRfamParser(infile,strict=True,seq_constructor=ChangedRnaSequence):
             new_seqs = load_from_clustal(sequences,strict=strict,
                 seq_constructor=seq_constructor)
             sequences = new_seqs
-        except (DataError, RecordError), e:
+        except (DataError, RecordError) as e:
             if strict:
-                raise RecordError, str(e)
+                raise RecordError(str(e))
             else:
                 continue
 
@@ -251,10 +250,9 @@ def MinimalRfamParser(infile,strict=True,seq_constructor=ChangedRnaSequence):
             res = load_from_clustal(structure, strict=strict)
             assert len(res.NamedSeqs) == 1 #otherwise multiple keys
             structure = res.NamedSeqs['#=GC SS_cons']
-        except (RecordError, KeyError, AssertionError), e:
+        except (RecordError, KeyError, AssertionError) as e:
             if strict:
-                raise RecordError,\
-                    "Can't parse structure of family: %s"%(str(header))
+                raise RecordError("Can't parse structure of family: %s"%(str(header)))
             else:
                 structure = None
         yield header, sequences, structure
@@ -276,16 +274,16 @@ def RfamParser(lines, seq_constructor=ChangedRnaSequence, label_constructor=\
             try:
                 family_info = label_constructor(header,strict=strict)
             except:
-                raise RecordError,"Info construction failed on " +\
-                    "record with header %s"%header
+                raise RecordError("Info construction failed on " +\
+                    "record with header %s"%header)
             try:
                 for seq in alignment.Seqs:
                     _process_seq(seq, strict)
                 structure = struct_constructor(structure)
                 yield family_info, alignment, structure
-            except Exception, e:
-                raise RecordError,"Sequence construction failed on " +\
-                    "record with reference %s"%(family_info.Refs)
+            except Exception as e:
+                raise RecordError("Sequence construction failed on " +\
+                    "record with reference %s"%(family_info.Refs))
         else:
             try:
                 family_info = label_constructor(header,strict=strict)
@@ -293,9 +291,9 @@ def RfamParser(lines, seq_constructor=ChangedRnaSequence, label_constructor=\
                     _process_seq(seq, strict)
                 structure = struct_constructor(structure)
                 yield family_info, alignment, structure
-            except Exception, e:
+            except Exception as e:
                 if verbose:
-                    print Exception, e
+                    print(Exception, e)
                 continue
 
 def _process_seq(seq, strict):

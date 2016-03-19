@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
-"""Parser for  NUPACK output format 
+"""Parser for  NUPACK output format
 
 If pseudoknotted first steam will be denoted by [] brackets and second steam
 with {} brackets
 """
-
-from string                import strip,split,atof
 from cogent.util.transform import make_trans
 from cogent.struct.rna2d   import Pairs,ViennaStructure
 from cogent.struct.knots   import opt_single_random
+
+strip, split, atof = str.strip, str.split, str.atof
 
 __author__ = "Shandy Wikman"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -39,18 +39,18 @@ def pknotsrg_parser(lines=None,pseudo=True):
         tmp_pairs.sort()
     result.append([seq,tmp_pairs,energy])
     return result
-          
+
 primary_table = make_trans('{[]}','....')
 first_table   = make_trans('({[]})','..()..')
 second_table  = make_trans('([{}])','..()..')
-    
+
 
 def to_pairs(struct=None):
     """
     Converts structure string in to a pairs object.
-    Starts by checking for pseudoknots if pseudoknotted it translates each 
-    steam in to vienna notation and from there makes a pairs object. 
-    Each pairs object is then joined to form the final pairs object of 
+    Starts by checking for pseudoknots if pseudoknotted it translates each
+    steam in to vienna notation and from there makes a pairs object.
+    Each pairs object is then joined to form the final pairs object of
     the entire structure
 
     Returns a tuple of the pairs object and the energy
@@ -66,9 +66,8 @@ def to_pairs(struct=None):
         if struct.__contains__('{'): #Checks for second pseudo steam
             second = ViennaStructure(second.translate(second_table))
             pairs.extend(second.toPairs())
-    else: 
+    else:
           primary = ViennaStructure(primary.translate(primary_table))
           pairs = primary.toPairs()
 
     return pairs,energy
-    

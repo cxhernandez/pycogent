@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 """Provides tests for classes and functions in profile.py
 """
-from __future__ import division
-from string import translate
 from numpy import array, sum, sqrt, transpose, add, subtract, multiply,\
     divide, zeros
 from numpy.random import random
 
-from cogent.util.unit_test import TestCase, main#, numpy_err 
+from cogent.util.unit_test import TestCase, main#, numpy_err
 from cogent.core.moltype import DNA
 from cogent.core.sequence import ModelSequence
 from cogent.core.profile import Profile, ProfileError, CharMeaningProfile
 from cogent.core.alignment import DenseAlignment as Alignment
+
+translate = str.translate
 
 __author__ = "Sandra Smit"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -45,7 +45,7 @@ class ProfileTests(TestCase):
             Alphabet="TCAG")
         self.oned = Profile(array([.25,.25,.25,.25]),"ABCD")
         self.pp = Profile(array([[1,2,3,4],[5,6,7,8],[9,10,11,12]]),"ABCD")
-        
+
     def test_init(self):
         """__init__: should set all attributed correctly"""
         self.assertRaises(TypeError, Profile)
@@ -62,13 +62,13 @@ class ProfileTests(TestCase):
             CharOrder="AG")
         self.assertEqual(p.CharOrder,"AG")
         assert p.Alphabet is DNA
-        #non-character alphabet        
+        #non-character alphabet
         p = Profile(array([[.1,.2],[.4,.3]]),Alphabet=[7,3],
             CharOrder=[3,7])
         self.assertEqual(p.CharOrder,[3,7])
         self.assertEqual(p.Alphabet, [7,3])
         self.assertEqual(p.Data, [[.1,.2],[.4,.3]])
-   
+
     def test_str(self):
         """__str__: should return string representation of data in profile
         """
@@ -133,15 +133,15 @@ class ProfileTests(TestCase):
         assert p.Data is p_copy.Data
         assert p.Alphabet is p_copy.Alphabet
         assert p.CharOrder is p_copy.CharOrder
-        
+
         #modifying p.Data modifies p_copy.Data
         p.Data[1,1] = 100
         assert p.Alphabet is p_copy.Alphabet
-        
+
         #normalizing p.Data rebinds it, so p_copy.Data is unchanged
         p.normalizePositions()
         assert not p.Data is p_copy.Data
-        
+
         #Adding something to the alphabet changes both p and p_copy
         p.Alphabet['Y']='TC'
         assert p.Alphabet is p_copy.Alphabet
@@ -207,16 +207,16 @@ class ProfileTests(TestCase):
         #empty
         self.assertEqual(self.empty.prettyPrint(),"")
         self.assertEqual(self.empty.prettyPrint(transpose_data=True),"")
-        
+
         #it will still print with invalid data (e.g if len(CharOrder)
         #doesn't match the data
         p = self.full.copy()
         p.CharOrder="ABC"
-        
+
         self.assertEqual(p.prettyPrint(include_header=True),\
             "A\tB\tC\n2\t4\t \n3\t5\t \n4\t8\t ")
         #it will truncate the CharOrder if data is transposed
-        #and CharOrder is longer then the number of rows in the 
+        #and CharOrder is longer then the number of rows in the
         #transposed data
         self.assertEqual(p.prettyPrint(include_header=True,\
             transpose_data=True),"A\t2\t3\t4\nB\t4\t5\t8")
@@ -246,7 +246,7 @@ class ProfileTests(TestCase):
         p1 = Profile(array([[1,0],[0,1]]),Alphabet="AB")
         p2 = Profile(array([[1,0,0],[1,0,0]]),Alphabet="ABC")
         self.assertRaises(ProfileError,p1.reduce,p2)
-        
+
     def test_reduce_normalization_error(self):
         """reduce: fails when input or output can't be normalized"""
         #Will raise errors when input data can't be normalized
@@ -258,7 +258,7 @@ class ProfileTests(TestCase):
         p1 = Profile(array([[3,3],[4,4]]),"AB")
         p2 = Profile(array([[3,3],[-4,-4]]),"AB")
         self.assertRaises(ProfileError,p1.reduce,p2,add,False,True)
-    
+
     def test_reduce_operators(self):
         """reduce: should work fine with different operators
         """
@@ -273,14 +273,14 @@ class ProfileTests(TestCase):
             normalize_output=False).Data,array([[0,0,0],[0,1,-1]]))
         self.assertEqual(p1.reduce(p2,multiply,normalize_input=True,\
             normalize_output=False).Data,array([[1,0,0],[0,0,0]]))
-        
+
         self.assertRaises(ProfileError,p1.reduce,p2,divide,\
             normalize_input=True,normalize_output=False)
 
         #don't normalize and normalize only input
         p3 = Profile(array([[1,2],[3,4]]),Alphabet="AB")
         p4 = Profile(array([[4,3],[2,1]]),Alphabet="AB")
-        
+
         self.assertEqual(p3.reduce(p4,add,normalize_input=False,\
             normalize_output=False).Data,array([[5,5],[5,5]]))
         self.assertFloatEqual(p3.reduce(p4,add,normalize_input=True,\
@@ -293,12 +293,12 @@ class ProfileTests(TestCase):
         self.assertEqual(p5.reduce(p6,add,normalize_input=True,\
             normalize_output=True).Data,array([[.75,.25,0,0],\
             [.375,.125,.125,.375]]))
-     
+
         #it can collapse empty profiles when normalizing is turned off
         self.assertEqual(self.empty.reduce(self.empty,\
             normalize_input=False,normalize_output=False).Data.tolist(),[[]])
-       
-        #more specific tests of the operators will be in the 
+
+        #more specific tests of the operators will be in the
         #separate functions
 
     def test__add_(self):
@@ -335,7 +335,7 @@ class ProfileTests(TestCase):
         #infinity in result data
         self.assertRaises(ProfileError, p1.__div__, p3)
         self.assertFloatEqual((p1.__div__(p4)).Data, array([[2,1.5],[0.5,1]]))
-    
+
     def test_distance(self):
         """distance: should return correct distance between the profiles
         """
@@ -350,7 +350,7 @@ class ProfileTests(TestCase):
         self.assertEqual(p2.distance(p1),4)
         self.assertEqual(p1.distance(p4),sqrt(6))
         self.assertEqual(p6.distance(p6),0)
-        
+
         #Raises error when frames are not aligned
         self.assertRaises(ProfileError, p1.distance,p3)
         self.assertRaises(ProfileError,p1.distance,p5)
@@ -366,7 +366,7 @@ class ProfileTests(TestCase):
         self.assertEqual(p.toOddsMatrix().Data,p_exp.Data)
         assert p.Alphabet is p.toOddsMatrix().Alphabet
         self.assertEqual(p.toOddsMatrix([.25,.25,.25,.25]).Data,p_exp.Data)
-        
+
         #fails if symbol_freqs has wrong size
         self.assertRaises(ProfileError, p.toOddsMatrix,\
             [.25,.25,.25,.25,.25,.25])
@@ -382,7 +382,7 @@ class ProfileTests(TestCase):
         #fails when one of the background frequencies is 0
         self.assertRaises(ProfileError, self.zero_entry.toOddsMatrix,\
             [.1,.2,.3,0])
-        
+
     def test_toLogOddsMatrix(self):
         """toLogOddsMatrix: should work as expected"""
         #This test can be short, because it mainly depends on toOddsMatrix
@@ -397,7 +397,7 @@ class ProfileTests(TestCase):
              [ 1.485, -1.322, -1.322, -1.322],\
              [ 1.263, -0.737, -2.322, -0.322]]),\
              Alphabet="ACTG")
-        self.assertFloatEqual(p.toLogOddsMatrix().Data,p_exp.Data,eps=1e-3) 
+        self.assertFloatEqual(p.toLogOddsMatrix().Data,p_exp.Data,eps=1e-3)
         #works on empty matrix
         self.assertEqual(self.empty.toLogOddsMatrix().Data.tolist(),[[]])
 
@@ -412,8 +412,8 @@ class ProfileTests(TestCase):
         #Errors will be raised on invalid input. Errors are not handled
         #in this method. Validation of the input is done elsewhere
         self.assertRaises(IndexError,self.score2._score_indices,\
-            array([3,1,63,0,4,2,3]), offset=3) 
-        
+            array([3,1,63,0,4,2,3]), offset=3)
+
     def test__score_profile(self):
         """_score_profile: should work on valid input"""
         p1 = Profile(array([[1,0,0,0],[0,1,0,0],[0,0,.5,.5],[0,0,0,1],\
@@ -449,7 +449,7 @@ class ProfileTests(TestCase):
             [1.7,0.5])
         self.assertFloatEqual(self.score2.score("TCAAGT",offset=3),
             [0.5])
-        #raises error on invalid offset 
+        #raises error on invalid offset
         self.assertRaises(ProfileError,self.score2.score,\
             "TCAAGT",offset=4)
         #works on seq of minimal length
@@ -459,9 +459,9 @@ class ProfileTests(TestCase):
         self.assertRaises(ProfileError, self.score2.score,"",offset=0)
         #raises error on empty profile
         self.assertRaises(ProfileError,self.empty.score,"ACGT")
-        #raises error when sequence contains characters that 
+        #raises error when sequence contains characters that
         #are not in the characterorder
-        self.assertRaises(ProfileError,self.score2.score,"ACBRT") 
+        self.assertRaises(ProfileError,self.score2.score,"ACBRT")
 
     def test_score_sequence_object(self):
         """score: should work correctly on Sequence object as input
@@ -506,7 +506,7 @@ class ProfileTests(TestCase):
             [1.25,0.45])
         self.assertFloatEqual(self.score2.score(p1,offset=2),
             [0.45])
-        #raises error on invalid offset 
+        #raises error on invalid offset
         self.assertRaises(ProfileError,self.score2.score,\
             p1,offset=3)
         #works on profile of minimal length
@@ -517,21 +517,21 @@ class ProfileTests(TestCase):
         #raises error on empty profile
         self.assertRaises(ProfileError,self.empty.score,p1)
         #raises error when character order doesn't match
-        self.assertRaises(ProfileError,self.score2.score,p5) 
- 
+        self.assertRaises(ProfileError,self.score2.score,p5)
+
     def test_rowUncertainty(self):
         """rowUncertainty: should handle full and empty profiles
         """
         p = Profile(array([[.25,.25,.25,.25],[.5,.5,0,0]]),"ABCD")
         self.assertEqual(p.rowUncertainty(),[2,1])
-        
+
         #for empty rows 0 is returned as the uncertainty
         self.assertEqual(self.empty.rowUncertainty().tolist(),[])
         p = Profile(array([[],[],[]]),"")
         self.assertEqual(p.rowUncertainty().tolist(),[])
         #doesn't work on 1D array
         self.assertRaises(ProfileError,self.oned.rowUncertainty)
-    
+
     def test_columnUncertainty(self):
         """columnUncertainty: should handle full and empty profiles
         """
@@ -543,12 +543,12 @@ class ProfileTests(TestCase):
         self.assertEqual(p.columnUncertainty().tolist(),[])
         #doesn't work on 1D array
         self.assertRaises(ProfileError,self.oned.columnUncertainty)
- 
+
     def test_rowDegeneracy(self):
         """rowDegneracy: should work as expected"""
         p1 = self.consensus
         p2 = self.not_same_value
-        
+
         self.assertEqual(p1.rowDegeneracy(),[1,1,1,2,1])
         self.assertEqual(p1.rowDegeneracy(cutoff=.5),[1,1,1,2,1])
         self.assertEqual(p1.rowDegeneracy(cutoff=.75),[1,2,1,3,2])
@@ -556,13 +556,13 @@ class ProfileTests(TestCase):
         #always found because of floating point error. E.g. second row
         #in this example
         self.assertEqual(p1.rowDegeneracy(cutoff=1),[2,4,1,4,2])
-        #when the cutoff can't be found, the number of columns in the 
+        #when the cutoff can't be found, the number of columns in the
         #profile is returned (for each row)
         self.assertEqual(p1.rowDegeneracy(cutoff=1.5),[4,4,4,4,4])
 
         self.assertEqual(p2.rowDegeneracy(cutoff=.95),[4,2,4,1])
         self.assertEqual(p2.rowDegeneracy(cutoff=1.4),[4,3,4,1])
-        
+
         self.assertEqual(self.empty.rowDegeneracy(),[])
 
     def test_columnDegeneracy(self):
@@ -579,7 +579,7 @@ class ProfileTests(TestCase):
         #always found because of floating point error. E.g. second row
         #in this example
         self.assertEqual(p1.columnDegeneracy(cutoff=1),[2,4,1,4,2])
-        #when the cutoff can't be found, the number of rows in the 
+        #when the cutoff can't be found, the number of rows in the
         #profile is returned (for each column)
         self.assertEqual(p1.columnDegeneracy(cutoff=1.5),[4,4,4,4,4])
 
@@ -593,7 +593,7 @@ class ProfileTests(TestCase):
         p1 = self.consensus
         obs = p1.rowMax()
         self.assertEqual(obs, array([.8, .7, 1, .4, .5]))
-    
+
     def test_toConsensus(self):
         """toConsensus: should work with all the different options
         """
@@ -644,7 +644,7 @@ class ProfileTests(TestCase):
         p.normalizePositions()
         d = p.Data
         n = 1000
-        
+
         #Test only works on normalized profile, b/c of 1-d below
         means = n*d
         three_stds = sqrt(d*(1-d)*n)*3
@@ -673,7 +673,7 @@ class ProfileTests(TestCase):
         p.normalizePositions()
         d = p.Data
         n = 1000
-        
+
         #Test only works on normalized profile, b/c of 1-d below
         means = n*d
         three_stds = sqrt(d*(1-d)*n)*3
@@ -696,14 +696,14 @@ class ProfileTests(TestCase):
 
 class ModuleLevelFunctionsTest(TestCase):
     """Contains tests for the module level functions in profile.py"""
-    
+
     def setUp(self):
         """setUp to change the alphabet for testing general CharMeaningProfile
         """
         self.alt_dna = DNA
         DnaDegenerateSymbols = {'R':'AG','N':'TCAG','Y':'TC','?':'TCAG-'}
         self.alt_dna.Degenerates = DnaDegenerateSymbols
-    
+
     def test_CharMeaningProfile(self):
         """CharMeaningProfile: should work as expected
         """
@@ -745,6 +745,6 @@ class ModuleLevelFunctionsTest(TestCase):
 
         self.assertRaises(ValueError,CharMeaningProfile,self.alt_dna,\
             "AGNX",split_degenerates=True)
-        
+
 if __name__ == "__main__":
     main()

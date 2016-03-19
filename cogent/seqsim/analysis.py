@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-from tree import RangeNode, balanced_breakpoints
+from .tree import RangeNode, balanced_breakpoints
 from cogent.core.usage import DnaPairs
-from usage import Counts
+from .usage import Counts
 from random import choice
 from numpy.linalg import det as determinant, inv as inverse
 from numpy import sqrt, newaxis as NewAxis, exp, dot, zeros, ravel, array, \
@@ -65,7 +65,7 @@ def tree_threeway_counts_sample(tree, lca_depths, alphabet=DnaPairs, \
         counts = tree_threeway_counts(tree, lca_depths, alphabet, attr)
         if clean_f:
             result = {}
-            for k, v in counts.items():
+            for k, v in list(counts.items()):
                 result[k] = clean_f(v)
             return result
         else:
@@ -137,7 +137,7 @@ def tree_twoway_counts(tree, alphabet=DnaPairs, average=True, attr='Sequence'):
 def counts_to_probs(count_dict):
     """Converts counts to probs, omitting problem cases."""
     result = {}
-    for key, val in count_dict.items():
+    for key, val in list(count_dict.items()):
         #check for zero rows
         if not min(max(val._data,1)):
             continue
@@ -167,7 +167,7 @@ def probs_to_rates(prob_dict, fix_f=None, normalize=False, ftol=0.01):
     """
     result = {}
     seen = {}
-    for key, val in prob_dict.items():
+    for key, val in list(prob_dict.items()):
         try:
             rate = val.toRates(normalize)
             if fix_f:
@@ -255,10 +255,10 @@ def rates_to_array(rates, to_fill, without_diagonal=False):
     inputs, i.e. last dimension same as flat array with/without diagonals.
     """
     if without_diagonal:
-        for key, val in rates.items():
+        for key, val in list(rates.items()):
             to_fill[key] = ravel(without_diag(val._data))
     else:
-        for key, val in rates.items():
+        for key, val in list(rates.items()):
             to_fill[key] = ravel(val._data)
     return to_fill
 
@@ -379,7 +379,7 @@ def compare_distance_to_weiss(t):
     pair_subs = pair_p_from_tree(t)
     three_qs = get_qs(three_subs)
     pair_qs = get_qs(pair_subs)
-    pairs_no_diag = map(array, map(take_off_diag, pair_qs))
+    pairs_no_diag = list(map(array, list(map(take_off_diag, pair_qs))))
     three_qs_copy = [i.copy() for i in three_qs]
     for i in three_qs: scale_trace(i)
     pairs_flat = flatten_q_matrices(pairs_no_diag)
@@ -430,31 +430,31 @@ def mean_var_eigen_header():
 
 def svd_tests(n):
     """Runs some tests of svd on samples of n random matrices"""
-    print 'SVD tests...'
+    print('SVD tests...')
     tests = {'random':random_mats, 'random q':random_q_mats, \
         'scaled q':scale_one_q, 'scaled many': scale_many_q}
-    for name, f in tests.items():
-            print name, ':\n', svd_q(f(n))
+    for name, f in list(tests.items()):
+            print(name, ':\n', svd_q(f(n)))
 
 def tree_tests(n, leaves=8, slen=100, blen=0.1):
     """Runs some tests of svd on trees"""
-    print "Tree tests..."
-    print "single matrix"
+    print("Tree tests...")
+    print("single matrix")
     for i in range(n):
         t = balanced_one_q_tree(n=leaves, seq_length=slen, length=blen)
         ps = all_p_from_tree(t)
-        print svd_q(get_qs(ps)).real
+        print(svd_q(get_qs(ps)).real)
 
-    print "two matrices"
+    print("two matrices")
     for i in range(n):
         t = balanced_two_q_tree(n=leaves, seq_length=slen, length=blen)
         ps = all_p_from_tree(t)
-        print svd_q(get_qs(all_p_from_tree(t))).real
-    print "many matrices"
+        print(svd_q(get_qs(all_p_from_tree(t))).real)
+    print("many matrices")
     for i in range(n):
         ps = all_p_from_tree(t)
         t = balanced_multi_q_tree(n=leaves, seq_length=slen, length=blen)
-        print svd_q(get_qs(all_p_from_tree(t))).real
+        print(svd_q(get_qs(all_p_from_tree(t))).real)
 
 def stats_from_tree(t):
     ps = all_p_from_tree(t)
@@ -481,10 +481,10 @@ def tree_stats_analysis(n, header_f, result_f, leaves=16, slen=1000, blen=0.1, \
     make_tree = lambda: tree_f(n=leaves, seq_length=slen, length=blen)
     shared_params = [leaves, slen, blen, tree_f_name]
     shared_header = ['n', 'leaves', 'seq_len', 'branch_len', 'type']
-    print '\t'.join(shared_header + header_f())
+    print('\t'.join(shared_header + header_f()))
     for i, data in enumerate(tree_stats(n, make_tree, result_f)):
         result = [i] + shared_params + data
-        print '\t'.join(map(str, result))
+        print('\t'.join(map(str, result)))
 
 def perturb_lengths(t):
     """Perturbs the branch lengths in t by multiplying each by (0.5,1.5)."""
@@ -516,7 +516,7 @@ def change_length_analysis(n, branch_lengths=\
     result_f = mean_var_eigen
     full_header = ['length'] + \
         [name+i for name in condition_names for i in header]
-    print '\t'.join(full_header)
+    print('\t'.join(full_header))
     for b in lengths:
         result = [b]
         for c in condition_names:
@@ -528,19 +528,19 @@ def change_length_analysis(n, branch_lengths=\
             stdevs = std(samples)
             for i in zip(means, stdevs):
                 result.extend(i)
-        print '\t'.join(map(str, result))
+        print('\t'.join(map(str, result)))
 
 def tree_change_analysis(n):
     """Test whether we can see a change in stats for the first subtree w/ Q2"""
     header = ['mean_three','var_three', 'ratio_three']
     result_f = mean_var_eigen
-    print '\t'.join(['n'] + header + header)
+    print('\t'.join(['n'] + header + header))
     for i in range(n):
         t, d = balanced_two_q_tree(n=16, seq_length=1000, length=0.1, \
             perturb=False, both=True)
         d_result = result_f(d)
         p_result = result_f(d.Parent)
-        print '\t'.join(map(str, [i] + d_result + p_result))
+        print('\t'.join(map(str, [i] + d_result + p_result)))
         
 if __name__ == '__main__':
     t = tree_controller()

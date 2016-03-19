@@ -25,7 +25,7 @@ def ilm_parser(lines=None,pseudo=True):
         if line.startswith('Final') or len(line)==1:#skip these lines
             continue
         line = line.strip('\n')
-        line = map(int,line.split(None,2))
+        line = list(map(int,line.split(None,2)))
         if line[1] == 0:
             continue #Skip this line, not a pair
         else:

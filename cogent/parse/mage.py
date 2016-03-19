@@ -88,7 +88,7 @@ def MageListFromString(line):
     if style in MageList.KnownStyles:
         result.Style = style
     else:
-        raise ValueError,"Unknown style: %s"%(style)
+        raise ValueError("Unknown style: %s"%(style))
     result.Label = label 
     
     #process all optional pieces
@@ -116,11 +116,11 @@ def MagePointFromString(line):
     fields = []
     #also have to take into account the possibility of comma-delimited parts
     for p in pieces:
-        fields.extend(filter(None, p.split(',')))
+        fields.extend([_f for _f in p.split(',') if _f])
     pieces = fields
     result.Label = label
     #get the coordinates and remove them from the list of items
-    result.Coordinates = map(float, pieces[-3:])
+    result.Coordinates = list(map(float, pieces[-3:]))
     pieces = pieces[:-3]
     #parse the remaining attributes in more detail
     result.State = None
@@ -197,7 +197,7 @@ def MageParser(infile):
             m = MageGroupFromString(first)
             if m.Subgroup: #subgroup, should be appended to some other group
                 if last_group is None:
-                    raise ValueError,"Subgroup found before first group"
+                    raise ValueError("Subgroup found before first group")
                 last_group.append(m)
             else: #normal group
                 k.Groups.append(m)

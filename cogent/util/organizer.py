@@ -87,7 +87,7 @@ class Organizer(list):
             temp_results[self._find_first_match(item)].append(item)
         
         return [GroupList(value, groups + [key]) \
-            for key, value in temp_results.items() if value]
+            for key, value in list(temp_results.items()) if value]
 
 def regroup(data):
     """Regroups data into matching categories.
@@ -106,4 +106,4 @@ def regroup(data):
         except:
             result[analyses] = []
             result[analyses].extend(group_list)
-    return  [GroupList(result[k],list(k)) for k,v in result.items()]
+    return  [GroupList(result[k],list(k)) for k,v in list(result.items())]

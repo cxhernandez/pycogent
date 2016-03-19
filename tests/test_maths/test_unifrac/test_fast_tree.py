@@ -364,7 +364,7 @@ f   D"""
         """permute_selected_rows should switch just the selected rows in a"""
         orig = reshape(arange(8),(4,2))
         new = orig.copy()
-        fake_permutation = lambda a: range(a)[::-1] #reverse order
+        fake_permutation = lambda a: list(range(a))[::-1] #reverse order
         permute_selected_rows([0,2], orig, new, fake_permutation)
         self.assertEqual(new,  array([[4,5],[2,3],[0,1],[6,7]]))
         #make sure we didn't change orig
@@ -380,7 +380,7 @@ f   D"""
 
     def test_jackknife_bool(self):
         """jackknife_bool should make a vector with right number of nonzeros"""
-        fake_permutation = lambda a: range(a)[::-1] #reverse order
+        fake_permutation = lambda a: list(range(a))[::-1] #reverse order
         orig_vec = array([0,0,1,0,1,1,0,1,1])
         orig_items = flatnonzero(orig_vec)
         length = len(orig_vec)

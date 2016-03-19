@@ -20,7 +20,7 @@ Note that the authors did not name their algorithm or software when they
  published it. GCTMPCA was suggested as a name by the first author via e-mail.
 """
 
-from __future__ import division
+
 from cogent.app.util import CommandLineApplication, ResultPath,\
     ApplicationError
 from cogent.app.parameters import FilePath
@@ -123,8 +123,7 @@ class Gctmpca(CommandLineApplication):
         for p in self._parameter_order:
             if p not in data:
                 if p in self._required_parameters: 
-                    raise ApplicationError,\
-                     "Required parameter %s missing." % p
+                    raise ApplicationError("Required parameter %s missing." % p)
                 else: data[p] = self._data[p]
             # Write necessary files to disk -- need to modify this so paths
             # to existing files can be passed in.
@@ -135,8 +134,7 @@ class Gctmpca(CommandLineApplication):
                     pass
         if data['single_pair_only'] == 1 and \
            not (data['pos1'] and data['pos2']):
-            raise ApplicationError,\
-                "Must specify pos1 and pos2 if single_pair_only == 1."
+            raise ApplicationError("Must specify pos1 and pos2 if single_pair_only == 1.")
 
         # Make sure the MolType is in the correct format (i.e., 1 or 0)
         data['mol_type'] = mol_type = \
@@ -174,8 +172,7 @@ class Gctmpca(CommandLineApplication):
         # Explicitly disallow intermolecular experiments (I do this here to
         # make sure I'm looking at the final version of data)
         if data['comparison_type'] == 1: 
-            raise NotImplementedError,\
-                "Intermolecular experiments currently supported only via coevolve_alignments."
+            raise NotImplementedError("Intermolecular experiments currently supported only via coevolve_alignments.")
         # Create the command line parameter string and return it 
         return ' '.join([str(data[p]) for p in self._parameter_order]).strip()
 

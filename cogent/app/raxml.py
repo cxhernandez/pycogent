@@ -230,32 +230,32 @@ class Raxml(CommandLineApplication):
         if self.Parameters['-n'].isOn():
             return self._format_output(str(self.Parameters['-n'].Value), "log")
         else:
-            raise ValueError, "No output file specified." 
+            raise ValueError("No output file specified.") 
 
     def _info_out_filename(self):
         if self.Parameters['-n'].isOn():
             return self._format_output(str(self.Parameters['-n'].Value), "info")
         else:
-            raise ValueError, "No output file specified." 
+            raise ValueError("No output file specified.") 
 
     def _parsimony_tree_out_filename(self):
         if self.Parameters['-n'].isOn():
             return self._format_output(str(self.Parameters['-n'].Value), "parsimonyTree")
         else:
-            raise ValueError, "No output file specified." 
+            raise ValueError("No output file specified.") 
 
     def _result_tree_out_filename(self):
         if self.Parameters['-n'].isOn():
             return self._format_output(str(self.Parameters['-n'].Value), "result")
         else:
-            raise ValueError, "No output file specified." 
+            raise ValueError("No output file specified.") 
 
     def _result_bootstrap_out_filename(self):
         if self.Parameters['-n'].isOn():
             return self._format_output(str(self.Parameters['-n'].Value), \
                                        "bootstrap")
         else:
-            raise ValueError, "No output file specified"
+            raise ValueError("No output file specified")
 
     def _checkpoint_out_filenames(self):
         """
@@ -277,7 +277,7 @@ class Raxml(CommandLineApplication):
                     break
 
         else:
-            raise ValueError, "No output file specified." 
+            raise ValueError("No output file specified.") 
         return out_filenames
 
     def _get_result_paths(self,data):
@@ -303,8 +303,8 @@ class Raxml(CommandLineApplication):
             checkpoint_num = checkpoint_file.split(".")[-1]
             try:
                 checkpoint_num = int(checkpoint_num)
-            except Exception, e:
-                raise ValueError, "%s does not appear to be a valid checkpoint file"
+            except Exception as e:
+                raise ValueError("%s does not appear to be a valid checkpoint file")
             result['Checkpoint%d' % checkpoint_num] = ResultPath(
                         Path=checkpoint_file,
                         IsWritten=True)
@@ -359,7 +359,7 @@ def raxml_alignment(align_obj,
     log_file = ra["Log"]
     total_exec_time = exec_time = log_likelihood = 0.0
     for line in log_file:
-        exec_time, log_likelihood = map(float, line.split())
+        exec_time, log_likelihood = list(map(float, line.split()))
         total_exec_time += exec_time
 
     # remove output files
@@ -389,7 +389,7 @@ def build_tree_from_alignment(aln, moltype, best_tree=False, params={}):
         elif moltype == PROTEIN:
             params["-m"] = 'PROTMIXGTR'
         else:
-            raise ValueError, "Moltype must be either DNA, RNA, or PROTEIN"
+            raise ValueError("Moltype must be either DNA, RNA, or PROTEIN")
 
     if not hasattr(aln, 'toPhylip'):
         aln = Alignment(aln)

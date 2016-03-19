@@ -51,7 +51,7 @@ class NupackTest(TestCase):
 
         n = Nupack(InputHandler='_input_as_lines')
         res = n(self.input)
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus',
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus',
         'pair','ene'])
         assert res['pair'] is not None
         assert res['ene'] is not None

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from __future__ import division
+
 
 __author__ = "Greg Caporaso"
 __copyright__ = "Copyright 2011, The PyCogent project"
@@ -54,14 +54,14 @@ def main():
         i = 0
         try:
             input_f = open(input_fp,'U')
-        except IOError,e:
+        except IOError as e:
             if suppress_errors:
                 continue
             else:
-                print input_fp, e
+                print(input_fp, e)
         for s in MinimalFastaParser(input_f):
             i += 1
-        print input_fp, i
+        print(input_fp, i)
 
 if __name__ == "__main__":
     main()

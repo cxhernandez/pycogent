@@ -104,7 +104,7 @@ and other properties whose behavior differs between Freqs and NumberFreqs.
 UnsafeNumberFreqs behaves like NumberFreqs except that it doesn't validate on
 input or mutation of the dict. It's much faster, though.
 """
-from __future__ import division
+
 from cogent.util.misc import FunctionWrapper, MappedList, MappedDict, \
     ConstraintError
 from cogent.util.table import Table
@@ -161,8 +161,7 @@ class SummaryStatistics(object):
             try:
                 self._count = self._sum/self._mean
             except (TypeError, ZeroDivisionError, FloatingPointError):
-                raise SummaryStatisticsError, \
-                    "Insufficient data to calculate count."
+                raise SummaryStatisticsError("Insufficient data to calculate count.")
         return self._count
     Count = property(_get_count)
 
@@ -172,8 +171,7 @@ class SummaryStatistics(object):
             try:
                 self._sum = self._count * self._mean
             except TypeError:
-                raise SummaryStatisticsError, \
-                    "Insufficient data to calculate sum."
+                raise SummaryStatisticsError("Insufficient data to calculate sum.")
         return self._sum
     Sum = property(_get_sum)
 
@@ -183,8 +181,7 @@ class SummaryStatistics(object):
             try:
                 self._mean = self._sum / self._count
             except (TypeError, ZeroDivisionError, FloatingPointError):
-                raise SummaryStatisticsError, \
-                    "Insufficient data to calculate mean."
+                raise SummaryStatisticsError("Insufficient data to calculate mean.")
         return self._mean
     Mean = property(_get_mean)
     
@@ -199,8 +196,7 @@ class SummaryStatistics(object):
             try:
                 self._standard_deviation = sqrt(abs(self._variance))
             except TypeError:
-                raise SummaryStatisticsError, \
-                    "Insufficient data to calculate standard deviation."
+                raise SummaryStatisticsError("Insufficient data to calculate standard deviation.")
         return self._standard_deviation
     StandardDeviation = property(_get_standard_deviation)
 
@@ -211,16 +207,14 @@ class SummaryStatistics(object):
                 self._variance = self._standard_deviation * \
                     self._standard_deviation
             except TypeError:
-                raise SummaryStatisticsError, \
-                    "Insufficient data to calculate variance."
+                raise SummaryStatisticsError("Insufficient data to calculate variance.")
         return self._variance
     Variance = property(_get_variance)
     
     def _get_sum_squares(self):
         """Returns SumSquares if possible."""
         if self._sum_squares is None:
-            raise SummaryStatisticsError, \
-                "Insufficient data to calculate sum of squares."
+            raise SummaryStatisticsError("Insufficient data to calculate sum of squares.")
         return self._sum_squares
     SumSquares = property(_get_sum_squares)
     
@@ -269,7 +263,7 @@ class NumbersI(object):
         get passed on to Freqs, is just to give Numbers its
         own items() method.
         """
-        return zip(self, [1] * len(self))
+        return list(zip(self, [1] * len(self)))
   
     def toFixedWidth(self, fieldwidth=10):
         """Returns string with elements mapped to fixed field width.
@@ -281,7 +275,7 @@ class NumbersI(object):
         1 if fieldwidth is 7.
         """
         if fieldwidth < 7:
-            raise ValueError, "toFixedWidth requres fieldwith of at least 8."
+            raise ValueError("toFixedWidth requres fieldwith of at least 8.")
         if fieldwidth == 7:
             decimals = 0
         else:
@@ -305,7 +299,7 @@ class NumbersI(object):
         """Converts self to cumulative sum, in place"""
         if self:
             curr = self[0]
-            for i in xrange(1, len(self)):
+            for i in range(1, len(self)):
                 curr += self[i]
                 self[i] = curr
 
@@ -452,7 +446,7 @@ class NumbersI(object):
         """
         best = None
         best_count = 0
-        for item, count in self.items():
+        for item, count in list(self.items()):
             if count > best_count:
                 best_count = count
                 best = item
@@ -500,9 +494,9 @@ class NumbersI(object):
         For efficiency, items should be a dict.
         """
         if keep:
-            self[:] = filter(items.__contains__, self)
+            self[:] = list(filter(items.__contains__, self))
         else:
-            self[:] = filter(lambda x: x not in items, self)
+            self[:] = [x for x in self if x not in items]
 
     def copy(self):
         """Returns new copy of self, typecast to same class."""
@@ -565,7 +559,7 @@ class Numbers(NumbersI, MappedList):
         is OK, but a single number by itself is not OK).
         """
         if data is not None:
-            data = map(float, data) #fails if any items are not floatable
+            data = list(map(float, data)) #fails if any items are not floatable
         else:
             data = []
         MappedList.__init__(self, data, Constraint, Mask)
@@ -611,7 +605,7 @@ class FreqsI(object):
         
         Returns modified version of self as result.
         """
-        for key, val in other.items():
+        for key, val in list(other.items()):
             curr = self.get(key, 0)
             if uses_key:
                 self[key] = op(key, curr, val)
@@ -748,14 +742,14 @@ class FreqsI(object):
                 except TypeError:
                     return self.fromSeq
         # should never get here because of return values
-        raise NotImplementedError, "Fell off end of _find_conversion_function"
+        raise NotImplementedError("Fell off end of _find_conversion_function")
                 
     def isValid(self):
         """Checks presence of required keys, and that all vals are numbers."""
         for k in self.RequiredKeys:
             if k not in self:
                 return False
-        for v in self.values():
+        for v in list(self.values()):
             if not (isinstance(v, float) or isinstance(v, int)):
                 return False
             if v < 0:
@@ -796,7 +790,7 @@ class FreqsI(object):
         """
         if self:
             lines = ["Value\tCount"]
-            items = self.items()  #make and sort list of (key, value) pairs
+            items = list(self.items())  #make and sort list of (key, value) pairs
             items.sort()
             for key, val in items:
                 lines.append("\t".join([str(key), str(val)]))  #add pair
@@ -812,7 +806,7 @@ class FreqsI(object):
         """
         r = self.RequiredKeys
         if r and (key in r):
-            raise KeyError, "May not delete required key %s" % key
+            raise KeyError("May not delete required key %s" % key)
         else:
             dict.__delitem__(self, key)
 
@@ -836,7 +830,7 @@ class FreqsI(object):
         if constructor is None:
             constructor = self.__class__
         result = constructor()
-        for key, val in self.items():
+        for key, val in list(self.items()):
             new_key = key_map.get(key, default)
             curr = result.get(new_key, 0)
             result[new_key] = curr + val
@@ -846,7 +840,7 @@ class FreqsI(object):
         """If self.RequiredKeys is nonzero, deletes everything not in it."""
         req = self.RequiredKeys
         if req:
-            for key in self.keys():
+            for key in list(self.keys()):
                 if key not in req:
                     del self[key]
 
@@ -879,17 +873,16 @@ class FreqsI(object):
         if total is None:
             total = self.Sum
         if total != 0:          #avoid divide by zero
-            for item, freq in self.items():
+            for item, freq in list(self.items()):
                 f = float(freq)
                 if f < 0:
-                    raise ValueError, \
-                    "Freqs.normalize(): found negative count!"
+                    raise ValueError("Freqs.normalize(): found negative count!")
                 self[item] = f/total
 
     def choice(self, prob):
         """If self is normalized, returns item corresponding to Pr(prob)."""
         sum = 0
-        items = self.items()
+        items = list(self.items())
         for item, freq in items:
             sum += freq
             if prob <= sum:
@@ -902,7 +895,7 @@ class FreqsI(object):
         Will raise IndexError if there are no items in self.
         """
         num_items = self.Sum
-        return [self.choice(random()*num_items) for i in xrange(n)]
+        return [self.choice(random()*num_items) for i in range(n)]
 
     def subset(self, items, keep=True):
         """Deletes keys for all but items from self, in place."""
@@ -932,7 +925,7 @@ class FreqsI(object):
 
         Does the transformation in place.
         """
-        for k,v in self.items():
+        for k,v in list(self.items()):
             self[k] = v * factor + offset
 
     def round(self, ndigits=0 ):
@@ -942,7 +935,7 @@ class FreqsI(object):
         
         Does the transformation in place
         """
-        for k,v in self.items():
+        for k,v in list(self.items()):
             self[k] = round(v, ndigits)
 
     def expand(self, order=None, convert_to=None, scale=None):
@@ -973,9 +966,8 @@ class FreqsI(object):
         mode()...
         """
         if scale:
-            if sum([round(scale*v) for v in self.values()]) != scale:
-               raise ValueError,\
-                    "Can't round to the desired number (%d)"%(scale)
+            if sum([round(scale*v) for v in list(self.values())]) != scale:
+               raise ValueError("Can't round to the desired number (%d)"%(scale))
             else:
                 used_freq = self.copy()
                 used_freq.scale(factor=scale)
@@ -983,7 +975,7 @@ class FreqsI(object):
         else:
             used_freq = self
         if order is None:
-            order = used_freq.keys()
+            order = list(used_freq.keys())
         result = []
         for key in order:
             result.extend([key] * int(round(used_freq.get(key, 0))))
@@ -1012,7 +1004,7 @@ class FreqsI(object):
 
     def _get_sum_squares(self):
         """Returns sum of squares of items in self."""
-        return sum([i*i for i in self.values()])
+        return sum([i*i for i in list(self.values())])
     SumSquares = property(_get_sum_squares)
 
     def _get_variance(self):
@@ -1061,7 +1053,7 @@ class FreqsI(object):
         normalized = self.copy()
         normalized.normalize()
         total = 0
-        for prob in normalized.values():
+        for prob in list(normalized.values()):
             if prob:
                 total -= prob * log2(prob)
         return total
@@ -1075,7 +1067,7 @@ class FreqsI(object):
         """
         best = None
         best_count = 0
-        for item, count in self.items():
+        for item, count in list(self.items()):
             if count > best_count:
                 best_count = count
                 best = item
@@ -1095,9 +1087,9 @@ class FreqsI(object):
         by_val: whether to sort by val instead of key (default True).
         """
         if by_val:
-            items = [(v, (k,v)) for k, v in self.items()]
+            items = [(v, (k,v)) for k, v in list(self.items())]
         else:
-            items = self.items()
+            items = list(self.items())
         items.sort()
         if descending:
             items.reverse()
@@ -1125,11 +1117,11 @@ def freqwatcher(x):
     try:
         x = float(x)
     except:
-        raise ConstraintError, "Could not convert frequency %s to float." % x
+        raise ConstraintError("Could not convert frequency %s to float." % x)
     if x >= 0:
         return x
     else:
-        raise ConstraintError, "Got frequency %s < 0." % x
+        raise ConstraintError("Got frequency %s < 0." % x)
 
 class Freqs(FreqsI, MappedDict):
     """Holds a frequency distribution, i.e. a set of category -> count pairs.
@@ -1192,14 +1184,14 @@ class NumberFreqsI(FreqsI):
         """Returns sum of items in self."""
         if not self:
             return None
-        return sum([item*frequency for item,frequency in self.items()])
+        return sum([item*frequency for item,frequency in list(self.items())])
     Sum = property(_get_sum)
 
     def _get_sum_squares(self):
         """Returns sum of squares of items in self."""
         if not self:
             return None
-        return sum([i*i*count for i, count in self.items()])
+        return sum([i*i*count for i, count in list(self.items())])
     SumSquares = property(_get_sum_squares)
 
     def _get_uncertainty(self):

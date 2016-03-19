@@ -25,7 +25,7 @@ class GeneralTests(TestCase):
 
         f = open(self.seqs_fasta,'w')
         self.fasta_seqs = {'ABC 567':'AATTGGCC','XYZ':'TTGGTT','123':'CCCC'}
-        f.write(''.join([">%s\n%s\n"%(k,v) for k,v in self.fasta_seqs.items()]))
+        f.write(''.join([">%s\n%s\n"%(k,v) for k,v in list(self.fasta_seqs.items())]))
         f.close()
 
         f = open(self.seqs_fastq,'w')

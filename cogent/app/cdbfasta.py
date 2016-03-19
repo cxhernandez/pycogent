@@ -99,9 +99,9 @@ class cdbfasta(CommandLineApplication):
     def _input_as_string(self, data):
         """Index a single file"""
         if not data:
-            raise ValueError, "Expected a file!"
+            raise ValueError("Expected a file!")
         if not path.exists(data):
-            raise ValueError, "File to index doesn't exist: %s" % data
+            raise ValueError("File to index doesn't exist: %s" % data)
 
         self._input_file = data
         return ""
@@ -122,9 +122,9 @@ class cdbfasta(CommandLineApplication):
         command_parts = []
         cd_command = ''.join(['cd ',str(self.WorkingDir),';'])
         if self._command is None:
-            raise ApplicationError, '_command has not been set.'
+            raise ApplicationError('_command has not been set.')
         command = self._command
-        parameters = sorted([str(x) for x in self.Parameters.values() 
+        parameters = sorted([str(x) for x in list(self.Parameters.values()) 
                             if str(x)])
 
         synonyms = self._synonyms
@@ -134,7 +134,7 @@ class cdbfasta(CommandLineApplication):
         command_parts.append(self._input_file) # Positional argument
         command_parts += parameters
 
-        return self._command_delimiter.join(filter(None,command_parts)).strip()
+        return self._command_delimiter.join([_f for _f in command_parts if _f]).strip()
 
     BaseCommand = property(_get_base_command)
 
@@ -215,9 +215,9 @@ class cdbyank(CommandLineApplication):
     def _input_as_string(self, data):
         """File path for an index"""
         if not data:
-            raise ValueError, "Expected a file!"
+            raise ValueError("Expected a file!")
         if not path.exists(data):
-            raise ValueError, "Index doesn't exist: %s" % data
+            raise ValueError("Index doesn't exist: %s" % data)
 
         self._input_file = data
         return ""
@@ -236,9 +236,9 @@ class cdbyank(CommandLineApplication):
         command_parts = []
         cd_command = ''.join(['cd ',str(self.WorkingDir),';'])
         if self._command is None:
-            raise ApplicationError, '_command has not been set.'
+            raise ApplicationError('_command has not been set.')
         command = self._command
-        parameters = sorted([str(x) for x in self.Parameters.values() 
+        parameters = sorted([str(x) for x in list(self.Parameters.values()) 
                             if str(x)])
 
         synonyms = self._synonyms
@@ -254,7 +254,7 @@ class cdbyank(CommandLineApplication):
         command_parts.append(self._input_file) # Positional argument
         command_parts += parameters
 
-        return self._command_delimiter.join(filter(None,command_parts)).strip()
+        return self._command_delimiter.join([_f for _f in command_parts if _f]).strip()
 
     BaseCommand = property(_get_base_command)
 

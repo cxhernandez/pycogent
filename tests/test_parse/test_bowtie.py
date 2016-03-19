@@ -28,7 +28,7 @@ class BowtieOutputTest(TestCase):
     def test_parsing(self):
         """make sure that the bowtie output file is parsed properly"""
         parser = BowtieOutputParser(fname)
-        header = parser.next()
+        header = next(parser)
         index = 0
         for row in parser:
             self.assertEqual(row, expected[index])
@@ -55,7 +55,7 @@ class BowtieOutputTest(TestCase):
         """setting row_converter=None returns strings"""
         # straight parser
         parser = BowtieOutputParser(fname, row_converter=None)
-        header = parser.next()
+        header = next(parser)
         for index, row in enumerate(parser):
             query_offset = row[3]
             other_matches = row[6]

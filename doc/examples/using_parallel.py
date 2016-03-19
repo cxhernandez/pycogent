@@ -14,7 +14,7 @@ __maintainer__ = "Gavin Huttley"
 __email__ = "gavin.huttley@anu.edu.au"
 __status__ = "Production"
 
-JOBS = range(12) # nonsense jobs, just a list of numbers to be printed.
+JOBS = list(range(12)) # nonsense jobs, just a list of numbers to be printed.
 
 # we divide up the CPUs into (at most) 12 groups of (at least) 1 CPU.
 (comm, leftover) = parallel.getSplitCommunicators(len(JOBS))
@@ -24,7 +24,7 @@ try:
     for job in JOBS:
         if not job % comm.size == comm.rank:
             continue
-        print "My ID=%d, my message=%s" % (comm.rank, JOBS[job])
+        print("My ID=%d, my message=%s" % (comm.rank, JOBS[job]))
 finally:
     # always restore the original parallel context
     parallel.pop(leftover)

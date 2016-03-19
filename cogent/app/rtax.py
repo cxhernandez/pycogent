@@ -96,9 +96,8 @@ class Rtax(CommandLineApplication):
 
         unsupported_parameters = set(data.keys()) - set(allowed_values)
         if unsupported_parameters:
-            raise ApplicationError,\
-             "Unsupported parameter(s) passed when calling rtax: %s" %\
-              ' '.join(unsupported_parameters)
+            raise ApplicationError("Unsupported parameter(s) passed when calling rtax: %s" %\
+              ' '.join(unsupported_parameters))
 
         for v in allowed_values:
             # turn the parameter off so subsequent runs are not
@@ -158,9 +157,8 @@ def assign_taxonomy(dataPath, reference_sequences_fp, id_to_taxonomy_fp, read_1_
 
     usearch_command = "usearch"
     if not (exists(usearch_command) or app_path(usearch_command)):
-        raise ApplicationNotFoundError,\
-         "Cannot find %s. Is it installed? Is it in your path?"\
-         % usearch_command
+        raise ApplicationNotFoundError("Cannot find %s. Is it installed? Is it in your path?"\
+         % usearch_command)
 
     my_tmp_dir = get_tmp_filename(tmp_dir=base_tmp_dir,prefix='rtax_',suffix='',result_constructor=str)
     os.makedirs(my_tmp_dir)
@@ -274,7 +272,7 @@ def assign_taxonomy(dataPath, reference_sequences_fp, id_to_taxonomy_fp, read_1_
                 output_file = open(output_fp, 'w')
             except OSError:
                 raise OSError("Can't open output file for writing: %s" % output_fp)
-            for seq_id, assignment in assignments.items():
+            for seq_id, assignment in list(assignments.items()):
                 lineage, confidence = assignment
                 output_file.write(
                     '%s\t%s\t%1.3f\n' % (seq_id, lineage, confidence))

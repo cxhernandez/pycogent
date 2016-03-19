@@ -4,7 +4,7 @@
 from cogent.parse.record_finder import LabeledRecordFinder, \
     DelimitedRecordFinder, never_ignore
 from cogent.parse.record import RecordError
-from string import strip, upper
+strip, upper = str.strip, str.upper
 
 __author__ = "Micah Hamady"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -50,16 +50,16 @@ label_constructors = {'ITERATION': int} #add other label constructors here
 
 def make_label(line):
     """Make key, value for colon-delimited comment lines.
-    
+
     WARNING: Only maps the data type if the key is in label_constructors above.
     """
     if not line.startswith("#"):
-        raise ValueError, "Labels must start with a # symbol."
+        raise ValueError("Labels must start with a # symbol.")
 
     if line.find(":") == -1:
-        raise ValueError, "Labels must contain a : symbol."
+        raise ValueError("Labels must contain a : symbol.")
 
-    key, value = map(strip, line[1:].split(":", 1))
+    key, value = list(map(strip, line[1:].split(":", 1)))
     key = key.upper()
     if key in label_constructors:
         value = label_constructors[key](value)
@@ -78,12 +78,12 @@ PsiBlastQueryFinder = LabeledRecordFinder(iteration_set_finder, \
     constructor=strip, ignore=is_blast_junk)
 
 def GenericBlastParser9(lines, finder, make_col_headers=False):
-    """Yields successive records from lines (props, data list) 
-        
+    """Yields successive records from lines (props, data list)
+
     Infile must in blast9 format
-       
+
     finder: labeled record finder function
-    
+
     make_col_header: adds column headers (from fields entry) as first
     row in data output
 
@@ -100,16 +100,16 @@ def GenericBlastParser9(lines, finder, make_col_headers=False):
 
                 # check if need to insert column headers
                 if make_col_headers and label == "FIELDS":
-                    data.insert(0, map(upper, map(strip,value.split(","))))
+                    data.insert(0, list(map(upper, list(map(strip,value.split(","))))))
 
             else:
-                data.append(map(strip, line.split("\t")))
+                data.append(list(map(strip, line.split("\t"))))
         yield props, data
 
 def TableToValues(table, constructors=None, header=None):
     """Converts table to values according to constructors.
-    
-    Returns (table, header). 
+
+    Returns (table, header).
     Use dict([(val, i) for i, val in enumerate(header)]) to get back
     a dict mapping the fields to indices in each row.
     """
@@ -123,7 +123,7 @@ psiblast_constructors={'% identity':float, 'alignment length':int, \
     'mismatches':int, 'gap openings':int, 'q. start':int, 'q. end':int, \
     's. start':int, 's. end':int, 'e-value':float, 'bit score':float}
 #make case-insensitive
-for key, val in psiblast_constructors.items():
+for key, val in list(psiblast_constructors.items()):
     psiblast_constructors[key.upper()] = val
 
 def PsiBlastTableParser(table):
@@ -137,16 +137,16 @@ def MinimalBlastParser9(lines, include_column_names=False):
     return GenericBlastParser9(lines, BlastFinder, include_column_names)
 
 def MinimalPsiBlastParser9(lines, include_column_names=False):
-    """Yields successive records from lines (props, data list) 
-        
+    """Yields successive records from lines (props, data list)
+
         lines must be of psi-blast output format
     """
     return GenericBlastParser9(lines, PsiBlastFinder, include_column_names)
 
 def MinimalBlatParser9(lines, include_column_names=True):
-    """Yields successive records from lines (props, data list) 
-        
-       lines must be of blat output (blast9) format 
+    """Yields successive records from lines (props, data list)
+
+       lines must be of blat output (blast9) format
     """
     return GenericBlastParser9(lines, BlatFinder, include_column_names)
 
@@ -168,14 +168,14 @@ def PsiBlastParser9(lines):
                 result[properties['QUERY'].split()[0]] = curr_resultset
                 first_query = False
             table, header = PsiBlastTableParser(record)
-            curr_resultset.append([dict(zip(header, row)) for row in table])
+            curr_resultset.append([dict(list(zip(header, row))) for row in table])
     return result
 
 def get_blast_ids(props, data, filter_identity, threshold, keep_values):
     """
     Extract ids from blast output
     """
-    fields = map(strip, props["FIELDS"].upper().split(","))
+    fields = list(map(strip, props["FIELDS"].upper().split(",")))
 
     # get column index of protein ids we want
     p_ix = fields.index("SUBJECT ID")
@@ -191,9 +191,9 @@ def get_blast_ids(props, data, filter_identity, threshold, keep_values):
         else:
             return [x[p_ix] for x in data]
     else:
-        # will raise exception if invalid threshold passed 
+        # will raise exception if invalid threshold passed
         max_val = float(threshold)
-        
+
         #figure out what we're keeping
         def ok_val(val):
             if threshold:
@@ -209,17 +209,17 @@ def get_blast_ids(props, data, filter_identity, threshold, keep_values):
 def AllProteinIds9(lines, filter_identity=True, threshold=None, \
         keep_below_threshold=True, output_parser=MinimalPsiBlastParser9,
         keep_values=False):
-    """Helper to extract just protein ids from each blast search 
+    """Helper to extract just protein ids from each blast search
 
-    lines: output file in output format #9. 
+    lines: output file in output format #9.
     filter_identity: when True, use % identity to filter, else use e-value
-    threshold: when None, all results are returned. When not None, used 
+    threshold: when None, all results are returned. When not None, used
         as a threshold to filter results.
     keep_below_threshold: when True, keeps any rows below given threshold, else
         keep any rows above threshold
     output_parser: minimal output parser to use (e.g. minimalpsiblast)
     keep_values: if True, returns tuples of (id, value) rather than just ids.
-    
+
     Note that you can feed it successive output from PsiBlastQueryFinder if
     you have a PSI-BLAST file with multiple input queries.
 
@@ -228,31 +228,31 @@ def AllProteinIds9(lines, filter_identity=True, threshold=None, \
 
     mpbp = output_parser(lines)
 
-    # get last record. 
+    # get last record.
     props = data = None
     out_ids = {}
     out_ct = 1
     for rec in mpbp:
         props, data = rec
-        out_ids[out_ct] = get_blast_ids(props, data, filter_identity, 
+        out_ids[out_ct] = get_blast_ids(props, data, filter_identity,
                                         threshold, keep_values)
         out_ct += 1
-    return out_ids 
+    return out_ids
 
 def LastProteinIds9(lines, filter_identity=True, threshold=None, \
         keep_below_threshold=True, output_parser=MinimalPsiBlastParser9,
         keep_values=False):
     """Helper to extract just protein ids from last psi-blast iteration.
 
-    lines: output file in output format #9. 
+    lines: output file in output format #9.
     filter_identity: when True, use % identity to filter, else use e-value
-    threshold: when None, all results are returned. When not None, used 
+    threshold: when None, all results are returned. When not None, used
         as a threshold to filter results.
     keep_below_threshold: when True, keeps any rows below given threshold, else
         keep any rows above threshold
     output_parser: minimal output parser to use (e.g. minimalpsiblast)
     keep_values: if True, returns tuples of (id, value) rather than just ids.
-    
+
     Note that you can feed it successive output from PsiBlastQueryFinder if
     you have a PSI-BLAST file with multiple input queries.
 
@@ -260,7 +260,7 @@ def LastProteinIds9(lines, filter_identity=True, threshold=None, \
     """
 
     mpbp = output_parser(lines)
-    # get last record. 
+    # get last record.
     props = data = None
     for rec in mpbp:
         props, data = rec
@@ -270,9 +270,9 @@ def LastProteinIds9(lines, filter_identity=True, threshold=None, \
 
 def QMEBlast9(lines):
     """Returns query, match and e-value for each line in Blast-9 output.
-  
+
     WARNING: Allows duplicates in result.
-  
+
     WARNING: If you use this on PSI-BLAST output, will not check that you're
     only getting stuff from the last iteration but will give you everything.
     The advantage is that you keep stuff that drops out of the profile. The
@@ -305,7 +305,7 @@ def QMEPsiBlast9(lines):
 
 class BlastResult(dict):
     """Adds convenience methods to BLAST result dict.
-    
+
     {Query:[[{Field:Value}]]}
 
     Nesting is:
@@ -335,13 +335,13 @@ class BlastResult(dict):
     E_VALUE = 'E-VALUE'
     BIT_SCORE = 'BIT SCORE'
 
-    #standard comparison for each field, e.g.  
+    #standard comparison for each field, e.g.
     #want long matches, small e-values
     _lt = lambda x, y: cmp(x, y) == -1
-    _le = lambda x, y: cmp(x, y) <= 0 
-    _gt = lambda x, y: cmp(x, y) == 1 
-    _ge = lambda x, y: cmp(x, y) >= 0 
-    _eq = lambda x, y: cmp(x, y) == 0 
+    _le = lambda x, y: cmp(x, y) <= 0
+    _gt = lambda x, y: cmp(x, y) == 1
+    _ge = lambda x, y: cmp(x, y) >= 0
+    _eq = lambda x, y: cmp(x, y) == 0
 
     FieldComparisonOperators = {
                PERCENT_IDENTITY:(_gt, float),
@@ -349,7 +349,7 @@ class BlastResult(dict):
                MISMATCHES:(_lt, int),
                E_VALUE:(_lt, float),
                BIT_SCORE:(_gt, float)
-                }   
+                }
 
     # set up valid blast keys
     HitKeys = set([ ITERATION,
@@ -366,13 +366,13 @@ class BlastResult(dict):
                         E_VALUE,
                         BIT_SCORE ])
 
-  
+
     def __init__(self, data, psiblast=False):
         """
         Init using blast results
 
         data: blast output from the m = 9 output option
-        psiblast: if True, will expect psiblast output, else expects 
+        psiblast: if True, will expect psiblast output, else expects
             blast output
 
         """
@@ -381,10 +381,10 @@ class BlastResult(dict):
             parser = MinimalPsiBlastParser9
 
         mp = parser(data, True)
-        
-        
+
+
         for props, rec_data in mp:
-         
+
             iteration = 1
             if self.ITERATION in props:
                 iteration = int(props[self.ITERATION])
@@ -393,21 +393,21 @@ class BlastResult(dict):
             # check if found any hits
             if len(rec_data) > 1:
                 for h in rec_data[1:]:
-                    hits.append(dict(zip(rec_data[0], h)))
+                    hits.append(dict(list(zip(rec_data[0], h))))
             else:
-                hits.append(dict(zip(rec_data[0], ['' for x in rec_data[0]])))
-            
+                hits.append(dict(list(zip(rec_data[0], ['' for x in rec_data[0]]))))
+
             # get blast version of query id
             query_id = hits[0][self.QUERY_ID]
 
-            if query_id not in self: 
-                self[query_id] = [] 
+            if query_id not in self:
+                self[query_id] = []
             self[query_id].append(hits)
-        
+
     def iterHitsByQuery(self, iteration=-1):
         """Iterates over set of hits, returning list of hits for each query"""
         for query_id in self:
-            yield query_id, self[query_id][iteration] 
+            yield query_id, self[query_id][iteration]
 
     def iterHitsByTarget(self, iteration=-1):
         """Iterates over set of hits, returning list of hits for each target"""
@@ -416,20 +416,20 @@ class BlastResult(dict):
     def iterAllHits(self, iteration=-1):
         """Iterates over all hits, one at a time"""
         raise NotImplementedError
-        
+
     def filterByField(self, field='E-value', threshold=0.001):
         """Returns a copy of self containing hits where field better than threshold.
         Uses FieldComparisonOperators to figure out which direction to compare.
         """
         raise NotImplementedError
-        
+
     def filterByFunc(self, f):
         """Returns copy of self containing hits where f(entry) is True."""
         raise NotImplementedError
-        
+
     def bestHitsByQuery(self, iteration=-1,  n=1, field='BIT SCORE', return_self=False):
-        """Iterates over all queries and returns best hit for each 
-        
+        """Iterates over all queries and returns best hit for each
+
         return_self: if False, will not return best hit as itself.
 
         Uses FieldComparisonOperators to figure out which direction to compare.
@@ -437,15 +437,15 @@ class BlastResult(dict):
 
         # check that given valid comparison field
         if field not in self.FieldComparisonOperators:
-            raise ValueError, "Invalid field: %s. You must specify one of: %s" \
-                              % (field, str(self.FieldComparisonOperators))
+            raise ValueError("Invalid field: %s. You must specify one of: %s" \
+                              % (field, str(self.FieldComparisonOperators)))
         cmp_fun, cast_fun = self.FieldComparisonOperators[field]
 
         # enumerate hits
         for q, hits in self.iterHitsByQuery(iteration=iteration):
-            best_hits = [] 
+            best_hits = []
             for hit in hits:
-                # check if want to skip self hit 
+                # check if want to skip self hit
                 if not return_self:
                     if hit[self.SUBJECT_ID] == q:
                         continue
@@ -453,7 +453,7 @@ class BlastResult(dict):
                 if len(best_hits) < n:
                     best_hits.append(hit)
                 else:
-                    for ix, best_hit in enumerate(best_hits):  
+                    for ix, best_hit in enumerate(best_hits):
                         new_val = cast_fun(hit[field])
                         old_val = cast_fun(best_hit[field])
                         if cmp_fun(new_val, old_val):
@@ -465,7 +465,7 @@ class BlastResult(dict):
         """Returns copy of self containing only specified iteration.
 
         Negative indices count backwards."""
-    
+
     #raise error if both field and f passed, uses same dict as filterByField
 
 fastacmd_taxonomy_splitter = DelimitedRecordFinder(delimiter='', \
@@ -495,5 +495,3 @@ def FastacmdTaxonomyParser(lines):
             except (TypeError, ValueError, KeyError):
                 continue
         yield result
-
-

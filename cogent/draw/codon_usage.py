@@ -35,7 +35,7 @@ color_order = ["#000000","#FF0000","#00FF00","#FFFF00",
           "#238853","#882353","#EC008C","#000099"]
 #map doublets to colors so we can make sure the same doublet always
 #gets the same colors
-doublets_to_colors = dict(zip(doublet_order, color_order))
+doublets_to_colors = dict(list(zip(doublet_order, color_order)))
 #creates a dictionary for the amino acid labels, less to input
 aa_labels={'ALANINE':'GCN', 'ARGININE4':'CGN', 'GLYCINE':'GGN',
           'LEUCINE4':'CTN', 'PROLINE':'CCN', 'SERINE4':'TCN',

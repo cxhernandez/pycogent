@@ -89,15 +89,15 @@ class asaTest(TestCase):
         result = asa.asa_xtra(self.input_structure)
         a = einput(self.input_structure, 'A')
         for i in range(len(result)):
-            self.assertEquals(result.values()[i]['ASA'], a[result.keys()[i]].xtra['ASA'])
+            self.assertEqual(list(result.values())[i]['ASA'], a[list(result.keys())[i]].xtra['ASA'])
         r = einput(self.input_structure, 'R')
-        for water in  r.selectChildren('H_HOH', 'eq', 'name').values():
+        for water in  list(r.selectChildren('H_HOH', 'eq', 'name').values()):
             self.assertFalse('ASA' in water.xtra)
-        for residue in  r.selectChildren('H_HOH', 'ne', 'name').values():
+        for residue in  list(r.selectChildren('H_HOH', 'ne', 'name').values()):
             for a in residue:
                 self.assertTrue('ASA' in a.xtra)
         result = asa.asa_xtra(self.input_structure, xtra_key='SASA')
-        for residue in  r.selectChildren('H_HOH', 'ne', 'name').values():
+        for residue in  list(r.selectChildren('H_HOH', 'ne', 'name').values()):
             for a in residue:
                 a.xtra['ASA'] == a.xtra['SASA']
 
@@ -125,7 +125,7 @@ class asaTest(TestCase):
         residues = einput(self.input_structure, 'R')
         asa1 = []
         asa2 = []
-        for residue in  residues.selectChildren('H_HOH', 'ne', 'name').values():
+        for residue in  list(residues.selectChildren('H_HOH', 'ne', 'name').values()):
             asa1.append(residue.xtra['ASA'])
             asa2.append(residue.xtra['STRIDE_ASA'])
         self.assertAlmostEqual(correlation(asa1, asa2)[1], 0.)
@@ -139,7 +139,7 @@ class asaTest(TestCase):
         self.input_structure.propagateData(sum, 'A', 'ASA', xtra=True)
         self.input_structure.propagateData(sum, 'A', 'ASA_UC', xtra=True)
         residues = einput(self.input_structure, 'R')
-        x = residues[('2E12', 0, 'B', ('GLU', 77, ' '))].xtra.values()
+        x = list(residues[('2E12', 0, 'B', ('GLU', 77, ' '))].xtra.values())
         self.assertTrue(x[0] != x[1])
 
     def test_uc2(self):
@@ -152,9 +152,9 @@ class asaTest(TestCase):
         residues = einput(self.input_structure, 'R')
         r1 = residues[('1LJO', 0, 'A', ('ARG', 65, ' '))]
         r2 = residues[('1LJO', 0, 'A', ('ASN', 46, ' '))]
-        self.assertFloatEqual(r1.xtra.values(),
+        self.assertFloatEqual(list(r1.xtra.values()),
                               [128.94081270529105, 22.807700865674093])
-        self.assertFloatEqual(r2.xtra.values(),
+        self.assertFloatEqual(list(r2.xtra.values()),
                               [115.35738419425566, 115.35738419425566])
 
     def test_crystal(self):
@@ -169,11 +169,11 @@ class asaTest(TestCase):
         r1 = residues[('2E12', 0, 'A', ('ALA', 42, ' '))]
         r2 = residues[('2E12', 0, 'A', ('VAL', 8, ' '))]
         r3 = residues[('2E12', 0, 'A', ('LEU', 25, ' '))]
-        self.assertFloatEqual(r1.xtra.values(), \
+        self.assertFloatEqual(list(r1.xtra.values()), \
                                 [32.041070749038823, 32.041070749038823])
-        self.assertFloatEqual(r3.xtra.values(), \
+        self.assertFloatEqual(list(r3.xtra.values()), \
                                [0., 0.])
-        self.assertFloatEqual(r2.xtra.values(), \
+        self.assertFloatEqual(list(r2.xtra.values()), \
                                 [28.873559956056916, 0.0])
 
     def test__prepare_entities(self):
@@ -191,9 +191,9 @@ class asaTest(TestCase):
         residues = einput(self.input_structure, 'R')
         r1 = residues[('1A1X', 0, 'A', ('GLU', 37, ' '))]
         r2 = residues[('1A1X', 0, 'A', ('TRP', 15, ' '))]
-        self.assertFloatEqual(r1.xtra.values(), \
+        self.assertFloatEqual(list(r1.xtra.values()), \
                                 [20.583191467544726, 78.996394472066541])
-        self.assertFloatEqual(r2.xtra.values(), \
+        self.assertFloatEqual(list(r2.xtra.values()), \
                                 [136.41436710386989, 136.41436710386989])
 
 

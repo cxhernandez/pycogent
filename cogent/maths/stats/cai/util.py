@@ -22,7 +22,7 @@ Note:
 -   The Bulmer (1988) correction is used to prevent small normalized
     frequencies from creating a bias.
 """
-from __future__ import division
+
 from numpy import log , exp
 from cogent.core.genetic_code import GeneticCodes
 
@@ -51,8 +51,8 @@ def as_rna(s):
 def synonyms_to_rna(syn):
     """Converts values in synonyms dict to uppercase RNA"""
     result = {}
-    for k, v in syn.items():
-        result[k] = map(as_rna, v)
+    for k, v in list(syn.items()):
+        result[k] = list(map(as_rna, v))
     return result
 
 def get_synonyms(genetic_code=SGC, singles_removed=True, stops_removed=True):
@@ -63,7 +63,7 @@ def get_synonyms(genetic_code=SGC, singles_removed=True, stops_removed=True):
         if '*' in synonyms:
             del synonyms['*']
     if singles_removed:
-        for aa, family in synonyms.items():
+        for aa, family in list(synonyms.items()):
             if len(family) < 2: #delete any empty ones as well
                 del synonyms[aa]
     return synonyms_to_rna(synonyms)
@@ -75,7 +75,7 @@ def sum_codon_freqs(freqs):
     """
     result = cu.copy()
     for f in freqs:
-        for k, v in f.items():
+        for k, v in list(f.items()):
             if k in cu:
                 cu[k] += v
     return cu
@@ -101,15 +101,15 @@ def geometric_mean(vals, freqs=None):
 
 def codon_adaptiveness_all(freqs):
     """Calculates relative codon adaptiveness, using all codons."""
-    k = freqs.keys()
-    v = freqs.values()
-    n = norm_to_max(freqs.values())
-    return dict(zip(freqs.keys(), norm_to_max(freqs.values())))
+    k = list(freqs.keys())
+    v = list(freqs.values())
+    n = norm_to_max(list(freqs.values()))
+    return dict(list(zip(list(freqs.keys()), norm_to_max(list(freqs.values())))))
 
 def codon_adaptiveness_blocks(freqs, blocks):
     """Calculates relative codon adaptiveness, using codon blocks."""
     result = freqs.copy()
-    for b, codons in blocks.items():
+    for b, codons in list(blocks.items()):
         codon_vals = norm_to_max([result[c] for c in codons])
         for c, v in zip(codons, codon_vals):
             result[c] = v
@@ -117,14 +117,14 @@ def codon_adaptiveness_blocks(freqs, blocks):
 
 def set_min(freqs, threshold):
     """Sets all values in freqs below min to specified threshold, in-place."""
-    for k, v in freqs.items():
+    for k, v in list(freqs.items()):
         if v < threshold:
             freqs[k] = threshold
 
 def valid_codons(blocks):
     """Gets all valid codons from blocks"""
     result = []
-    for b in blocks.values():
+    for b in list(blocks.values()):
         result.extend(b)
     return result
 
@@ -232,7 +232,7 @@ def make_cai_3(genetic_code=SGC):
         set_min(r, threshold)
         adaptiveness_values = codon_adaptiveness_blocks(r, blocks)
         block_results = []
-        for b, codons in blocks.items():
+        for b, codons in list(blocks.items()):
             vals = [adaptiveness_values[i] for i in codons if i in gene_freqs]
             freqs = [gene_freqs[i] for i in codons if i in gene_freqs]
             #will skip if freqs missing

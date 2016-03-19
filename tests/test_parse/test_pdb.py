@@ -444,7 +444,7 @@ class pdbTests(TestCase):
         'dbref_acc': 'Q8P4R5'}
     
         parsed_header = parse_header(header)
-        for key, val in parsed_header.items():
+        for key, val in list(parsed_header.items()):
             assert val == correct_header[key]
     
     def test_get_trailer_offset(self):

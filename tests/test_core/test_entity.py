@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-"""Tests the Entity data structure and hierarchy. This is tricky to keep 
+"""Tests the Entity data structure and hierarchy. This is tricky to keep
 independent from the PDBParser. Tests entity.py.
 """
 from copy import deepcopy, copy
-import cPickle
+import pickle
 from cogent.util.unit_test import TestCase, main
 from cogent.core.entity import Atom
 from cogent.core.sequence import ProteinSequence
@@ -1239,11 +1239,11 @@ class EntityTests(TestCase):
 
     def setUp(self):
         self.structure = PDBParser(dummy_file)
-        self.working_model = self.structure.values()[0]
+        self.working_model = list(self.structure.values())[0]
         self.working_chain = self.working_model.sortedvalues()[0] # waters have only one atom
-        self.working_residue = self.working_chain.values()[0]
-        self.working_residue2 = self.working_chain.values()[1]
-        self.working_atom = self.working_residue.values()[0]
+        self.working_residue = list(self.working_chain.values())[0]
+        self.working_residue2 = list(self.working_chain.values())[1]
+        self.working_atom = list(self.working_residue.values())[0]
 
     def test_setId(self):
         """Test setting an id."""
@@ -1258,7 +1258,7 @@ class EntityTests(TestCase):
         self.structure.modified = False
         self.structure.setId()
         self.assertFalse(self.structure.modified)
-        # residue 
+        # residue
         self.working_residue.modified = False
         (self.working_residue.name, self.working_residue.res_id, self.working_residue.res_ic) = ('XYZ', 666, 'W')
         self.working_residue.id = (('XYZ', 666, 'W'),)
@@ -1302,7 +1302,7 @@ class EntityTests(TestCase):
         self.assertFalse(self.working_atom.masked)
         self.working_atom.setMasked()
         self.assertTrue(self.working_atom.masked)
-        # all should be masked     
+        # all should be masked
         # MultiyEntity
         self.structure.setUnmasked()
         self.structure.setUnmodified(True, True)
@@ -1433,17 +1433,17 @@ class EntityTests(TestCase):
     def test__link(self):
         """Tests linking for cPickle."""
         self.structure._unlink()
-        self.assertFalse(self.structure.getChildren()[0].values()[0].\
+        self.assertFalse(list(self.structure.getChildren()[0].values())[0].\
                                               values()[0].values()[0].parent)
         self.structure._link()
-        self.assertTrue(self.structure.getChildren()[0].values()[0].\
+        self.assertTrue(list(self.structure.getChildren()[0].values())[0].\
                                              values()[0].values()[0].parent)
 
     def test_iter(self):
         """Tests iterations."""
-        self.assertTrue(self.working_chain.values())
+        self.assertTrue(list(self.working_chain.values()))
         self.working_chain.setMasked()
-        self.assertFalse(self.working_chain.values())
+        self.assertFalse(list(self.working_chain.values()))
         self.assertTrue(self.working_chain.values(unmask=True))
         i = False
         for residue in self.working_chain:
@@ -1453,16 +1453,16 @@ class EntityTests(TestCase):
         for residue in self.working_chain:
             i = True
         self.assertTrue(i)
-        
+
     def test_propagateData(self):
-        from string import join
+        join = str.join
         result = self.working_chain.propagateData(join, 'A', 'element')
         assert self.working_chain.element is result
         assert isinstance(result, str)
         self.working_atom.xtra['what'] = 'this'
         result = self.working_chain.propagateData(join, 'A', 'what', xtra=True)
         assert result.strip() == 'this'
-        
+
 
     def test_table_set_del_get(self):
         """test table creation
@@ -1518,12 +1518,12 @@ class EntityTests(TestCase):
 
 
     def test_pickle(self):
-        wa_copied = cPickle.loads(cPickle.dumps(self.working_atom))
+        wa_copied = pickle.loads(pickle.dumps(self.working_atom))
         self.assertTrue(self.working_atom.parent is self.working_residue)
         self.assertTrue(self.working_atom == wa_copied)
         self.assertFalse(self.working_atom is wa_copied)
         self.assertTrue(wa_copied.parent is None)
-        wr_copied = cPickle.loads(cPickle.dumps(self.working_residue))
+        wr_copied = pickle.loads(pickle.dumps(self.working_residue))
         self.assertFalse(self.working_residue is wr_copied)
         self.assertTrue(self.working_residue[(('N', ' '),)] ==
                                    wr_copied[(('N', ' '),)])
@@ -1537,9 +1537,9 @@ class EntityTests(TestCase):
 
     def test_removeHydrogens(self):
         self.working_atom.setElement(' H')
-        withh = len(self.working_residue.keys())
+        withh = len(list(self.working_residue.keys()))
         self.working_residue.removeHydrogens()
-        assert len(self.working_residue.keys()) == withh - 1
+        assert len(list(self.working_residue.keys())) == withh - 1
 
     def test_updateIds(self):
         """Test if ids get updated."""
@@ -1554,17 +1554,17 @@ class EntityTests(TestCase):
 
     def test_table(self):
         """ Tests the creation of the SMCRA table."""
-        for category in self.structure.table.values():
+        for category in list(self.structure.table.values()):
             self.assertTrue(category)
-        for category in self.structure.values()[0].table.values():
+        for category in list(self.structure.values())[0].table.values():
             self.assertFalse(category)
-        self.structure.values()[0].setTable()
-        for category in self.structure.values()[0].table.values():
+        list(self.structure.values())[0].setTable()
+        for category in list(self.structure.values())[0].table.values():
             self.assertTrue(category)
-        self.structure.values()[0].setName(1)
-        self.assertEqual(self.structure.table['M'].keys(), [(None, 0)]) # old id
+        list(self.structure.values())[0].setName(1)
+        self.assertEqual(list(self.structure.table['M'].keys()), [(None, 0)]) # old id
         self.structure.setTable()
-        self.assertEqual(self.structure.table['M'].keys(), [(None, 1)]) # new id
+        self.assertEqual(list(self.structure.table['M'].keys()), [(None, 1)]) # new id
 
     def test_del_parent(self):
         """tests parent removal"""
@@ -1572,22 +1572,22 @@ class EntityTests(TestCase):
         self.working_atom.delParent()
         assert not self.working_atom.getId() in self.working_residue
         assert self.working_atom.parent is None
-        
+
     def test_dispatch(self):
         """Tests method dispatching."""
         self.working_chain.dispatch('setMasked')
         self.assertTrue(self.working_residue.masked)
         self.assertTrue(self.working_chain.modified)
         self.assertFalse(self.working_chain.masked)
-        self.assertFalse(self.working_chain.values())
+        self.assertFalse(list(self.working_chain.values()))
         self.assertFalse(self.working_chain.values(unmask=False))
         self.assertTrue(self.working_chain.values(unmask=True))
         self.working_chain.dispatch('setUnmasked')
         self.assertTrue(self.working_residue.masked)  # dispatch should obey masking
-        self.assertFalse(self.working_chain.values()) # -//-
+        self.assertFalse(list(self.working_chain.values())) # -//-
         self.working_chain.setUnmasked(force=True)
         self.assertFalse(self.working_residue.masked)
-        self.assertTrue(self.working_chain.values())
+        self.assertTrue(list(self.working_chain.values()))
 
     def test_getMasked(self):
         """tests if masking works."""
@@ -1596,8 +1596,8 @@ class EntityTests(TestCase):
         self.working_chain.setMasked()
         assert self.working_atom.getMasked() is True
         assert self.working_chain.getMasked() is True
-        
-        
+
+
     def test_selectChildren(self):
         from operator import eq
         assert self.working_chain.selectChildren('ALA', eq, 'name') == \
@@ -1612,7 +1612,7 @@ class EntityTests(TestCase):
             if residue.name == 'ALA': i += 1
         self.working_chain.stripChildren('ALA', 'eq', 'name')
         self.assertEqual(len(self.working_chain) + i, res_num)
-        self.assertEqual(len(self.working_chain.values()) + i, res_num)
+        self.assertEqual(len(list(self.working_chain.values())) + i, res_num)
 
     def test_maskChildren(self):
         i = 0
@@ -1621,7 +1621,7 @@ class EntityTests(TestCase):
             if residue.name == 'ALA': i += 1
         self.working_chain.maskChildren('ALA', 'eq', 'name')
         self.assertEqual(len(self.working_chain), res_num)
-        self.assertEqual(len(self.working_chain.values()) + i, res_num)
+        self.assertEqual(len(list(self.working_chain.values())) + i, res_num)
 
     def test_coords(self):
         self.assertTrue(sum(self.structure.coords))
@@ -1659,7 +1659,7 @@ class EntityTests(TestCase):
             atom_coords = atom.coords
             assert atom_coords is atom.getCoords()
             self.assertFloatEqual(residue.coords, atom_coords)
-        
+
 
     def test_moveRecursively(self):
         from numpy import array
@@ -1670,11 +1670,11 @@ class EntityTests(TestCase):
 
     def test_sorted(self):
         pass
-        #print self.working_chain.sortedvalues()        
+        #print self.working_chain.sortedvalues()
 
     def tearDown(self):
         self.structure = None
-        
+
     def test_getSeq(self):
         testSeq = self.working_chain.getSeq()
         assert isinstance(testSeq, ProteinSequence)

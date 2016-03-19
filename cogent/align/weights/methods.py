@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Provides an implementation of several sequence weighting algorithm"""
 
-from __future__ import division
+
 from random import choice
 from numpy.random.mtrand import exponential
 from numpy import array, float64 as Float64, dot as matrixmultiply, transpose,\
@@ -54,7 +54,7 @@ def VA(alignment, distance_method=hamming_distance):
     weights = sum_dist/sum(sum_dist)
 
     #create a dictionary of {seq_id: weight}
-    weight_dict = Weights(dict(zip(alignment.Names,weights)))
+    weight_dict = Weights(dict(list(zip(alignment.Names,weights))))
     return weight_dict
 
 
@@ -122,7 +122,7 @@ def VOR(alignment,n=1000,force_monte_carlo=False,mc_threshold=1000):
         temp = [hamming_distance(row, seq) for row in rows]
         votes = row_to_vote(array(temp)) #change distances to votes
         weights += votes #add to previous weights
-    weight_dict = Weights(dict(zip(aln_array.Names,weights)))
+    weight_dict = Weights(dict(list(zip(aln_array.Names,weights))))
     weight_dict.normalize() #normalize
 
     return weight_dict
@@ -165,7 +165,7 @@ def mVOR(alignment,n=1000,order=DNA_ORDER):
 
     #get seq profiles
     seq_profiles = {}
-    for k,v in alignment.items():
+    for k,v in list(alignment.items()):
         #seq_profiles[k] = ProfileFromSeq(v,order=order)
         seq_profiles[k] = SeqToProfile(v,alphabet=order)
 
@@ -179,7 +179,7 @@ def mVOR(alignment,n=1000,order=DNA_ORDER):
         temp = [seq_profiles[key].distance(r) for key in alignment.Names]
         votes = row_to_vote(array(temp))
         weights += votes
-    weight_dict = Weights(dict(zip(alignment.Names,weights)))
+    weight_dict = Weights(dict(list(zip(alignment.Names,weights))))
     weight_dict.normalize()
     return weight_dict
 
@@ -239,7 +239,7 @@ def PB(alignment, order=DNA_ORDER):
     
     result = Weights()
 
-    for key,seq in alignment.items():
+    for key,seq in list(alignment.items()):
         weight = 0
         for idx, char in enumerate(seq):
             weight += d[order.index(char),idx]
@@ -269,7 +269,7 @@ def SS(alignment):
 
     distances = distance_matrix(alignment)
     v = eigenvector_for_largest_eigenvalue(distances)
-    return Weights(dict(zip(alignment.Names,v)))
+    return Weights(dict(list(zip(alignment.Names,v))))
 
 def ACL(tree):
     """Returns a normalized dictionary of sequence weights {seq_id: weight}
@@ -333,7 +333,7 @@ def ACL(tree):
     weight_vector = numerator/denominator
 
     #return a Weights object (is dict {seq_id: weight})
-    return Weights(dict(zip(seqs,weight_vector)))
+    return Weights(dict(list(zip(seqs,weight_vector))))
 
 
 def _clip_branch_lengths(tree, min_val=1e-9, max_val=1e9):
@@ -444,7 +444,7 @@ if __name__ == "__main__":
     d = Alignment({'seq1':'AGCTA', 'seq2':'AGGTA', 'seq3':'ACCTG',
         'seq4':'TGCAA'},Names=['seq1','seq2','seq3','seq4'])
 
-    print "This is a quick test run of the alignment-based methods"
+    print("This is a quick test run of the alignment-based methods")
     
     for al in [a,b,c,d]:
         #determine the needed character order for each alignment
@@ -455,18 +455,18 @@ if __name__ == "__main__":
         else: #need DNA_order
             char_order=DNA_ORDER
 
-        print "===========ALIGNMENT=============="
+        print("===========ALIGNMENT==============")
         for k in al.Names:
-            print '\t'.join([k,al[k]])
-        print 'RESULT OF THE VA METHOD:'
-        print VA(al)
-        print 'RESULT OF THE VOR METHOD:'
-        print VOR(al)
-        print 'RESULT OF THE mVOR METHOD:'
-        print mVOR(al, n=10000, order=char_order)
-        print 'RESULTS OF THE SS METHODS:'
-        print SS(al)
-        print 'RESULTS OF THE PB METHODS:'
-        print PB(al, order=char_order)
+            print('\t'.join([k,al[k]]))
+        print('RESULT OF THE VA METHOD:')
+        print(VA(al))
+        print('RESULT OF THE VOR METHOD:')
+        print(VOR(al))
+        print('RESULT OF THE mVOR METHOD:')
+        print(mVOR(al, n=10000, order=char_order))
+        print('RESULTS OF THE SS METHODS:')
+        print(SS(al))
+        print('RESULTS OF THE PB METHODS:')
+        print(PB(al, order=char_order))
 
 

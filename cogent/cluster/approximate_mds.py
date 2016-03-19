@@ -93,6 +93,7 @@ from numpy import zeros, concatenate, ndarray, kron, argwhere
 from numpy.linalg import eig, eigh, qr
 from random import sample
 import time
+import collections
 
 
 __author__ = "Adreas Wilm"
@@ -115,7 +116,7 @@ def rowmeans(mat):
     """
 
     if not len(mat.shape)==2:
-        raise ValueError, "argument is not a 2D ndarray"
+        raise ValueError("argument is not a 2D ndarray")
 
     #nrows = mat.shape[0]
     ## create a column vector (hack!)
@@ -165,12 +166,10 @@ def affine_mapping(matrix_x, matrix_y):
 
 
     if matrix_x.shape != matrix_y.shape:
-        raise ValueError, \
-            "input matrices are not of same size"
+        raise ValueError("input matrices are not of same size")
 
     if not matrix_x.shape[0] <= matrix_x.shape[1]:
-        raise ValueError, \
-            "input matrices should have more columns than rows"
+        raise ValueError("input matrices should have more columns than rows")
     
     # Have to check if we have not more rows than columns, otherwise,
     # the qr function below might behave differently in the matlab
@@ -248,11 +247,9 @@ def adjust_mds_to_ref(mds_ref, mds_add, n_overlap):
     """
 
     if mds_ref.shape[1] != mds_add.shape[1]:
-        raise ValueError, \
-            "given mds solutions have different dimensions"
+        raise ValueError("given mds solutions have different dimensions")
     if not (mds_ref.shape[0] >= n_overlap and mds_add.shape[0] >= n_overlap):
-        raise ValueError, \
-            "not enough overlap between given mds mappings"
+        raise ValueError("not enough overlap between given mds mappings")
         
     # Use transposes for affine_mapping!
     overlap_ref = mds_ref.transpose()[:, -n_overlap:]
@@ -292,7 +289,7 @@ def recenter(joined_mds):
 
     # or should we cast explictely?
     if not isinstance(joined_mds, matrix):
-        raise ValueError, "mds solution has to be of type matrix"
+        raise ValueError("mds solution has to be of type matrix")
 
     # As pointed out by Daniel: the following two loop can be done in
     # one if you pass down the axis variable to means()
@@ -350,14 +347,11 @@ def combine_mds(mds_ref, mds_add, n_overlap):
     """
 
     if mds_ref.shape[1] != mds_add.shape[1]:
-        raise ValueError, \
-            "given mds solutions have different dimensions"
+        raise ValueError("given mds solutions have different dimensions")
     if not mds_ref.shape[0] >= n_overlap:
-        raise ValueError, \
-           "not enough items for overlap in mds_ref"
+        raise ValueError("not enough items for overlap in mds_ref")
     if not mds_add.shape[0] >= n_overlap:
-        raise ValueError, \
-           "not enough items for overlap in mds_add"
+        raise ValueError("not enough items for overlap in mds_add")
            
     mds_add_adj = adjust_mds_to_ref(mds_ref, mds_add, n_overlap)
 
@@ -383,12 +377,10 @@ def cmds_tzeng(distmat, dim = None):
     """
           
     if not isinstance(distmat, ndarray):
-        raise ValueError, \
-            "Input matrix is not a ndarray"
+        raise ValueError("Input matrix is not a ndarray")
     (m, n) = distmat.shape
     if m != n:
-        raise ValueError, \
-            "Input matrix is not a square matrix"
+        raise ValueError("Input matrix is not a square matrix")
     if not dim:
         dim = n
 
@@ -449,11 +441,9 @@ class CombineMds(object):
             return
         
         if not self._mds.shape[0] >= overlap_size:
-            raise ValueError, \
-                "not enough items for overlap in reference mds"
+            raise ValueError("not enough items for overlap in reference mds")
         if not mds_add.shape[0] >= overlap_size:
-            raise ValueError, \
-                "not enough items for overlap in mds to add"
+            raise ValueError("not enough items for overlap in mds to add")
       
         self._need_centering = True
         self._mds = combine_mds(self._mds, mds_add, overlap_size)
@@ -498,10 +488,9 @@ def calc_matrix_b(matrix_e, matrix_f):
     (nrows, ncols) = matrix_f.shape
 
     if matrix_e.shape[0] != matrix_e.shape[1]:
-        raise ValueError, "matrix_e should be quadratic"
+        raise ValueError("matrix_e should be quadratic")
     if matrix_f.shape[0] != matrix_e.shape[0]:
-        raise ValueError, \
-            "matrix_e and matrix_f should have same number of rows"
+        raise ValueError("matrix_e and matrix_f should have same number of rows")
 
     nseeds = matrix_e.shape[0]
 
@@ -572,7 +561,7 @@ def calc_matrix_a(matrix_e):
     """
 
     if matrix_e.shape[0] != matrix_e.shape[1]:
-        raise ValueError, "matrix_e should be quadratic"
+        raise ValueError("matrix_e should be quadratic")
     nseeds = matrix_e.shape[0]
 
     row_center = zeros(nseeds)
@@ -632,22 +621,21 @@ def build_seed_matrix(fullmat_dim, seedmat_dim, getdist, permute_order=True):
     """
 
     if not seedmat_dim < fullmat_dim:
-        raise ValueError, \
-            "dimension of seed matrix must be smaller than that of full matrix"
-    if not callable(getdist):
-        raise ValueError, "distance getter function not callable"
+        raise ValueError("dimension of seed matrix must be smaller than that of full matrix")
+    if not isinstance(getdist, collections.Callable):
+        raise ValueError("distance getter function not callable")
 
     if permute_order:
-        picked_seeds = sample(range(fullmat_dim), seedmat_dim)
+        picked_seeds = sample(list(range(fullmat_dim)), seedmat_dim)
     else:
-        picked_seeds = range(seedmat_dim)
+        picked_seeds = list(range(seedmat_dim))
     #assert len(picked_seeds) == seedmat_dim, (
     #    "mismatch between number of picked seeds and seedmat dim.")
 
     # Putting picked seeds/indices at the front is not enough, 
     # need to change/correct all indices to maintain consistency
     #
-    used_index_order = range(fullmat_dim)
+    used_index_order = list(range(fullmat_dim))
     picked_seeds.sort() # otherwise the below fails
     for i, seed_idx in enumerate(picked_seeds):
         used_index_order.pop(seed_idx-i)
@@ -672,8 +660,8 @@ def build_seed_matrix(fullmat_dim, seedmat_dim, getdist, permute_order=True):
 
     restore_idxs = argsort(used_index_order)
     if PRINT_TIMINGS:
-        print("TIMING(%s): Seedmat calculation took %f CPU secs" % 
-              (__name__, time.clock() - t0))
+        print(("TIMING(%s): Seedmat calculation took %f CPU secs" % 
+              (__name__, time.clock() - t0)))
 
     # Return the seedmatrix and the list of indices which can be used to
     # recreate original order
@@ -690,11 +678,9 @@ def nystrom(seed_distmat, dim):
 
 
     if not seed_distmat.shape[0] < seed_distmat.shape[1]:
-        raise ValueError, \
-            "seed distance matrix should have less rows than column"
+        raise ValueError("seed distance matrix should have less rows than column")
     if not dim <= seed_distmat.shape[0]:
-        raise ValueError, \
-            "number of rows of seed matrix must be >= requested dim"
+        raise ValueError("number of rows of seed matrix must be >= requested dim")
     
     nseeds = seed_distmat.shape[0]
     nfull = seed_distmat.shape[1]
@@ -717,8 +703,8 @@ def nystrom(seed_distmat, dim):
     t0 = time.clock()
     matrix_a = calc_matrix_a(matrix_e)
     if PRINT_TIMINGS:
-        print("TIMING(%s): Computation of A took %f CPU secs" %
-              (__name__, time.clock() - t0))
+        print(("TIMING(%s): Computation of A took %f CPU secs" %
+              (__name__, time.clock() - t0)))
     
     # matrix B
     #
@@ -726,8 +712,8 @@ def nystrom(seed_distmat, dim):
     t0 = time.clock()
     matrix_b = calc_matrix_b(matrix_e, matrix_f)
     if PRINT_TIMINGS:
-        print("TIMING(%s): Computation of B took %f CPU secs" %
-              (__name__, time.clock() - t0))
+        print(("TIMING(%s): Computation of B took %f CPU secs" %
+              (__name__, time.clock() - t0)))
 
 
     #print("INFO: Eigendecomposing A")
@@ -742,8 +728,8 @@ def nystrom(seed_distmat, dim):
     # alternative is svd: [U, S, V] = numpy.linalg.svd(matrix_a)
     (eigval_a, eigvec_a) = eigh(matrix_a)
     if PRINT_TIMINGS:
-        print("TIMING(%s): Eigendecomposition of A took %f CPU secs" % 
-              (__name__, time.clock() - t0))    
+        print(("TIMING(%s): Eigendecomposition of A took %f CPU secs" % 
+              (__name__, time.clock() - t0)))    
     # Sort descending
     ind = argsort(eigval_a)
     ind = ind[::-1]
@@ -758,8 +744,8 @@ def nystrom(seed_distmat, dim):
     # is to set negative values to zero. Fabian recommends using
     # absolute values (as in SVD)
     sqrt_eigval_a = sqrt(abs(eigval_a))
-    for i in xrange(nfull):
-        for j in xrange(dim):
+    for i in range(nfull):
+        for j in range(dim):
             if i+1 <= nseeds:
                 val = sqrt_eigval_a[j] * eigvec_a[i, j]
             else:
@@ -787,8 +773,8 @@ def nystrom(seed_distmat, dim):
             result[i, j] = val
 
     if PRINT_TIMINGS:
-        print("TIMING(%s): Actual MDS approximation took %f CPU secs" % 
-              (__name__, time.clock() - t0))
+        print(("TIMING(%s): Actual MDS approximation took %f CPU secs" % 
+              (__name__, time.clock() - t0)))
 
     return result
 

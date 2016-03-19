@@ -126,6 +126,6 @@ if __name__ == "__main__":
     aln_file = argv[1]
     aln = dict(MinimalFastaParser(open(aln_file,'U')))
     res = rnaalifold_from_alignment(aln)
-    print res
+    print(res)
     
     

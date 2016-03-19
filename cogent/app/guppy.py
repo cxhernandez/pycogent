@@ -134,9 +134,8 @@ class Guppy(CommandLineApplication):
                                     
     def _handle_app_result_build_failure(self,out,err,exit_status,result_paths):
         """ Catch the error when files are not produced """
-        raise ApplicationError, \
-         'Guppy failed to produce an output file due to the following error: \n\n%s ' \
-         % err.read()
+        raise ApplicationError('Guppy failed to produce an output file due to the following error: \n\n%s ' \
+         % err.read())
     
     def _get_result_paths(self,data):
         basepath,basename=split(splitext(self._input_filename)[0])

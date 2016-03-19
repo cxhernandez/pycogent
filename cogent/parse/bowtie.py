@@ -58,7 +58,7 @@ def BowtieToTable(data, row_converter=row_converter):
           returned data will be strings (this is faster).
     """
     parser = BowtieOutputParser(data, row_converter=row_converter)
-    header = parser.next()
+    header = next(parser)
     rows = [row for row in parser]
     table = LoadTable(header=header, rows=rows)
     return table

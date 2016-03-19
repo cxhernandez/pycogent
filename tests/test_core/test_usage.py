@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Tests of classes dealing with base, codon, amino acid usage.
 """
-from __future__ import division
+
 from cogent.util.unit_test import TestCase, main
 from cogent.util.misc import FunctionWrapper
 from cogent.core.usage import InfoFreqs, AminoAcidUsage, BaseUsage, CodonUsage,\
@@ -94,7 +94,7 @@ class BaseUsageTests(TestCase):
             assert nt in b
             self.assertEqual(b[nt], 0)
         for nt in 'UCAG':
-            assert nt in b.keys()
+            assert nt in list(b.keys())
 
         items = list(iter(b))
         items.sort()
@@ -113,7 +113,7 @@ class BaseUsageTests(TestCase):
         b['t'] = 3
         b['G'] = 3
         b.normalize()
-        i = b.items()
+        i = list(b.items())
         i.sort()
         self.assertEqual(i, [('A',0.0),('C',0.0),('G',0.5),('U',0.5)])
 
@@ -347,7 +347,7 @@ class CodonUsageTests(TestCase):
             'UAA':2, 'UGA':1}
         u = CodonUsage(freqs, "test")
         self.assertEqual(u.Info, 'test')
-        for key, val in u.items():
+        for key, val in list(u.items()):
             if key in freqs:
                 self.assertEqual(val, freqs[key])
             else:
@@ -592,7 +592,7 @@ class AminoAcidUsageTests(TestCase):
     def test_init_empty(self):
         """AminoAcidUsage should init with empty freqs"""
         a = AminoAcidUsage()
-        for key, val in a.items():
+        for key, val in list(a.items()):
             self.assertEqual(val, 0)
         self.assertEqual(len(a), 21)
         assert 'A' in a
@@ -660,7 +660,7 @@ class AminoAcidUsageTests(TestCase):
             'UUC':0.25*0.75
         }
         obs = a.codons(codon_usage=unequal)
-        for codon, freq in obs.items():
+        for codon, freq in list(obs.items()):
             self.assertFloatEqual(freq, exp.get(codon, 0))
     
     def test_positionalBases(self):
@@ -716,7 +716,7 @@ class DinucUsageTests(TestCase):
 def filter_dict(d):
     """Removes zero keys from dict-like object."""
     result = dict(d)
-    for k, v in d.items():
+    for k, v in list(d.items()):
         if not v:
             del result[k]
     return result

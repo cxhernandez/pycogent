@@ -55,7 +55,7 @@ class SfoldTest(TestCase):
 
         s = Sfold(InputHandler='_input_as_lines')
         res = s(self.input)
-        self.assertEqualItems(res.keys(),['StdOut','StdErr','ExitStatus',
+        self.assertEqualItems(list(res.keys()),['StdOut','StdErr','ExitStatus',
         '10structure','10structure_2','Dharmacon_thermo','bp',
         'bprob','cdf','fe','loopr','oligo','oligo_f','pdf',
         'sample','sample_1000','sirna','sirna_f','sirna_s',

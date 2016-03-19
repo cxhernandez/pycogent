@@ -182,9 +182,8 @@ class Usearch(CommandLineApplication):
                            
         unsupported_parameters = set(data.keys()) - set(allowed_values)
         if unsupported_parameters:
-            raise ApplicationError,\
-             "Unsupported parameter(s) passed when calling usearch: %s" %\
-              ' '.join(unsupported_parameters)
+            raise ApplicationError("Unsupported parameter(s) passed when calling usearch: %s" %\
+              ' '.join(unsupported_parameters))
         
         
         for v in allowed_values:
@@ -534,7 +533,7 @@ def usearch_sort_by_abundance(
     try:
         app_result = app(data)
     except ApplicationError:
-        raise ValueError, ('No data following filter steps, please check '+\
+        raise ValueError('No data following filter steps, please check '+\
          'parameter settings for usearch_qf.')
     
     return app_result, output_filepath
@@ -1255,7 +1254,7 @@ def usearch_qf(
     try:
         
         if verbose:
-            print "Sorting sequences by length..."
+            print("Sorting sequences by length...")
         # Sort seqs by length
         app_result, output_filepath_len_sorted =\
          usearch_fasta_sort_from_filepath(fasta_filepath, output_filepath =\
@@ -1267,7 +1266,7 @@ def usearch_qf(
         intermediate_files.append(output_filepath_len_sorted)
         
         if verbose:
-            print "Dereplicating sequences..."
+            print("Dereplicating sequences...")
         # Dereplicate sequences
         app_result, output_filepath_dereplicated =\
          usearch_dereplicate_exact_subseqs(output_filepath_len_sorted,
@@ -1280,7 +1279,7 @@ def usearch_qf(
         intermediate_files.append(output_filepath_dereplicated)
         
         if verbose:
-            print "Sorting by abundance..."
+            print("Sorting by abundance...")
         # Sort by abundance, initially no filter based on seqs/otu
         app_result, output_fp =\
          usearch_sort_by_abundance(output_filepath_dereplicated,
@@ -1291,7 +1290,7 @@ def usearch_qf(
         intermediate_files.append(output_fp)
         
         if verbose:
-            print "Clustering sequences for error correction..."
+            print("Clustering sequences for error correction...")
         
         # Create .uc file of clusters file, to identify original sequences later
         output_uc_filepath = output_dir + 'err_corrected_clusters.uc'
@@ -1319,7 +1318,7 @@ def usearch_qf(
             
 
             if verbose:
-                print "Performing de novo chimera detection..."
+                print("Performing de novo chimera detection...")
             app_result, output_fp_de_novo_nonchimeras =\
              usearch_chimera_filter_de_novo(error_clustered_output_fp, 
              abundance_skew = abundance_skew, output_chimera_filepath =\
@@ -1335,7 +1334,7 @@ def usearch_qf(
         
         if reference_chimera_detection:
             if verbose:
-                print "Performing reference based chimera detection..."
+                print("Performing reference based chimera detection...")
             
             app_result, output_fp_ref_nonchimeras =\
              usearch_chimera_filter_ref_based(error_clustered_output_fp,
@@ -1353,7 +1352,7 @@ def usearch_qf(
         # get intersection or union if both ref and de novo chimera detection 
         if de_novo_chimera_detection and reference_chimera_detection:
             if verbose:
-                print "Finding %s of non-chimeras..." % chimeras_retention
+                print("Finding %s of non-chimeras..." % chimeras_retention)
             output_fp = get_retained_chimeras(
              output_fp_de_novo_nonchimeras, output_fp_ref_nonchimeras,
              output_combined_fp =\
@@ -1366,7 +1365,7 @@ def usearch_qf(
             # Test for empty filepath following filters, raise error if all seqs
             # have been removed
             if verbose:
-                print "Filtering by cluster size..."
+                print("Filtering by cluster size...")
             app_result, output_fp =\
              usearch_sort_by_abundance(output_fp, output_filepath =\
              join(output_dir, 'abundance_sorted_minsize_' + str(minsize) + 
@@ -1382,7 +1381,7 @@ def usearch_qf(
         # if usearch_qf should become standard.
         if refseqs_fp:
             if verbose:
-                print "Clustering against reference sequences..."
+                print("Clustering against reference sequences...")
             app_result, output_filepath =\
              usearch_cluster_seqs_ref(output_fp, output_filepath =\
              join(output_dir, 'ref_clustered_seqs.uc'),
@@ -1396,7 +1395,7 @@ def usearch_qf(
 
         else:
             if verbose:
-                print "De novo clustering sequences..."
+                print("De novo clustering sequences...")
             app_result, output_filepath =\
              usearch_cluster_seqs(output_fp, output_filepath =\
              join(output_dir, 'clustered_seqs.fasta'),
@@ -1409,7 +1408,7 @@ def usearch_qf(
         
         # Enumerate the OTUs in the clusters
         if verbose:
-            print "Enumerating OTUs..."
+            print("Enumerating OTUs...")
         output_filepath =\
          enumerate_otus(output_filepath, output_filepath =\
          join(output_dir, 'enumerated_otus.fasta'), label_prefix=label_prefix,
@@ -1421,7 +1420,7 @@ def usearch_qf(
         
         # Get original sequence label identities
         if verbose:
-            print "Assigning sequences to clusters..."
+            print("Assigning sequences to clusters...")
         app_result, clusters_file = assign_reads_to_otus(fasta_filepath,
          filtered_fasta= output_filepath, output_filepath = join(output_dir,
          'assign_reads_to_otus.uc'), perc_id_blast=perc_id_blast,
@@ -1431,7 +1430,7 @@ def usearch_qf(
         intermediate_files.append(clusters_file)
         
     except ApplicationError:
-        raise ApplicationError, ('Error running usearch. Possible causes are '
+        raise ApplicationError('Error running usearch. Possible causes are '
          'unsupported version (current supported version is usearch '+\
          'v5.2.32) is installed or improperly formatted input file was '+\
          'provided')

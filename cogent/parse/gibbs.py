@@ -178,7 +178,7 @@ def GibbsParser(lines, truncate_len=None, strict=True):
     try:
         #Get sequence and motif blocks
         sequence_block, motif_block = get_sequence_and_motif_blocks(lines)
-    except Exception, e:
+    except Exception as e:
         if strict:
             raise e
         else:
@@ -193,7 +193,7 @@ def GibbsParser(lines, truncate_len=None, strict=True):
     #Get modules
     for module in motif_blocks:
         if module[1] == 'No Motifs Detected':
-            print "No Modules detcted!!", module[0]
+            print("No Modules detcted!!", module[0])
             continue
         for cur_smod in build_module_objects(module, sequence_map, truncate_len=truncate_len):
             gibbs_motif_results.Modules.append(cur_smod)
@@ -206,14 +206,14 @@ def GibbsParser(lines, truncate_len=None, strict=True):
 
 if __name__ == "__main__":
     from sys import argv, exit
-    print "Running..."
+    print("Running...")
 
     if len(argv) != 2:
-        print "Usage: gibbs.py <gibbs out file>"
+        print("Usage: gibbs.py <gibbs out file>")
         exit(1)
     mr = GibbsParser(open(argv[1]), 24)
-    print mr
+    print(mr)
     for module in mr.Modules:
-        print module.ID
-        print str(module)
+        print(module.ID)
+        print(str(module))
 

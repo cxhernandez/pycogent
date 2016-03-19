@@ -20,7 +20,7 @@ from cogent.parse.record import RecordError, DelimitedSplitter
 from cogent.core.info import Info, DbRef
 from cogent.util.misc import caps_from_underscores as cfu
 from cogent.core.usage import CodonUsage
-from string import strip
+strip = str.strip
 
 __author__ = "Rob Knight"
 __copyright__ = "Copyright 2007-2012, The Cogent Project"
@@ -68,7 +68,7 @@ def CutgSpeciesParser(infile, strict=True, constructor=CodonUsage):
                     continue
                 species, genes = species_label_splitter(label)
                 info = Info({'Species':species, 'NumGenes':int(genes)})
-                freqs = constructor(zip(codon_order, map(int, counts.split())),
+                freqs = constructor(list(zip(codon_order, list(map(int, counts.split())))),
                     Info=info)
                 yield freqs
             except:
@@ -78,17 +78,17 @@ def CutgSpeciesParser(infile, strict=True, constructor=CodonUsage):
             try:
                 label, counts = rec
             except ValueError:   #can't have got any counts
-                raise RecordError, "Found label without sequences: %s" % rec
+                raise RecordError("Found label without sequences: %s" % rec)
                 
             if not is_cutg_species_label(label):
-                raise RecordError, "Found CUTG record without label: %s" % rec
+                raise RecordError("Found CUTG record without label: %s" % rec)
             species, genes = species_label_splitter(label)
             info = Info({'Species':species, 'NumGenes':int(genes)})
             try:
-                d = zip(codon_order, map(int, counts.split()))
+                d = list(zip(codon_order, list(map(int, counts.split()))))
                 freqs = constructor(d, Info=info)
             except:
-                raise RecordError, "Unable to convert counts: %s" % counts
+                raise RecordError("Unable to convert counts: %s" % counts)
             yield freqs
 
 def InfoFromLabel(line):
@@ -98,11 +98,11 @@ def InfoFromLabel(line):
     """
     try:
         raw_fields = line.split('\\')
-        result = Info(dict(zip(field_order, map(strip, raw_fields[1:]))))
+        result = Info(dict(list(zip(field_order, list(map(strip, raw_fields[1:]))))))
         #extra processing for first field
         first = raw_fields[0]
         if '#' in first:
-            locus, cds_num = map(strip, raw_fields[0].split('#'))
+            locus, cds_num = list(map(strip, raw_fields[0].split('#')))
         else:
             locus, cds_num = first, '1'
         result['Locus'] = locus[1:]   #remove leading '>'
@@ -112,7 +112,7 @@ def InfoFromLabel(line):
         descrs = description.split('/')
         for d in descrs:
             if '=' in d:    #assume key-value pair
-                key, val = map(strip, d.split('=', 1))  #might be '=' in value
+                key, val = list(map(strip, d.split('=', 1)))  #might be '=' in value
                 #cut off leading and trailing " if present, but _not_ internal!
                 if val.startswith('"'):
                     val = val[1:]
@@ -135,7 +135,7 @@ def InfoFromLabel(line):
                     result[cfu(key)] = val
         return result
     except:
-        raise RecordError, "Failed to read label line:\n%s" % line
+        raise RecordError("Failed to read label line:\n%s" % line)
 
 def CutgParser(infile, strict=True, constructor=CodonUsage):
     """Yields successive sequences from infile as CodonUsage objects.
@@ -149,7 +149,7 @@ def CutgParser(infile, strict=True, constructor=CodonUsage):
                 if not is_cutg_label(label):
                     continue
                 info = InfoFromLabel(label)
-                freqs = constructor(zip(codon_order, map(int, counts.split())),
+                freqs = constructor(list(zip(codon_order, list(map(int, counts.split())))),
                     Info=info)
                 yield freqs
             except:
@@ -160,14 +160,14 @@ def CutgParser(infile, strict=True, constructor=CodonUsage):
             try:
                 label, counts = rec
             except ValueError:   #can't have got any counts
-                raise RecordError, "Found label without sequences: %s" % rec
+                raise RecordError("Found label without sequences: %s" % rec)
             if not is_cutg_label(label):
-                raise RecordError, "Found CUTG record without label: %s" % rec
+                raise RecordError("Found CUTG record without label: %s" % rec)
             info = InfoFromLabel(label)
             try:
-                freqs = constructor(zip(codon_order, map(int, counts.split())),
+                freqs = constructor(list(zip(codon_order, list(map(int, counts.split())))),
                     Info=info)
             except NotImplementedError:
-                raise RecordError, "Unable to convert counts: %s" % counts
+                raise RecordError("Unable to convert counts: %s" % counts)
             yield freqs
 
